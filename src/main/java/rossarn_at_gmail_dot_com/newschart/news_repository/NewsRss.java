@@ -6,23 +6,39 @@ import rossarn_at_gmail_dot_com.newschart.news_source.NewsSource;
 
 import java.time.Instant;
 
-@Document(collection = "newsrss")
+@Document(collection = "news_rss")
 public class NewsRss {
     @Id
-    private String id;
+    private final String id;
 
-    private NewsSource source;
-    private Instant creationTime;
-    private String blob;
+    private final NewsSource source;
+    private final Instant fetchTime;
+    private final String blob;
 
     private static final String idSeparator = "_";
 
     public NewsRss(String blob, NewsSource source) {
         this.blob = blob;
         this.source = source;
-        this.creationTime = Instant.now();
+        this.fetchTime = Instant.now();
 
         // TODO: more thought needed on building the ID
-        this.id = source.name() + idSeparator + creationTime.toEpochMilli();
+        this.id = source.name() + idSeparator + fetchTime.toEpochMilli();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public NewsSource getSource() {
+        return source;
+    }
+
+    public Instant getFetchTime() {
+        return fetchTime;
+    }
+
+    public String getBlob() {
+        return blob;
     }
 }

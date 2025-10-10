@@ -18,7 +18,7 @@ public class NewsRssService {
     }
 
     public NewsRss saveNewsRss(NewsRss newsRss) {
-        log.info("Saving");
+        log.info("Saving RSS");
         return repository.save(newsRss);
     }
 }

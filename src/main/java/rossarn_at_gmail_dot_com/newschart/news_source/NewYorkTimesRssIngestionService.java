@@ -10,13 +10,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRss;
 import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRssService;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-
 @Service
 public class NewYorkTimesRssIngestionService {
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger(NewYorkTimesRssIngestionService.class);
 
     private static final NewsSource sourceName = NewsSource.NEW_YORK_TIMES;
 
@@ -26,6 +22,9 @@ public class NewYorkTimesRssIngestionService {
 
     @Autowired
     private NewsRssService newsRssService;
+
+    @Autowired
+    private NewYorkTimesRssEnricherService enricherService;
 
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReady() {
@@ -44,6 +43,18 @@ public class NewYorkTimesRssIngestionService {
 
         log.info("Retrieved RSS of length:" + result.length());
 
-        newsRssService.saveNewsRss(new NewsRss(result, sourceName));
+        NewsRss newsRss = new NewsRss(result, sourceName);
+
+        handleNewRss(newsRss);
     }
+
+    private void handleNewRss(NewsRss newsRss) {
+        // save the raw data
+        NewsRss result = newsRssService.saveNewsRss(newsRss);
+        log.info("Saved RSS with ID " + result.getId());
+
+        // pass to enricher for parsing / saving
+        enricherService.process(result);
+    }
+
 }
