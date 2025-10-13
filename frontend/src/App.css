@@ -1,0 +1,77 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+html {
+  font-family: system-ui, sans-serif;
+  font-size: 1.25rem;
+}
+
+body {
+  margin: 0;
+}
+
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.map-annotation-box {
+  background-color: white;
+  border: 2px solid #ff5533;
+  /*border-radius: 8px;  TODO rounded corners look better, but connector line needs tweaking to work with it */
+  padding: 8px 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  width: 140px;
+  font-family: Arial, sans-serif;
+}
+
+.map-annotation-title {
+  margin: 0;
+  font-size: 14px;
+  color: #ff5533;
+  font-weight: bold;
+}
+
+.map-annotation-text {
+  margin: 4px 0 0;
+  font-size: 8px;
+  color: #333;
+  line-height: 1.3;
+  text-align: left;
+}
