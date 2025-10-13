@@ -7,8 +7,15 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlights;
+import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlightsRepository;
+import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlightsService;
+import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
+import rossarn_at_gmail_dot_com.newschart.news_logic.MostCommonCountryHighlighter;
 import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRss;
 import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRssService;
+
+import java.util.List;
 
 @Service
 public class NewYorkTimesRssIngestionService {
@@ -24,7 +31,10 @@ public class NewYorkTimesRssIngestionService {
     private NewsRssService newsRssService;
 
     @Autowired
-    private NewYorkTimesRssEnricherService enricherService;
+    private NewYorkTimesRssParserService parserService;
+
+    @Autowired
+    private NewsHighlightsService newsHighlightsService;
 
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReady() {
@@ -53,8 +63,16 @@ public class NewYorkTimesRssIngestionService {
         NewsRss result = newsRssService.saveNewsRss(newsRss);
         log.info("Saved RSS with ID " + result.getId());
 
-        // pass to enricher for parsing / saving
-        enricherService.process(result);
+        // parse NYT's RSS structure into our internal representation
+        List<NewsItem> newsItems = parserService.getNewsItems(result.getSource(), result.getBlob());
+
+        // produce highlights algorithmically
+        NewsHighlights newsHighlights = MostCommonCountryHighlighter.makeHighlights(newsItems);
+        newsHighlights.setFetchTime(newsRss.getFetchTime());
+        newsHighlights.setSource(newsRss.getSource());
+
+        // save highlights in repository
+        newsHighlightsService.saveNewsHighlights(newsHighlights);
     }
 
 }
