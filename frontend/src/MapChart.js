@@ -1,4 +1,9 @@
-import React from "react";
+import React, {useMemo } from "react";
+
+import { geoMercator } from "d3-geo";
+
+import StoryCalloutList from './StoryCalloutList.js'
+
 import {
   ComposableMap,
   Geographies,
@@ -8,14 +13,22 @@ import {
 } from "react-simple-maps";
 
 const MapChart = () => {
+
+  const projectionConfig = {
+    center: [0, 10],
+    scale: 100,
+  };
+
+  const projection = useMemo(() => {
+    return geoMercator() // alternative: geoEqualEarth
+      .center(projectionConfig.center)
+      .scale(projectionConfig.scale);
+  }, []);
+
   return (
     <ComposableMap
-      projection="geoMercator" // alternative: geoEqualEarth
-      projectionConfig={{
-        //rotate: [-10.0, -52.0, 0],
-        center: [0, 10],
-        scale: 100,
-      }}
+      projection="geoMercator"
+      projectionConfig={projectionConfig}
       style={{
         width: "100%",
         height: "auto",
@@ -36,26 +49,8 @@ const MapChart = () => {
           ))
         }
       </Geographies>
-      <Annotation
-        subject={[2.3522, 48.8566]}
-        dx={110}
-        dy={30}
-        connectorProps={{
-          stroke: "#FF5533",
-          strokeWidth: 2,
-          strokeLinecap: "round",
-        }}
-        style={{ pointerEvents: "none" }}
-      >
-        <foreignObject width="200" height="auto" style={{ overflow: 'visible' }}>
-          <div className="map-annotation-box">
-            <h4 className="map-annotation-title">France News</h4>
-            <p className="map-annotation-text">
-              Sample news from France.   No doubt it's related to politics, art, fashion, gastronomy, and/or culture.
-            </p>
-          </div>
-        </foreignObject>
-      </Annotation>
+      {/* Annotations handled by StoryCalloutList */}
+      <StoryCalloutList projection={projection}/>
     </ComposableMap>
   );
 };
