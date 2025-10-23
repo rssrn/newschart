@@ -53,34 +53,6 @@ public class CalloutController {
         return calloutService.getAllCallouts();
     }
 
-    @GetMapping("sampleCalloutsSingle")
-    public List<StoryCallout> sampleCalloutsSingle() {
-        log.info("Got request for sample callout");
-        return List.of(
-                new StoryCallout(
-                        "Louvre Jewel Heist",
-                        "The investigation continues into a major jewel heist at the Louvre Museum in Paris" +
-                                "where crown jewels valued at over $100 million were stolen in a daring daylight robbery. " +
-                                "Authorities are conducting a massive manhunt for the thieves and the stolen pieces.",
-                        new LatLong(48.8566, 2.3522))
-                ,
-                new StoryCallout(
-                        "Japan Elects First Female PM",
-                        "Takaichi, a conservative figure, was officially confirmed by the parliament, taking on " +
-                                "the role of Japan's first woman Prime Minister amidst challenges that include a " +
-                                "struggling economy and internal political maneuvering.",
-                        new LatLong(36, 138))
-                ,
-                new StoryCallout(
-                        "King Charles Meets Pope: History",
-                        "King Charles III of the United Kingdom, as head of the Church of England, began " +
-                                "a state visit to the Vatican where he is set to meet Pope Leo XIV and make " +
-                                "history by being the first British monarch to pray publicly with the head of " +
-                                "the Catholic Church since the split of the churches five centuries ago.",
-                        new LatLong(41.9, 12.45))
-        );
-    }
-
     /**
      * Cycle through some predefined static examples - mainly used for testing layout algorithms.
      *
