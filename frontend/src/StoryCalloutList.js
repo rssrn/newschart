@@ -37,7 +37,8 @@ const tmpCallouts = useMemo(() => {
 // fetch list of callouts from backend
 // TODO for now, just fetching sample list
   useEffect(() => {
-    fetch("/api/news/sampleCallouts")
+    // TODO could be useful to have a GUI to switch to e.g. sampleCallouts
+    fetch("/api/news/allCallouts")
       .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
