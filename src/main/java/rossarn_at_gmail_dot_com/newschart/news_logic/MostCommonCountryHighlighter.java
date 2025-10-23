@@ -22,6 +22,10 @@ public class MostCommonCountryHighlighter {
 
     private static final Logger log = LogManager.getLogger(MostCommonCountryHighlighter.class);
 
+    private MostCommonCountryHighlighter() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * The strategy here is to filter news for the most frequently appearing countries.
      * It's purely a counting exercise, there is no qualitative assessment.

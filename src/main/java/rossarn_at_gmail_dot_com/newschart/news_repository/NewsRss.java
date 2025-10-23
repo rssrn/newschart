@@ -15,15 +15,15 @@ public class NewsRss {
     private final Instant fetchTime;
     private final String blob;
 
-    private static final String idSeparator = "_";
+    private static final String ID_SEPARATOR = "_";
 
     public NewsRss(String blob, NewsSource source) {
         this.blob = blob;
         this.source = source;
         this.fetchTime = Instant.now();
 
-        // TODO: more thought needed on building the ID
-        this.id = source.name() + idSeparator + fetchTime.toEpochMilli();
+        // TODO: more thought needed on building the ID - or just let MongoDB generate the ID
+        this.id = source.name() + ID_SEPARATOR + fetchTime.toEpochMilli();
     }
 
     public String getId() {

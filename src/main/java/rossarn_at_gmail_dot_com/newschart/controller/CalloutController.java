@@ -24,23 +24,22 @@ public class CalloutController {
 
     private int currentTestCase = 0;
 
-
-    @Autowired
     private final NewsHighlightsService newsHighlightsService;
 
-    public CalloutController() {
-        newsHighlightsService = null;
+    @Autowired
+    public CalloutController(NewsHighlightsService newsHighlightsService) {
+        this.newsHighlightsService = newsHighlightsService;
     }
 
     @GetMapping("news/day/{date}")
-    public ChartItemList NewsForDay(
+    public ChartItemList newsForDay(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         log.info("Got request for date {}", date);
         return new ChartItemList();
     }
 
     @GetMapping("sampleCalloutsSingle")
-    public List<StoryCallout> SampleCalloutsSingle() {
+    public List<StoryCallout> sampleCalloutsSingle() {
         log.info("Got request for sample callout");
         return List.of(
                 new StoryCallout(
@@ -70,13 +69,11 @@ public class CalloutController {
     /**
      * Cycle through some predefined static examples - mainly used for testing layout algorithms.
      *
-     *
      * @author Claude Sonnet 4.5 Anthropic
-     *
-     * @return
+     * @return json for one sample callout
      */
     @GetMapping("sampleCallouts")
-    public String SampleCallouts() {
+    public String sampleCallouts() {
         String[] testCases = {
                 // Test 0: Original Europe/Asia
                 """

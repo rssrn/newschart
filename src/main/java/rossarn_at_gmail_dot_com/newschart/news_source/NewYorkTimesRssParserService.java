@@ -3,7 +3,6 @@ package rossarn_at_gmail_dot_com.newschart.news_source;
 
 import rossarn_at_gmail_dot_com.newschart.geo.Country;
 import rossarn_at_gmail_dot_com.newschart.geo.CountryFactory;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlightsService;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
 
 import org.apache.logging.log4j.LogManager;
@@ -29,17 +28,16 @@ public class NewYorkTimesRssParserService {
 
     private static final Logger log = LogManager.getLogger(NewYorkTimesRssParserService.class);
 
-    private static DocumentBuilder builder;
-    private static XPath xpath;
-    private static XPathExpression expr;
+    private DocumentBuilder builder;
+    private XPath xpath;
+    private XPathExpression expr;
 
-    @Autowired
-    private NewsHighlightsService newsHighlightsService;
-
-    @Autowired
     private CountryFactory countryFactory;
 
-    public NewYorkTimesRssParserService() throws RuntimeException {
+    @Autowired
+    public NewYorkTimesRssParserService(CountryFactory countryFactory) throws RuntimeException {
+        this.countryFactory = countryFactory;
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true); // RSS often has namespaces
         try {
