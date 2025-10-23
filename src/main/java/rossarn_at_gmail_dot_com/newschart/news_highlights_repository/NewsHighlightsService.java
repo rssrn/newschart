@@ -4,9 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
+import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
+
+import java.util.Objects;
 
 @Service
-public class NewsHighlightsService {
+public class NewsHighlightsService implements PipelineStep {
 
     private static final Logger log = LogManager.getLogger(NewsHighlightsService.class);
 
@@ -20,5 +24,23 @@ public class NewsHighlightsService {
     public NewsHighlights saveNewsHighlights(NewsHighlights newsHighlights) {
         log.info("Saving Highlights");
         return repository.save(newsHighlights);
+    }
+
+    @Override
+    public PipelineContext execute(PipelineContext context) {
+        NewsHighlights newsHighlights = context.getNewsHighlights();
+        if (Objects.isNull(newsHighlights)) {
+            log.error("Pipeline step missing NewsHighlights");
+            context.setFailed(true);
+            return context;
+        }
+        NewsHighlights result = saveNewsHighlights(newsHighlights);
+        if (Objects.isNull(result.getId())) {
+            log.error("Failed to save NewsHighlights");
+            context.setFailed(true);
+            return context;
+        }
+        context.setNewsHighlights(result);
+        return context;
     }
 }

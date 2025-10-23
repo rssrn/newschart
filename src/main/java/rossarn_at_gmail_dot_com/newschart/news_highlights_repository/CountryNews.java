@@ -12,4 +12,12 @@ public class CountryNews {
         this.country = country;
         this.newsItems = newsItems;
     }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public List<NewsItem> getNewsItems() {
+        return newsItems;
+    }
 }

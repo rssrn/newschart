@@ -14,6 +14,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRss;
+import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
+import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,9 +26,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
-public class NewYorkTimesRssParserService {
+public class NewYorkTimesRssParserService implements PipelineStep {
 
     private static final Logger log = LogManager.getLogger(NewYorkTimesRssParserService.class);
 
@@ -102,5 +107,20 @@ public class NewYorkTimesRssParserService {
         log.info("Parsed document OK");
 
         return result;
+    }
+
+    @Override
+    public PipelineContext execute(PipelineContext context) {
+        NewsRss newsRss = context.getNewsRss();
+        if (Objects.isNull(newsRss)) {
+            log.error("Step {} missing required context newsRss", this.getClass().getName());
+            context.setFailed(true);
+            return context;
+        }
+
+        List<NewsItem> newsItems = getNewsItems(newsRss.getSource(), newsRss.getBlob());
+        context.setNewsItems(newsItems);
+
+        return context;
     }
 }

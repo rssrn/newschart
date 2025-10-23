@@ -2,10 +2,13 @@ package rossarn_at_gmail_dot_com.newschart.news_logic;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.geo.Country;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.CountryNews;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlights;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
+import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
+import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,18 +16,17 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  *
  */
-public class MostCommonCountryHighlighter {
+@Service
+public class MostCommonCountryHighlighter implements PipelineStep {
 
     private static final Logger log = LogManager.getLogger(MostCommonCountryHighlighter.class);
 
-    private MostCommonCountryHighlighter() {
-        throw new IllegalStateException("Utility class");
-    }
 
     /**
      * The strategy here is to filter news for the most frequently appearing countries.
@@ -34,7 +36,7 @@ public class MostCommonCountryHighlighter {
      * @param newsItems - full list of news items to process
      * @return NewsHighlights - top X countries mentioned in newsItems, and list of news items for each of those countries
      */
-    public static NewsHighlights makeHighlights(List<NewsItem> newsItems) {
+    public NewsHighlights makeHighlights(List<NewsItem> newsItems) {
 
         // First iterate to get the counts per country
         Map<Country, Integer> tally = new HashMap<>();
@@ -70,5 +72,17 @@ public class MostCommonCountryHighlighter {
         }
 
         return new NewsHighlights(topNews);
+    }
+
+    @Override
+    public PipelineContext execute(PipelineContext context) {
+        List<NewsItem> newsItems = context.getNewsItems();
+        if (Objects.isNull(newsItems)) {
+            log.error("Missing required context in {}", this.getClass().getName());
+            context.setFailed(true);
+            return context;
+        }
+        context.setNewsHighlights(makeHighlights(newsItems));
+        return context;
     }
 }
