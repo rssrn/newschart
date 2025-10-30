@@ -67,26 +67,36 @@ const tmpCallouts = useMemo(() => {
   {processedCallouts.map((callout) => (
         <Annotation
           subject={[callout.latLong.longitude, callout.latLong.latitude]}
-          dx={callout.dx + 100} // shift to approx centre of box
+          dx={callout.dx + 130} // shift to approx centre of box
           dy={callout.dy + 75} // shift to approx centre of box
           connectorProps={{
-            stroke: "#FF5533",
-            strokeWidth: 2,
+            stroke: "#2563EB",
+            strokeWidth: 1.5,
             strokeLinecap: "round",
           }}
           style={{ pointerEvents: "none" }}
         >
           <foreignObject
-          x={-100}
-          y={-75}
-          width="200"
-          height="auto"
+          x={-67.5}
+          y={-50}
+          width="135"
+          height="100"
           style={{ overflow: 'visible' }}>
 
             <div className="map-annotation-box">
+              <div className="map-annotation-header">
+                <div className="map-annotation-location">
+                  {getLocationText(callout)}
+                </div>
+              </div>
               <h4 className="map-annotation-title">{callout.headline}</h4>
-              <p className="map-annotation-text">{callout.detail}
-              </p>
+              <p className="map-annotation-text">{callout.detail}</p>
+              <div className="map-annotation-footer">
+                <div className="map-annotation-info">
+                  <span className="info-icon">i</span>
+                  <span>More details</span>
+                </div>
+              </div>
             </div>
           </foreignObject>
         </Annotation>
@@ -94,6 +104,11 @@ const tmpCallouts = useMemo(() => {
   </>
   );
 
+}
+
+// Simple helper function
+function getLocationText(callout) {
+  return 'International';
 }
 
 export default StoryCalloutList;
