@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,20 +19,20 @@ public class CalloutService implements PipelineStep {
 
     private static final Logger log = LogManager.getLogger(CalloutService.class);
 
-    private final CalloutRepository repository;
+    private final CalloutRepository calloutRepository;
 
     @Autowired
     public CalloutService(CalloutRepository repository) {
-        this.repository = repository;
+        this.calloutRepository = repository;
     }
 
     public StoryCallout saveStoryCallout(StoryCallout storyCallout) {
         log.info("Saving StoryCallout");
-        return repository.save(storyCallout);
+        return calloutRepository.save(storyCallout);
     }
 
     public List<StoryCallout> getAllCallouts() {
-        return repository.findAllDocuments();
+        return calloutRepository.findAllDocuments();
     }
 
     @Override
@@ -39,7 +43,18 @@ public class CalloutService implements PipelineStep {
             context.setFailed(true);
             return context;
         }
-        repository.saveAll(callouts);
+        calloutRepository.saveAll(callouts);
         return context;
+    }
+
+    public List<StoryCallout> calloutsForDay(LocalDate date) {
+
+        ZonedDateTime startOfDay = date.atStartOfDay(ZoneId.of("UTC"));
+        ZonedDateTime endOfDay = startOfDay.plusDays(1);
+
+        Date startDate = Date.from(startOfDay.toInstant());
+        Date endDate = Date.from(endOfDay.toInstant());
+
+        return calloutRepository.findByGeneratedAtBetween(startDate, endDate);
     }
 }

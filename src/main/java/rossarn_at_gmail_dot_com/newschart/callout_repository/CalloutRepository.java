@@ -4,11 +4,14 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
 public interface CalloutRepository extends MongoRepository<StoryCallout, String> {
 
     @Query("{}")
-    public List<StoryCallout> findAllDocuments();
+    List<StoryCallout> findAllDocuments();
+
+    List<StoryCallout> findByGeneratedAtBetween(Date start, Date end);
 }
