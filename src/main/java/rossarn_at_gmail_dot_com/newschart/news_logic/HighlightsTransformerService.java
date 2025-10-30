@@ -44,6 +44,7 @@ public class HighlightsTransformerService implements PipelineStep {
             GeminiGatewayService.StoryOutline outline = geminiGatewayService.summariseStories(countryNews).orElseThrow();
 
             StoryCallout.Builder builder = new StoryCallout.Builder(createdAt);
+            builder.country(countryNews.getCountry());
             builder.headline(outline.title());
             builder.detail(outline.body());
 

@@ -1,5 +1,6 @@
 package rossarn_at_gmail_dot_com.newschart.callout_repository;
 
+import rossarn_at_gmail_dot_com.newschart.geo.Country;
 import rossarn_at_gmail_dot_com.newschart.view.LatLong;
 
 import java.time.Instant;
@@ -9,6 +10,7 @@ import java.time.Instant;
  * although the frontend could choose to display it in some other way.
  */
 public class StoryCallout {
+    private Country country;
     private String headline;
     private String detail;
     private LatLong latLong;
@@ -21,6 +23,7 @@ public class StoryCallout {
     }
 
     private StoryCallout(Builder builder) {
+        this.country = builder.country;
         this.headline = builder.headline;
         this.detail = builder.detail;
         this.latLong = builder.latLong;
@@ -30,6 +33,7 @@ public class StoryCallout {
     }
 
     public static class Builder {
+        private Country country;
         private String headline;
         private String detail;
         private LatLong latLong;
@@ -39,6 +43,11 @@ public class StoryCallout {
 
         public Builder(Instant generatedAt) {
             this.generatedAt = generatedAt;
+        }
+
+        public Builder country(Country country) {
+            this.country = country;
+            return this;
         }
 
         public Builder headline(String headline) {
@@ -73,6 +82,10 @@ public class StoryCallout {
 
     }
 
+    public Country getCountry() {
+        return country;
+    }
+
     public String getHeadline() {
         return headline;
     }
@@ -97,6 +110,10 @@ public class StoryCallout {
         return generatedAt;
     }
 
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
     public void setHeadline(String headline) {
         this.headline = headline;
     }
@@ -111,10 +128,6 @@ public class StoryCallout {
 
     public void setType(CalloutType type) {
         this.type = type;
-    }
-
-    public void setGeneratedAt(Instant generatedAt) {
-        this.generatedAt = generatedAt;
     }
 
     public void setSource(CalloutSource source) {

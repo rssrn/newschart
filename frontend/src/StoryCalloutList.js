@@ -66,7 +66,7 @@ const tmpCallouts = useMemo(() => {
   <>
   {processedCallouts.map((callout) => (
         <Annotation
-          subject={[callout.latLong.longitude, callout.latLong.latitude]}
+          subject={[callout.country.longitude, callout.country.latitude]}
           dx={callout.dx + 130} // shift to approx centre of box
           dy={callout.dy + 75} // shift to approx centre of box
           connectorProps={{
@@ -86,7 +86,8 @@ const tmpCallouts = useMemo(() => {
             <div className="map-annotation-box">
               <div className="map-annotation-header">
                 <div className="map-annotation-location">
-                  {getLocationText(callout)}
+                  <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
+                  <span>{callout.country.name}</span>
                 </div>
               </div>
               <h4 className="map-annotation-title">{callout.headline}</h4>
@@ -106,9 +107,19 @@ const tmpCallouts = useMemo(() => {
 
 }
 
-// Simple helper function
-function getLocationText(callout) {
-  return 'International';
+function getCountryFlag(countryCode) {
+  if (!countryCode || countryCode.length !== 2) {
+    return '🌍'; // Default globe emoji for unknown/international
+  }
+
+  // Convert country code to flag emoji using regional indicator symbols
+  // Each letter maps to a regional indicator symbol (🇦 = U+1F1E6, 🇧 = U+1F1E7, etc.)
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0)); // 127397 = 0x1F1E6 - 65
+
+  return String.fromCodePoint(...codePoints);
 }
 
 export default StoryCalloutList;

@@ -98,6 +98,21 @@ svg {
   color: #2563eb;
 }
 
+.map-annotation-location {
+  font-size: 8px;
+  color: #4b5563;
+  font-weight: 500;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.location-flag {
+  font-size: 12px; /* Make flag slightly larger than text */
+  line-height: 1;
+}
+
 .info-icon {
   width: 11px; /* Reduced from 14px */
   height: 11px;
