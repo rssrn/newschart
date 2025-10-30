@@ -1,6 +1,7 @@
 package rossarn_at_gmail_dot_com.newschart.news_source;
 
 
+import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
 import rossarn_at_gmail_dot_com.newschart.geo.Country;
 import rossarn_at_gmail_dot_com.newschart.geo.CountryFactory;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
@@ -60,7 +61,7 @@ public class NewYorkTimesRssParserService implements PipelineStep {
         }
     }
 
-    public List<NewsItem> getNewsItems(NewsSource source, String blob) {
+    public List<NewsItem> getNewsItems(CalloutSource source, String blob) {
         List<NewsItem> result = new ArrayList<>();
 
         try {

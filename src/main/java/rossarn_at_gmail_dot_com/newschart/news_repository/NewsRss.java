@@ -2,7 +2,7 @@ package rossarn_at_gmail_dot_com.newschart.news_repository;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import rossarn_at_gmail_dot_com.newschart.news_source.NewsSource;
+import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
 
 import java.time.Instant;
 
@@ -11,11 +11,11 @@ public class NewsRss {
     @Id
     private String id;
 
-    private final NewsSource source;
+    private final CalloutSource source;
     private final Instant fetchTime;
     private final String blob;
 
-    public NewsRss(String blob, NewsSource source) {
+    public NewsRss(String blob, CalloutSource source) {
         this.blob = blob;
         this.source = source;
         this.fetchTime = Instant.now();
@@ -25,7 +25,7 @@ public class NewsRss {
         return id;
     }
 
-    public NewsSource getSource() {
+    public CalloutSource getSource() {
         return source;
     }
 

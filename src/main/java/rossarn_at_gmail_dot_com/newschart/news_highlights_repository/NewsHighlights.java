@@ -2,8 +2,7 @@ package rossarn_at_gmail_dot_com.newschart.news_highlights_repository;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import rossarn_at_gmail_dot_com.newschart.news_source.NewsSource;
+import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +13,7 @@ public class NewsHighlights {
     @Id
     private String id;
 
-    private NewsSource source;
+    private CalloutSource source;
     private Instant fetchTime;
 
     private List<CountryNews> newsItemsForCountry;
@@ -27,7 +26,7 @@ public class NewsHighlights {
         return id;
     }
 
-    public void setSource(NewsSource source) {
+    public void setSource(CalloutSource source) {
         this.source = source;
     }
 
