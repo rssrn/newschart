@@ -4,6 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rossarn_at_gmail_dot_com.newschart.news_source.NewsSource;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.Optional;
 
 @Service
 public class NewsRssService {
@@ -20,5 +26,15 @@ public class NewsRssService {
     public NewsRss saveNewsRss(NewsRss newsRss) {
         log.info("Saving RSS");
         return repository.save(newsRss);
+    }
+
+    public Optional<NewsRss> findRssForTodayWithSource(NewsSource source) {
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        Instant start = today.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant end = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        
+        log.info("Checking start {} end {} source {}", start, end, source);
+
+        return repository.findFirstByFetchTimeBetweenAndSourceOrderByFetchTimeAsc(start, end, source);
     }
 }

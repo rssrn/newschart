@@ -67,7 +67,7 @@ public class HighlightsTransformerService implements PipelineStep {
             return context;
         }
         context.setCallouts(toCalloutList(
-                context.getNewsHighlights(),
+                newsHighlights,
                 CalloutType.NEWS,
                 CalloutSource.NEW_YORK_TIMES, // TODO this should be set earlier in the pipeline and we should get it from somewhere in the context
                 context.getNewsRss().getFetchTime()
