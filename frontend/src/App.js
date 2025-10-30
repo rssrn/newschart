@@ -4,7 +4,9 @@ import MapChart from './MapChart.js';
 function App() {
   return (
     <div className="App">
-      <MapChart/>
+      <div className="map-container">
+        <MapChart/>
+      </div>
     </div>
   );
 }

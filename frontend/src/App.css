@@ -75,3 +75,15 @@ svg {
   line-height: 1.3;
   text-align: left;
 }
+
+.rsm-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Optional: Add a container with max-height */
+.map-container {
+  max-height: 100vh;
+  overflow: hidden;
+}

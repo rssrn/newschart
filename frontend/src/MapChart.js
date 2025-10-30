@@ -15,8 +15,8 @@ import {
 const MapChart = () => {
 
   const projectionConfig = {
-    center: [0, 10],
-    scale: 100,
+    center: [0, -35],
+    scale: 90,
   };
 
   const projection = useMemo(() => {
