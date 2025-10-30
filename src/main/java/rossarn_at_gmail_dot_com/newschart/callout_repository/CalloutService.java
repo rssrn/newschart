@@ -7,12 +7,15 @@ import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class CalloutService implements PipelineStep {
@@ -26,15 +29,6 @@ public class CalloutService implements PipelineStep {
         this.calloutRepository = repository;
     }
 
-    public StoryCallout saveStoryCallout(StoryCallout storyCallout) {
-        log.info("Saving StoryCallout");
-        return calloutRepository.save(storyCallout);
-    }
-
-    public List<StoryCallout> getAllCallouts() {
-        return calloutRepository.findAllDocuments();
-    }
-
     @Override
     public PipelineContext execute(PipelineContext context) {
         List<StoryCallout> callouts = context.getCallouts();
@@ -43,8 +37,26 @@ public class CalloutService implements PipelineStep {
             context.setFailed(true);
             return context;
         }
-        calloutRepository.saveAll(callouts);
+        CalloutSource source = context.getNewsRss().getSource();
+        // ideally this check is not necessary, but useful for local testing purposes
+        if (haveCalloutForToday(source)) {
+            log.warn("Already have at least one callout for source {} so ignoring new callouts", source);
+        } else {
+            calloutRepository.saveAll(callouts);
+        }
         return context;
+    }
+
+    private boolean haveCalloutForToday(CalloutSource source) {
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        Instant start = today.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant end = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+
+        log.info("Checking start {} end {} source {}", start, end, source);
+
+        Optional<StoryCallout> firstMatch = calloutRepository.findFirstByGeneratedAtBetweenAndSourceOrderByGeneratedAtAsc(start, end, source);
+
+        return firstMatch.isPresent();
     }
 
     public List<StoryCallout> calloutsForDay(LocalDate date) {
