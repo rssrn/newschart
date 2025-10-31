@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -25,10 +27,12 @@ public class NewYorkTimesRssIngestionService implements PipelineStep {
     private static final String URL = "https://rss.nytimes.com/services/xml/rss/nyt/World.xml";
 
     private final NewsRssService newsRssService;
+    private final Environment environment;
 
     @Autowired
-    public NewYorkTimesRssIngestionService(NewsRssService newsRssService) {
+    public NewYorkTimesRssIngestionService(NewsRssService newsRssService, Environment environment) {
         this.newsRssService = newsRssService;
+        this.environment = environment;
     }
 
     @Override
@@ -64,7 +68,10 @@ public class NewYorkTimesRssIngestionService implements PipelineStep {
         }
 
         NewsRss newsRss = new NewsRss(result, source);
-        newsRssService.saveNewsRss(newsRss);
+        // in prod we don't want to save the (large) raw data
+        if (environment.acceptsProfiles(Profiles.of("dev"))) {
+            newsRssService.saveNewsRss(newsRss);
+        }
         context.setNewsRss(newsRss);
         context.setCalloutSource(newsRss.getSource());
 
