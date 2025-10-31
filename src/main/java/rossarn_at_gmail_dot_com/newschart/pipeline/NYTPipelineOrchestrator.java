@@ -1,9 +1,7 @@
 package rossarn_at_gmail_dot_com.newschart.pipeline;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutService;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlightsService;
 import rossarn_at_gmail_dot_com.newschart.news_logic.HighlightsTransformerService;
@@ -11,13 +9,8 @@ import rossarn_at_gmail_dot_com.newschart.news_logic.MostCommonCountryHighlighte
 import rossarn_at_gmail_dot_com.newschart.news_source.NewYorkTimesRssIngestionService;
 import rossarn_at_gmail_dot_com.newschart.news_source.NewYorkTimesRssParserService;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
-public class NYTPipelineOrchestrator {
-
-    private static final Logger log = LogManager.getLogger(NYTPipelineOrchestrator.class);
+public class NYTPipelineOrchestrator extends BasePipelineOrchestrator {
 
     private final NewYorkTimesRssIngestionService ingestionService;
     private final NewYorkTimesRssParserService parserService;
@@ -26,9 +19,6 @@ public class NYTPipelineOrchestrator {
     private final HighlightsTransformerService transformService;
     private final CalloutService calloutService;
 
-    private final List<PipelineStep> pipelineSteps = new ArrayList<>();
-
-    @Autowired
     public NYTPipelineOrchestrator(
             NewYorkTimesRssIngestionService newYorkTimesRssIngestionService,
             NewYorkTimesRssParserService parserService,
@@ -56,27 +46,5 @@ public class NYTPipelineOrchestrator {
         pipelineSteps.add(highlightsService); // save the highlights to repo
         pipelineSteps.add(transformService);  // transform to summarised concise callouts - data suitable for display
         pipelineSteps.add(calloutService);    // save callouts to repo
-    }
-
-    public PipelineContext executePipeline() {
-        PipelineContext context = new PipelineContext();
-        for (PipelineStep step: pipelineSteps) {
-            try {
-                context = step.execute(context);
-                if (context.isFailed()) {
-                    log.error("Pipeline step {} failed, stopping pipeline {}", step.getClass(), this.getClass());
-                    break;
-                }
-            } catch (RuntimeException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        log.info("Pipeline completed: {}", this.getClass().getName());
-        if (context.isFailed()) {
-            log.error(" --> Pipeline failed in one of the steps");
-        } else {
-            log.info(" --> All steps succeeded");
-        }
-        return context;
     }
 }

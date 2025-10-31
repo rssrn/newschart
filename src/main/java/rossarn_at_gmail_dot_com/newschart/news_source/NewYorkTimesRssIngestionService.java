@@ -66,6 +66,7 @@ public class NewYorkTimesRssIngestionService implements PipelineStep {
         NewsRss newsRss = new NewsRss(result, source);
         newsRssService.saveNewsRss(newsRss);
         context.setNewsRss(newsRss);
+        context.setCalloutSource(newsRss.getSource());
 
         return context;
 

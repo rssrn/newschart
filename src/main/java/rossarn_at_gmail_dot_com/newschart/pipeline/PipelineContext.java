@@ -1,5 +1,6 @@
 package rossarn_at_gmail_dot_com.newschart.pipeline;
 
+import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
 import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlights;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
@@ -15,6 +16,7 @@ public class PipelineContext {
     private List<NewsItem> newsItems;
     private NewsHighlights newsHighlights;
     private List<StoryCallout> callouts;
+    private CalloutSource calloutSource;
 
     public NewsRss getNewsRss() {
         return newsRss;
@@ -54,5 +56,13 @@ public class PipelineContext {
 
     public void setCallouts(List<StoryCallout> callouts) {
         this.callouts = callouts;
+    }
+
+    public CalloutSource getCalloutSource() {
+        return calloutSource;
+    }
+
+    public void setCalloutSource(CalloutSource calloutSource) {
+        this.calloutSource = calloutSource;
     }
 }
