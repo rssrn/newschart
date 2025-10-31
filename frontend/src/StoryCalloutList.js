@@ -26,7 +26,7 @@ const tmpCallouts = useMemo(() => {
 
   // Also log where each callout's subject point appears on screen
   callouts.forEach((c, i) => {
-    const [x, y] = projection([c.latLong.longitude, c.latLong.latitude]);
+    const [x, y] = projection([c.country.longitude, c.country.latitude]);
     console.log(`Callout ${i} (${c.headline}): subject at [${x}, ${y}]`);
   });
 
@@ -39,7 +39,6 @@ const tmpCallouts = useMemo(() => {
   useEffect(() => {
     // TODO could be useful to have a GUI to switch to e.g. sampleCallouts
     const today = new Date().toISOString().split('T')[0];
-    //console.log("TODAY: " + today);
     fetch(`/api/news/calloutsForDay/${today}`)
       .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");

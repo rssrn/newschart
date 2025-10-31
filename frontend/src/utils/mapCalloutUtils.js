@@ -3,13 +3,14 @@
 
 import { forceSimulation, forceCollide, forceX, forceY, forceManyBody } from 'd3-force';
 
-const BOX_WIDTH = 200;
-const BOX_HEIGHT = 150;
+const BOX_WIDTH = 135;
+const BOX_HEIGHT = 100;
 const EDGE_PADDING = 40;
 const MAX_LINE_LENGTH = 180;
+const SOUTHERN_LIMIT_RATIO = 0.75; // Don't allow boxes below 75% of map height
 
 /**
- * Custom force to keep boxes within map bounds
+ * Custom force to keep boxes within map bounds with stricter southern limit
  */
 function forceBounds(mapLeft, mapTop, mapWidth, mapHeight) {
   let nodes;
@@ -21,7 +22,8 @@ function forceBounds(mapLeft, mapTop, mapWidth, mapHeight) {
       node.x = Math.max(minX, Math.min(maxX, node.x));
 
       const minY = mapTop + EDGE_PADDING;
-      const maxY = mapTop + mapHeight - BOX_HEIGHT - EDGE_PADDING;
+      // Stricter southern limit - don't allow boxes in bottom 25% of map
+      const maxY = mapTop + (mapHeight * SOUTHERN_LIMIT_RATIO) - BOX_HEIGHT - EDGE_PADDING;
       node.y = Math.max(minY, Math.min(maxY, node.y));
     });
   }
@@ -84,6 +86,34 @@ function forceShortLines(maxLength = MAX_LINE_LENGTH) {
 }
 
 /**
+ * Custom force to strongly discourage placing boxes in southern regions
+ */
+function forceAvoidSouth(mapTop, mapHeight) {
+  let nodes;
+
+  function force(alpha) {
+    const southThreshold = mapTop + mapHeight * 0.6; // Bottom 40% of map
+
+    nodes.forEach(node => {
+      // If box is in the southern region, push it upward strongly
+      if (node.y > southThreshold) {
+        const overshoot = node.y - southThreshold;
+        const strength = (overshoot / (mapHeight * 0.4)) * alpha * 0.8; // Increased from 0.3
+        node.vy -= strength * 100; // Increased from 50
+      }
+
+      // For subject points in southern hemisphere, bias initial placement upward
+      if (node.subjectY > southThreshold) {
+        node.vy -= alpha * 20;
+      }
+    });
+  }
+
+  force.initialize = (_) => nodes = _;
+  return force;
+}
+
+/**
  * Detect clusters using hierarchical approach
  */
 function detectClusters(nodes, maxDistance = 350) {
@@ -135,8 +165,10 @@ function detectClusters(nodes, maxDistance = 350) {
 /**
  * Custom force for cluster layout - arrange boxes around cluster perimeter
  */
-function forceClusterLayout(clusters, nodes) {
+function forceClusterLayout(clusters, nodes, mapTop, mapHeight) {
   function force(alpha) {
+    const southThreshold = mapTop + mapHeight * 0.6;
+
     clusters.forEach(clusterIndices => {
       if (clusterIndices.length <= 1) return;
 
@@ -169,7 +201,15 @@ function forceClusterLayout(clusters, nodes) {
 
         // Bias toward subject angle but add index offset to prevent overlap
         const indexOffset = (i - clusterNodes.length / 2) * 0.3;
-        const angle = subjectAngle + indexOffset;
+        let angle = subjectAngle + indexOffset;
+
+        // For southern clusters, bias angles upward (avoid bottom hemisphere)
+        if (centerY > southThreshold) {
+          // Clamp angle to upper hemisphere (between -π and 0)
+          if (angle > 0) {
+            angle = angle - Math.PI;
+          }
+        }
 
         const targetX = centerX + Math.cos(angle) * radius;
         const targetY = centerY + Math.sin(angle) * radius;
@@ -198,10 +238,18 @@ export function calculateOffsets(callouts, projection) {
 
   // Convert to screen coordinates with deterministic initial positions
   const nodes = callouts.map((callout, index) => {
-    const [x, y] = projection([callout.latLong.longitude, callout.latLong.latitude]);
+    const [x, y] = projection([callout.country.longitude, callout.country.latitude]);
 
-    // Use deterministic angle based on index (not random)
-    const angle = (index * 2.4) + 0.5; // Golden angle approximation for even distribution
+    // Use deterministic angle based on index
+    let angle = (index * 2.4) + 0.5;
+
+    // For points in southern hemisphere, bias initial placement upward
+    const southThreshold = mapTop + mapHeight * 0.6;
+    if (y > southThreshold) {
+      // Force angle to upper hemisphere
+      angle = -Math.abs(angle % Math.PI);
+    }
+
     const distance = 70;
 
     return {
@@ -229,8 +277,11 @@ export function calculateOffsets(callouts, projection) {
     // Keep lines short (very high priority)
     .force('shortLines', forceShortLines(MAX_LINE_LENGTH))
 
-    // Arrange clusters in circular pattern (high priority)
-    .force('clusterLayout', forceClusterLayout(clusters, nodes))
+    // Strongly discourage southern placement (high priority, applied early)
+    .force('avoidSouth', forceAvoidSouth(mapTop, mapHeight))
+
+    // Arrange clusters in circular pattern
+    .force('clusterLayout', forceClusterLayout(clusters, nodes, mapTop, mapHeight))
 
     // Gentle attraction to subject points
     .force('x', forceX(d => d.subjectX).strength(0.02))
@@ -242,7 +293,7 @@ export function calculateOffsets(callouts, projection) {
     // Very gentle repulsion between boxes
     .force('charge', forceManyBody().strength(-15).distanceMax(250))
 
-    // Keep within bounds
+    // Keep within bounds with strict southern limit (applied last)
     .force('bounds', forceBounds(mapLeft, mapTop, mapWidth, mapHeight))
 
     .stop();
