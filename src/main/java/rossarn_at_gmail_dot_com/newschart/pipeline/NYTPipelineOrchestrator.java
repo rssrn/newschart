@@ -3,8 +3,6 @@ package rossarn_at_gmail_dot_com.newschart.pipeline;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutService;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlightsService;
@@ -58,15 +56,6 @@ public class NYTPipelineOrchestrator {
         pipelineSteps.add(highlightsService); // save the highlights to repo
         pipelineSteps.add(transformService);  // transform to summarised concise callouts - data suitable for display
         pipelineSteps.add(calloutService);    // save callouts to repo
-    }
-
-    /**
-     * TODO: we need a timer and/or user action to kick off the pipeline.  Until then, just bootstrapping once on startup.
-     */
-    @EventListener(ApplicationReadyEvent.class)
-    public void applicationReady() {
-        log.info("Application ready, starting pipeline {}", this.getClass());
-        executePipeline();
     }
 
     public PipelineContext executePipeline() {
