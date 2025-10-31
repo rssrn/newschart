@@ -1,7 +1,6 @@
 package rossarn_at_gmail_dot_com.newschart.callout_repository;
 
 import rossarn_at_gmail_dot_com.newschart.geo.Country;
-import rossarn_at_gmail_dot_com.newschart.view.LatLong;
 
 import java.time.Instant;
 
@@ -13,7 +12,6 @@ public class StoryCallout {
     private Country country;
     private String headline;
     private String detail;
-    private LatLong latLong;
     private CalloutType type;
     private CalloutSource source;
     private Instant generatedAt;
@@ -26,7 +24,6 @@ public class StoryCallout {
         this.country = builder.country;
         this.headline = builder.headline;
         this.detail = builder.detail;
-        this.latLong = builder.latLong;
         this.type = builder.type;
         this.source = builder.source;
         this.generatedAt = builder.generatedAt;
@@ -36,7 +33,6 @@ public class StoryCallout {
         private Country country;
         private String headline;
         private String detail;
-        private LatLong latLong;
         private CalloutType type;
         private CalloutSource source;
         private Instant generatedAt;
@@ -60,11 +56,6 @@ public class StoryCallout {
             return this;
         }
 
-        public Builder latLong(LatLong latLong) {
-            this.latLong = latLong;
-            return this;
-        }
-
         public Builder type(CalloutType type) {
             this.type = type;
             return this;
@@ -78,8 +69,6 @@ public class StoryCallout {
         public StoryCallout build() {
             return new StoryCallout(this);
         }
-
-
     }
 
     public Country getCountry() {
@@ -92,10 +81,6 @@ public class StoryCallout {
 
     public String getDetail() {
         return detail;
-    }
-
-    public LatLong getLatLong() {
-        return latLong;
     }
 
     public CalloutType getType() {
@@ -120,10 +105,6 @@ public class StoryCallout {
 
     public void setDetail(String detail) {
         this.detail = detail;
-    }
-
-    public void setLatLong(LatLong latLong) {
-        this.latLong = latLong;
     }
 
     public void setType(CalloutType type) {

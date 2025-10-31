@@ -12,7 +12,6 @@ import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.CountryNews
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlights;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
-import rossarn_at_gmail_dot_com.newschart.view.LatLong;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,10 +46,6 @@ public class HighlightsTransformerService implements PipelineStep {
             builder.country(countryNews.getCountry());
             builder.headline(outline.title());
             builder.detail(outline.body());
-
-            LatLong latLong = new LatLong(countryNews.getCountry().getLatitude(), countryNews.getCountry().getLongitude());
-            builder.latLong(latLong);
-
             builder.type(type);
             builder.source(source);
             result.add(builder.build());

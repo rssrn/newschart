@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutService;
 import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
-import rossarn_at_gmail_dot_com.newschart.view.ChartItemList;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,13 +27,6 @@ public class CalloutController {
     @Autowired
     public CalloutController(CalloutService calloutService) {
         this.calloutService = calloutService;
-    }
-
-    @GetMapping("news/day/{date}")
-    public ChartItemList newsForDay(
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        log.info("Got request for date {}", date);
-        return new ChartItemList();
     }
 
     @GetMapping("calloutsForDay/{date}")
