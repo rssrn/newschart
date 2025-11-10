@@ -28,17 +28,13 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+        <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
-		</dependency>
-		<!-- temp dependency to resolve OWASP detected issue in above -->
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>1.5.19</version>
+            <version>3.5.7</version>
 		</dependency>
 
 		<dependency>
@@ -48,6 +44,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+            <version>3.5.7</version>
 		</dependency>
 
 		<dependency>
@@ -61,18 +58,13 @@
 			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- temp dependencies to resolve OWASP detected issue in above -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-compress</artifactId>
-			<version>1.26.0</version>
-		</dependency>
+        <!-- OWASP version patch - spring includes lang3 3.17.0 which has MEDIUM CVE-2025-48924-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.18.0</version>
+			<version>3.19.0</version>
 		</dependency>
-		<!-- end temp dependencies for org.springframework.boot -->
+        <!-- END OWASP patch -->
 
 		<dependency>
 			<groupId>org.testcontainers</groupId>
@@ -85,18 +77,23 @@
 			<artifactId>mongodb</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
 			<version>5.12.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.google.genai</groupId>
 			<artifactId>google-genai</artifactId>
-			<version>1.0.0</version>
+			<version>1.26.0</version>
 		</dependency>
+        <!-- OWASP version patch - genai includes proobuf 3.25.1 which has HIGH CVE-2024-7254 -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.25.8</version>
+        </dependency>
+        <!-- end OWASP version patch -->
 	</dependencies>
 
 
@@ -112,6 +109,7 @@
 				<version>12.1.8</version>
 				<configuration>
 					<failBuildOnCVSS>7</failBuildOnCVSS>
+                    <nvdApiKey>${nvd.api.key}</nvdApiKey>
 				</configuration>
 				<executions>
 					<execution>
