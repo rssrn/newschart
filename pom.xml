@@ -85,15 +85,8 @@
 		<dependency>
 			<groupId>com.google.genai</groupId>
 			<artifactId>google-genai</artifactId>
-			<version>1.26.0</version>
+			<version>1.27.0</version>
 		</dependency>
-        <!-- OWASP version patch - genai includes proobuf 3.25.1 which has HIGH CVE-2024-7254 -->
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.25.8</version>
-        </dependency>
-        <!-- end OWASP version patch -->
 	</dependencies>
 
 
