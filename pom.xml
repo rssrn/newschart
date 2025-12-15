@@ -29,6 +29,8 @@
 	<properties>
 		<java.version>21</java.version>
         <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
+        <ossindex.username>${env.OSS_INDEX_USERNAME}</ossindex.username>
+        <ossindex.password>${env.OSS_INDEX_PASSWORD}</ossindex.password>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -111,6 +113,8 @@
 				<version>12.1.8</version>
 				<configuration>
 					<failBuildOnCVSS>7</failBuildOnCVSS>
+                    <ossIndexUsername>${env.OSS_INDEX_USERNAME}</ossIndexUsername>
+                    <ossIndexPassword>${env.OSS_INDEX_PASSWORD}</ossIndexPassword>
                     <nvdApiKey>${nvd.api.key}</nvdApiKey>
 				</configuration>
 				<executions>
