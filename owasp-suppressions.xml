@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--
+        False positives: MongoDB Server CVEs incorrectly matched against Spring Boot Data MongoDB
+        These CVEs affect MongoDB Server, not the Spring Data MongoDB client library
+    -->
+    <suppress>
+        <notes>
+            CVEs for MongoDB Server (database) incorrectly matched against Spring Boot Data MongoDB (Java client).
+            Spring Boot Data MongoDB 4.0.1 is a Spring Framework module, not MongoDB Server 4.0.1.
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring-boot.*mongodb.*@4\.0\.1$</packageUrl>
+        <vulnerabilityName regex="true">^CVE-.*$</vulnerabilityName>
+        <cpe>cpe:/a:mongodb:mongodb</cpe>
+    </suppress>
+</suppressions>
