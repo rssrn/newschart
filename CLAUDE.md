@@ -92,6 +92,17 @@ React SPA using react-simple-maps for world map visualization:
 
 Select via URL parameter: `?layout=force|rails|compass`
 
+**Layout Algorithm Success Criteria:**
+1. Callout boxes must not overlap or touch each other
+2. Callout boxes must maintain minimum spacing between them
+3. Callout boxes must be entirely within the viewport (no clipping at edges)
+4. Connectors must not cross each other
+5. Connectors must not pass through or touch other callout boxes
+6. Connectors should be reasonably short to maintain clear geographic association
+7. Callouts should be positioned near their origin point when possible
+
+Test scenarios are defined in `CalloutController.sampleCallouts()` including clustered points (us-cluster, asian-cluster), wide spreads, and edge cases.
+
 ### Data Flow
 1. Scheduler triggers pipeline orchestrator
 2. Pipeline fetches from news sources (NYT RSS or Gemini AI)
