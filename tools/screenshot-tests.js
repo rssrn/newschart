@@ -27,6 +27,8 @@ const TEST_CASE_NAMES = [
   '5-single-location'
 ];
 
+const ALGORITHMS = ['force', 'rails', 'compass'];
+
 async function takeScreenshots() {
   const fs = require('fs');
   if (!fs.existsSync(SCREENSHOT_DIR)) {
@@ -39,7 +41,7 @@ async function takeScreenshots() {
   });
   const page = await context.newPage();
 
-  console.log('Taking screenshots of all test cases...\n');
+  console.log('Taking screenshots of all test cases for each algorithm...\n');
 
   // Pre-fetch all test cases first (to get them in order)
   const testCaseData = [];
@@ -49,32 +51,37 @@ async function takeScreenshots() {
     testCaseData.push(body);
   }
 
-  for (let i = 0; i < TEST_CASE_NAMES.length; i++) {
-    const testName = TEST_CASE_NAMES[i];
-    const calloutData = testCaseData[i];
+  for (const algorithm of ALGORITHMS) {
+    console.log(`\n=== Algorithm: ${algorithm} ===`);
 
-    // Intercept the calloutsForDay API call and return pre-fetched data
-    await page.route('**/api/news/calloutsForDay/**', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: calloutData
+    for (let i = 0; i < TEST_CASE_NAMES.length; i++) {
+      const testName = TEST_CASE_NAMES[i];
+      const calloutData = testCaseData[i];
+
+      // Intercept the calloutsForDay API call and return pre-fetched data
+      await page.route('**/api/news/calloutsForDay/**', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: calloutData
+        });
       });
-    });
 
-    // Navigate and wait for map to render
-    await page.goto(FRONTEND_URL, { waitUntil: 'networkidle' });
+      // Navigate with layout algorithm param
+      const url = `${FRONTEND_URL}?layout=${algorithm}`;
+      await page.goto(url, { waitUntil: 'networkidle' });
 
-    // Extra wait for map animations/rendering
-    await page.waitForTimeout(2000);
+      // Extra wait for map animations/rendering
+      await page.waitForTimeout(2000);
 
-    const screenshotPath = path.join(SCREENSHOT_DIR, `test-${testName}.png`);
-    await page.screenshot({ path: screenshotPath, fullPage: false });
+      const screenshotPath = path.join(SCREENSHOT_DIR, `${algorithm}-${testName}.png`);
+      await page.screenshot({ path: screenshotPath, fullPage: false });
 
-    console.log(`✓ Captured: test-${testName}.png`);
+      console.log(`✓ Captured: ${algorithm}-${testName}.png`);
 
-    // Clear route interception for next iteration
-    await page.unrouteAll();
+      // Clear route interception for next iteration
+      await page.unrouteAll();
+    }
   }
 
   await browser.close();

@@ -1,5 +1,6 @@
-// Note this file is severely vibecoded with Anthropic Claude Sonnet 4.5
+// Note the force algorithm in this file is severely vibecoded with Anthropic Claude Sonnet 4.5
 // Claude proposed its own test cases and iterated several times.
+// The rails algorithm was added by Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 import { forceSimulation, forceCollide, forceX, forceY, forceManyBody } from 'd3-force';
 
@@ -226,7 +227,10 @@ function forceClusterLayout(clusters, nodes, mapTop, mapHeight) {
   return force;
 }
 
-export function calculateOffsets(callouts, projection) {
+/**
+ * Force-based layout using d3-force simulation (original algorithm)
+ */
+function calculateOffsetsForce(callouts, projection) {
   if (!Array.isArray(callouts) || !projection) return [];
 
   const topLeft = projection([-180, 85]);
@@ -312,4 +316,338 @@ export function calculateOffsets(callouts, projection) {
       dy: node.y - node.subjectY
     };
   });
+}
+
+/**
+ * Rails-based layout - places callouts along left/right edges of map
+ * Western hemisphere countries go on left rail, eastern on right rail
+ * Sorted by latitude (north to south)
+ */
+function calculateOffsetsRails(callouts, projection) {
+  if (!Array.isArray(callouts) || !projection) return [];
+
+  const topLeft = projection([-180, 85]);
+  const bottomRight = projection([180, -85]);
+  const mapWidth = bottomRight[0] - topLeft[0];
+  const mapHeight = bottomRight[1] - topLeft[1];
+  const mapLeft = topLeft[0];
+  const mapTop = topLeft[1];
+
+  // Convert to screen coordinates and tag with hemisphere
+  const nodes = callouts.map((callout, index) => {
+    const [x, y] = projection([callout.country.longitude, callout.country.latitude]);
+    return {
+      ...callout,
+      index,
+      subjectX: x,
+      subjectY: y,
+      isWest: callout.country.longitude < 0
+    };
+  });
+
+  // Split into west and east groups
+  const westNodes = nodes.filter(n => n.isWest).sort((a, b) => a.subjectY - b.subjectY);
+  const eastNodes = nodes.filter(n => !n.isWest).sort((a, b) => a.subjectY - b.subjectY);
+
+  // Calculate rail positions
+  const leftRailX = mapLeft + EDGE_PADDING;
+  const rightRailX = mapLeft + mapWidth - BOX_WIDTH - EDGE_PADDING;
+
+  // Vertical spacing - use top 70% of map to avoid southern ocean area
+  const usableHeight = mapHeight * 0.7;
+  const startY = mapTop + EDGE_PADDING;
+
+  // Position west nodes along left rail
+  const westSpacing = westNodes.length > 1
+    ? (usableHeight - BOX_HEIGHT) / (westNodes.length - 1)
+    : 0;
+
+  westNodes.forEach((node, i) => {
+    node.targetX = leftRailX;
+    node.targetY = startY + (i * westSpacing);
+  });
+
+  // Position east nodes along right rail
+  const eastSpacing = eastNodes.length > 1
+    ? (usableHeight - BOX_HEIGHT) / (eastNodes.length - 1)
+    : 0;
+
+  eastNodes.forEach((node, i) => {
+    node.targetX = rightRailX;
+    node.targetY = startY + (i * eastSpacing);
+  });
+
+  // Recombine and sort back to original order
+  const allNodes = [...westNodes, ...eastNodes];
+  allNodes.sort((a, b) => a.index - b.index);
+
+  // Convert to dx/dy offsets
+  return callouts.map((original, index) => {
+    const node = allNodes[index];
+    return {
+      ...original,
+      dx: node.targetX - node.subjectX,
+      dy: node.targetY - node.subjectY
+    };
+  });
+}
+
+/**
+ * Compass-based layout - tries preferred direction (NW) then rotates clockwise
+ * until finding a spot that doesn't overlap existing callouts or go off-map
+ *
+ * @author Claude Opus 4.5 Anthropic
+ */
+function calculateOffsetsCompass(callouts, projection) {
+  if (!Array.isArray(callouts) || !projection) return [];
+
+  const topLeft = projection([-180, 85]);
+  const bottomRight = projection([180, -85]);
+  const mapWidth = bottomRight[0] - topLeft[0];
+  const mapHeight = bottomRight[1] - topLeft[1];
+  const mapLeft = topLeft[0];
+  const mapTop = topLeft[1];
+
+  const OFFSET_DISTANCES = [80, 100, 120, 145, 170, 200]; // Prioritize shorter distances
+
+  // 8 compass directions - order will be customized per node
+  const ALL_DIRECTIONS = [
+    { name: 'NW', angle: -3 * Math.PI / 4 },
+    { name: 'N',  angle: -Math.PI / 2 },
+    { name: 'NE', angle: -Math.PI / 4 },
+    { name: 'E',  angle: 0 },
+    { name: 'SE', angle: Math.PI / 4 },
+    { name: 'S',  angle: Math.PI / 2 },
+    { name: 'SW', angle: 3 * Math.PI / 4 },
+    { name: 'W',  angle: Math.PI }
+  ];
+
+  // Get preferred direction order based on subject position
+  // Western points prefer W/NW/SW, Eastern prefer E/NE/SE
+  function getDirectionOrder(subjectX) {
+    const mapCenterX = mapLeft + mapWidth / 2;
+    if (subjectX < mapCenterX) {
+      // Western hemisphere - prefer placing boxes to the west/northwest
+      return [
+        ALL_DIRECTIONS[0], // NW
+        ALL_DIRECTIONS[7], // W
+        ALL_DIRECTIONS[6], // SW
+        ALL_DIRECTIONS[1], // N
+        ALL_DIRECTIONS[5], // S
+        ALL_DIRECTIONS[2], // NE
+        ALL_DIRECTIONS[3], // E
+        ALL_DIRECTIONS[4], // SE
+      ];
+    } else {
+      // Eastern hemisphere - prefer placing boxes to the east/northeast
+      return [
+        ALL_DIRECTIONS[2], // NE
+        ALL_DIRECTIONS[3], // E
+        ALL_DIRECTIONS[4], // SE
+        ALL_DIRECTIONS[1], // N
+        ALL_DIRECTIONS[5], // S
+        ALL_DIRECTIONS[0], // NW
+        ALL_DIRECTIONS[7], // W
+        ALL_DIRECTIONS[6], // SW
+      ];
+    }
+  }
+
+  // Track placed boxes with their subject points for connector checking
+  const placedBoxes = [];
+
+  // Check if two line segments intersect
+  function segmentsIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+    const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (Math.abs(denom) < 0.001) return false;
+
+    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+    const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+
+    return t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99;
+  }
+
+  // Check if a line segment intersects a box
+  function lineIntersectsBox(x1, y1, x2, y2, box) {
+    const padding = 5;
+    const bx = box.x - padding;
+    const by = box.y - padding;
+    const bw = BOX_WIDTH + padding * 2;
+    const bh = BOX_HEIGHT + padding * 2;
+
+    // Check intersection with all 4 edges of the box
+    return segmentsIntersect(x1, y1, x2, y2, bx, by, bx + bw, by) ||
+           segmentsIntersect(x1, y1, x2, y2, bx + bw, by, bx + bw, by + bh) ||
+           segmentsIntersect(x1, y1, x2, y2, bx + bw, by + bh, bx, by + bh) ||
+           segmentsIntersect(x1, y1, x2, y2, bx, by + bh, bx, by);
+  }
+
+  // Check if a box at (x, y) with connector from (sx, sy) has any conflicts
+  function hasConflict(x, y, subjectX, subjectY) {
+    // Check map bounds (with stricter southern limit)
+    const maxY = mapTop + (mapHeight * SOUTHERN_LIMIT_RATIO) - BOX_HEIGHT;
+    if (x < mapLeft + EDGE_PADDING ||
+        x > mapLeft + mapWidth - BOX_WIDTH - EDGE_PADDING ||
+        y < mapTop + EDGE_PADDING ||
+        y > maxY) {
+      return true;
+    }
+
+    // Check overlap with placed boxes (with padding)
+    const padding = 10;
+    for (const box of placedBoxes) {
+      if (x < box.x + BOX_WIDTH + padding &&
+          x + BOX_WIDTH + padding > box.x &&
+          y < box.y + BOX_HEIGHT + padding &&
+          y + BOX_HEIGHT + padding > box.y) {
+        return true;
+      }
+    }
+
+    // Check if our connector would pass through any placed box
+    const connectorEndX = x + BOX_WIDTH / 2;
+    const connectorEndY = y + BOX_HEIGHT / 2;
+    for (const box of placedBoxes) {
+      if (lineIntersectsBox(subjectX, subjectY, connectorEndX, connectorEndY, box)) {
+        return true;
+      }
+    }
+
+    // Check if our connector crosses any existing connector
+    for (const box of placedBoxes) {
+      const existingConnectorEndX = box.x + BOX_WIDTH / 2;
+      const existingConnectorEndY = box.y + BOX_HEIGHT / 2;
+      if (segmentsIntersect(
+        subjectX, subjectY, connectorEndX, connectorEndY,
+        box.subjectX, box.subjectY, existingConnectorEndX, existingConnectorEndY
+      )) {
+        return true;
+      }
+    }
+
+    // Check if any existing connector would pass through our new box
+    const newBox = { x, y };
+    for (const box of placedBoxes) {
+      const existingConnectorEndX = box.x + BOX_WIDTH / 2;
+      const existingConnectorEndY = box.y + BOX_HEIGHT / 2;
+      if (lineIntersectsBox(box.subjectX, box.subjectY, existingConnectorEndX, existingConnectorEndY, newBox)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  // Convert to screen coordinates
+  const nodes = callouts.map((callout) => {
+    const [x, y] = projection([callout.country.longitude, callout.country.latitude]);
+    return {
+      ...callout,
+      subjectX: x,
+      subjectY: y
+    };
+  });
+
+  // Sort nodes: process from top-left to bottom-right so NW placement is given to NW-most points
+  const sortedIndices = nodes
+    .map((node, i) => ({ i, score: node.subjectX + node.subjectY }))
+    .sort((a, b) => a.score - b.score)
+    .map(item => item.i);
+
+  // Place each callout in sorted order
+  sortedIndices.forEach(nodeIndex => {
+    const node = nodes[nodeIndex];
+    let placed = false;
+    const directions = getDirectionOrder(node.subjectX);
+
+    // Try each distance, then each direction
+    for (const distance of OFFSET_DISTANCES) {
+      if (placed) break;
+
+      for (const dir of directions) {
+        const boxX = node.subjectX + Math.cos(dir.angle) * distance - BOX_WIDTH / 2;
+        const boxY = node.subjectY + Math.sin(dir.angle) * distance - BOX_HEIGHT / 2;
+
+        if (!hasConflict(boxX, boxY, node.subjectX, node.subjectY)) {
+          node.targetX = boxX;
+          node.targetY = boxY;
+          placedBoxes.push({ x: boxX, y: boxY, subjectX: node.subjectX, subjectY: node.subjectY });
+          placed = true;
+          break;
+        }
+      }
+    }
+
+    // Fallback: relax connector crossing constraint and try again
+    if (!placed) {
+      for (const distance of OFFSET_DISTANCES) {
+        if (placed) break;
+        for (const dir of directions) {
+          const boxX = node.subjectX + Math.cos(dir.angle) * distance - BOX_WIDTH / 2;
+          const boxY = node.subjectY + Math.sin(dir.angle) * distance - BOX_HEIGHT / 2;
+
+          // Only check bounds and box overlap, ignore connector conflicts
+          const maxY = mapTop + (mapHeight * SOUTHERN_LIMIT_RATIO) - BOX_HEIGHT;
+          const inBounds = boxX >= mapLeft + EDGE_PADDING &&
+                          boxX <= mapLeft + mapWidth - BOX_WIDTH - EDGE_PADDING &&
+                          boxY >= mapTop + EDGE_PADDING &&
+                          boxY <= maxY;
+
+          let boxOverlap = false;
+          for (const box of placedBoxes) {
+            if (boxX < box.x + BOX_WIDTH + 10 && boxX + BOX_WIDTH + 10 > box.x &&
+                boxY < box.y + BOX_HEIGHT + 10 && boxY + BOX_HEIGHT + 10 > box.y) {
+              boxOverlap = true;
+              break;
+            }
+          }
+
+          if (inBounds && !boxOverlap) {
+            node.targetX = boxX;
+            node.targetY = boxY;
+            placedBoxes.push({ x: boxX, y: boxY, subjectX: node.subjectX, subjectY: node.subjectY });
+            placed = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // Final fallback: force placement
+    if (!placed) {
+      const distance = OFFSET_DISTANCES[2];
+      const dir = directions[0];
+      node.targetX = node.subjectX + Math.cos(dir.angle) * distance - BOX_WIDTH / 2;
+      node.targetY = node.subjectY + Math.sin(dir.angle) * distance - BOX_HEIGHT / 2;
+      placedBoxes.push({ x: node.targetX, y: node.targetY, subjectX: node.subjectX, subjectY: node.subjectY });
+    }
+  });
+
+  // Convert to dx/dy offsets (from subject point to box centre)
+  return callouts.map((original, index) => {
+    const node = nodes[index];
+    return {
+      ...original,
+      dx: node.targetX + BOX_WIDTH / 2 - node.subjectX,
+      dy: node.targetY + BOX_HEIGHT / 2 - node.subjectY
+    };
+  });
+}
+
+/**
+ * Main entry point - selects algorithm based on parameter
+ * @param {Array} callouts - Array of callout objects with country data
+ * @param {Function} projection - Map projection function
+ * @param {string} algorithm - 'force' (default), 'rails', or 'compass'
+ */
+export function calculateOffsets(callouts, projection, algorithm = 'force') {
+  switch (algorithm) {
+    case 'rails':
+      return calculateOffsetsRails(callouts, projection);
+    case 'compass':
+      return calculateOffsetsCompass(callouts, projection);
+    case 'force':
+    default:
+      return calculateOffsetsForce(callouts, projection);
+  }
 }

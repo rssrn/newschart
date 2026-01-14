@@ -4,9 +4,16 @@ import { Annotation } from "react-simple-maps";
 
 import { calculateOffsets } from "./utils/mapCalloutUtils";
 
+// Read layout algorithm from URL param: ?layout=rails or ?layout=force
+function getLayoutAlgorithm() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('layout') || 'force';
+}
+
 function StoryCalloutList({ projection }) {
 
 const [callouts, setCallouts] = useState([]);
+const layoutAlgorithm = getLayoutAlgorithm();
 
 // temp logging
 const tmpCallouts = useMemo(() => {
@@ -30,8 +37,8 @@ const tmpCallouts = useMemo(() => {
     console.log(`Callout ${i} (${c.headline}): subject at [${x}, ${y}]`);
   });
 
-  return calculateOffsets(callouts, projection);
-}, [callouts, projection]);
+  return calculateOffsets(callouts, projection, layoutAlgorithm);
+}, [callouts, projection, layoutAlgorithm]);
 
 
 // fetch list of callouts from backend
@@ -57,9 +64,9 @@ const tmpCallouts = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
     if (callouts.length === 0 || !projection) return [];
 
-    // Pass the projection function here:
-    return calculateOffsets(callouts, projection);
-  }, [callouts, projection]);
+    // Pass the projection function and layout algorithm:
+    return calculateOffsets(callouts, projection, layoutAlgorithm);
+  }, [callouts, projection, layoutAlgorithm]);
 
   return (
   <>
