@@ -73,8 +73,8 @@ const tmpCallouts = useMemo(() => {
   {processedCallouts.map((callout) => (
         <Annotation
           subject={[callout.country.longitude, callout.country.latitude]}
-          dx={callout.dx + 130} // shift to approx centre of box
-          dy={callout.dy + 75} // shift to approx centre of box
+          dx={callout.dx}
+          dy={callout.dy}
           connectorProps={{
             stroke: "#2563EB",
             strokeWidth: 1.5,

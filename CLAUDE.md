@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 NewsChart displays top world news stories on an interactive world map. It's a full-stack application with a Java Spring Boot backend and React frontend.
 
+**At the start of a new session**, propose starting the backend and frontend services if they're not already running.
+
 ## Build & Run Commands
 
 ### Backend (Spring Boot)
@@ -97,9 +99,10 @@ Select via URL parameter: `?layout=force|rails|compass`
 2. Callout boxes must maintain minimum spacing between them
 3. Callout boxes must be entirely within the viewport (no clipping at edges)
 4. Connectors must not cross each other
-5. Connectors must not pass through or touch other callout boxes
+5. Connectors must not cross behind or in front of other callout boxes
 6. Connectors should be reasonably short to maintain clear geographic association
 7. Callouts should be positioned near their origin point when possible
+8. Origin points (subject markers) must not be obscured by callout boxes
 
 Test scenarios are defined in `CalloutController.sampleCallouts()` including clustered points (us-cluster, asian-cluster), wide spreads, and edge cases.
 

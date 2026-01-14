@@ -422,34 +422,42 @@ function calculateOffsetsCompass(callouts, projection) {
     { name: 'W',  angle: Math.PI }
   ];
 
-  // Get preferred direction order based on subject position
-  // Western points prefer W/NW/SW, Eastern prefer E/NE/SE
-  function getDirectionOrder(subjectX) {
+  // Get preferred direction order based on subject position relative to cluster centroid
+  // This helps connectors fan out rather than cross
+  function getDirectionOrder(subjectX, subjectY, centroidX, centroidY) {
+    const isNorth = subjectY < centroidY;
+    const isSouth = subjectY > centroidY;
+    const isWest = subjectX < centroidX;
+    const isEast = subjectX > centroidX;
+
+    // Also consider map edge - western hemisphere points need westward options
     const mapCenterX = mapLeft + mapWidth / 2;
-    if (subjectX < mapCenterX) {
-      // Western hemisphere - prefer placing boxes to the west/northwest
-      return [
-        ALL_DIRECTIONS[0], // NW
-        ALL_DIRECTIONS[7], // W
-        ALL_DIRECTIONS[6], // SW
-        ALL_DIRECTIONS[1], // N
-        ALL_DIRECTIONS[5], // S
-        ALL_DIRECTIONS[2], // NE
-        ALL_DIRECTIONS[3], // E
-        ALL_DIRECTIONS[4], // SE
-      ];
+    const nearWestEdge = subjectX < mapCenterX;
+
+    if (isNorth && isWest) {
+      // NW of cluster → prefer NW, W, N
+      return [ALL_DIRECTIONS[0], ALL_DIRECTIONS[7], ALL_DIRECTIONS[1], ALL_DIRECTIONS[6], ALL_DIRECTIONS[2], ALL_DIRECTIONS[5], ALL_DIRECTIONS[3], ALL_DIRECTIONS[4]];
+    } else if (isNorth && isEast) {
+      // NE of cluster → prefer NE, E, N
+      return [ALL_DIRECTIONS[2], ALL_DIRECTIONS[3], ALL_DIRECTIONS[1], ALL_DIRECTIONS[4], ALL_DIRECTIONS[0], ALL_DIRECTIONS[5], ALL_DIRECTIONS[7], ALL_DIRECTIONS[6]];
+    } else if (isSouth && isWest) {
+      // SW of cluster → prefer SW, W, S
+      return [ALL_DIRECTIONS[6], ALL_DIRECTIONS[7], ALL_DIRECTIONS[5], ALL_DIRECTIONS[0], ALL_DIRECTIONS[4], ALL_DIRECTIONS[1], ALL_DIRECTIONS[3], ALL_DIRECTIONS[2]];
+    } else if (isSouth && isEast) {
+      // SE of cluster → prefer SE, E, S
+      return [ALL_DIRECTIONS[4], ALL_DIRECTIONS[3], ALL_DIRECTIONS[5], ALL_DIRECTIONS[2], ALL_DIRECTIONS[6], ALL_DIRECTIONS[1], ALL_DIRECTIONS[7], ALL_DIRECTIONS[0]];
+    } else if (isNorth) {
+      // Due N → prefer N, NW, NE
+      return [ALL_DIRECTIONS[1], ALL_DIRECTIONS[0], ALL_DIRECTIONS[2], ALL_DIRECTIONS[7], ALL_DIRECTIONS[3], ALL_DIRECTIONS[6], ALL_DIRECTIONS[4], ALL_DIRECTIONS[5]];
+    } else if (isSouth) {
+      // Due S → prefer S, SW, SE
+      return [ALL_DIRECTIONS[5], ALL_DIRECTIONS[6], ALL_DIRECTIONS[4], ALL_DIRECTIONS[7], ALL_DIRECTIONS[3], ALL_DIRECTIONS[0], ALL_DIRECTIONS[2], ALL_DIRECTIONS[1]];
+    } else if (nearWestEdge) {
+      // Default for western hemisphere
+      return [ALL_DIRECTIONS[0], ALL_DIRECTIONS[7], ALL_DIRECTIONS[6], ALL_DIRECTIONS[1], ALL_DIRECTIONS[5], ALL_DIRECTIONS[2], ALL_DIRECTIONS[3], ALL_DIRECTIONS[4]];
     } else {
-      // Eastern hemisphere - prefer placing boxes to the east/northeast
-      return [
-        ALL_DIRECTIONS[2], // NE
-        ALL_DIRECTIONS[3], // E
-        ALL_DIRECTIONS[4], // SE
-        ALL_DIRECTIONS[1], // N
-        ALL_DIRECTIONS[5], // S
-        ALL_DIRECTIONS[0], // NW
-        ALL_DIRECTIONS[7], // W
-        ALL_DIRECTIONS[6], // SW
-      ];
+      // Default for eastern hemisphere
+      return [ALL_DIRECTIONS[2], ALL_DIRECTIONS[3], ALL_DIRECTIONS[4], ALL_DIRECTIONS[1], ALL_DIRECTIONS[5], ALL_DIRECTIONS[0], ALL_DIRECTIONS[7], ALL_DIRECTIONS[6]];
     }
   }
 
@@ -484,13 +492,24 @@ function calculateOffsetsCompass(callouts, projection) {
 
   // Check if a box at (x, y) with connector from (sx, sy) has any conflicts
   function hasConflict(x, y, subjectX, subjectY) {
-    // Check map bounds (with stricter southern limit)
+    // Check map bounds - use reduced padding on left edge for western hemisphere subjects
+    const mapCenterX = mapLeft + mapWidth / 2;
+    const leftPadding = subjectX < mapCenterX ? 10 : EDGE_PADDING; // Less padding for western points
     const maxY = mapTop + (mapHeight * SOUTHERN_LIMIT_RATIO) - BOX_HEIGHT;
-    if (x < mapLeft + EDGE_PADDING ||
+    if (x < mapLeft + leftPadding ||
         x > mapLeft + mapWidth - BOX_WIDTH - EDGE_PADDING ||
         y < mapTop + EDGE_PADDING ||
         y > maxY) {
       return true;
+    }
+
+    // Check if box would obscure any origin point (including our own and others)
+    const originPadding = 15; // Keep boxes away from origin markers
+    for (const node of nodes) {
+      if (x - originPadding < node.subjectX && node.subjectX < x + BOX_WIDTH + originPadding &&
+          y - originPadding < node.subjectY && node.subjectY < y + BOX_HEIGHT + originPadding) {
+        return true;
+      }
     }
 
     // Check overlap with placed boxes (with padding)
@@ -548,6 +567,10 @@ function calculateOffsetsCompass(callouts, projection) {
     };
   });
 
+  // Calculate cluster centroid for direction preferences
+  const centroidX = nodes.reduce((sum, n) => sum + n.subjectX, 0) / nodes.length;
+  const centroidY = nodes.reduce((sum, n) => sum + n.subjectY, 0) / nodes.length;
+
   // Sort nodes: process from top-left to bottom-right so NW placement is given to NW-most points
   const sortedIndices = nodes
     .map((node, i) => ({ i, score: node.subjectX + node.subjectY }))
@@ -558,7 +581,7 @@ function calculateOffsetsCompass(callouts, projection) {
   sortedIndices.forEach(nodeIndex => {
     const node = nodes[nodeIndex];
     let placed = false;
-    const directions = getDirectionOrder(node.subjectX);
+    const directions = getDirectionOrder(node.subjectX, node.subjectY, centroidX, centroidY);
 
     // Try each distance, then each direction
     for (const distance of OFFSET_DISTANCES) {
@@ -588,7 +611,9 @@ function calculateOffsetsCompass(callouts, projection) {
 
           // Only check bounds and box overlap, ignore connector conflicts
           const maxY = mapTop + (mapHeight * SOUTHERN_LIMIT_RATIO) - BOX_HEIGHT;
-          const inBounds = boxX >= mapLeft + EDGE_PADDING &&
+          const mapCenterX = mapLeft + mapWidth / 2;
+          const leftPad = node.subjectX < mapCenterX ? 10 : EDGE_PADDING;
+          const inBounds = boxX >= mapLeft + leftPad &&
                           boxX <= mapLeft + mapWidth - BOX_WIDTH - EDGE_PADDING &&
                           boxY >= mapTop + EDGE_PADDING &&
                           boxY <= maxY;
