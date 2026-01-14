@@ -422,42 +422,43 @@ function calculateOffsetsCompass(callouts, projection) {
     { name: 'W',  angle: Math.PI }
   ];
 
-  // Get preferred direction order based on subject position relative to cluster centroid
-  // This helps connectors fan out rather than cross
-  function getDirectionOrder(subjectX, subjectY, centroidX, centroidY) {
-    const isNorth = subjectY < centroidY;
-    const isSouth = subjectY > centroidY;
-    const isWest = subjectX < centroidX;
-    const isEast = subjectX > centroidX;
-
-    // Also consider map edge - western hemisphere points need westward options
+  // Get preferred direction order based on:
+  // 1. Y-rank among all nodes (to prevent connector crossings in vertical clusters)
+  // 2. X position relative to map center (east vs west hemisphere)
+  // yRank: 0 = northernmost, 1 = southernmost
+  function getDirectionOrder(subjectX, subjectY, yRank) {
     const mapCenterX = mapLeft + mapWidth / 2;
-    const nearWestEdge = subjectX < mapCenterX;
+    const isWestHemisphere = subjectX < mapCenterX;
 
-    if (isNorth && isWest) {
-      // NW of cluster → prefer NW, W, N
-      return [ALL_DIRECTIONS[0], ALL_DIRECTIONS[7], ALL_DIRECTIONS[1], ALL_DIRECTIONS[6], ALL_DIRECTIONS[2], ALL_DIRECTIONS[5], ALL_DIRECTIONS[3], ALL_DIRECTIONS[4]];
-    } else if (isNorth && isEast) {
-      // NE of cluster → prefer NE, E, N
-      return [ALL_DIRECTIONS[2], ALL_DIRECTIONS[3], ALL_DIRECTIONS[1], ALL_DIRECTIONS[4], ALL_DIRECTIONS[0], ALL_DIRECTIONS[5], ALL_DIRECTIONS[7], ALL_DIRECTIONS[6]];
-    } else if (isSouth && isWest) {
-      // SW of cluster → prefer SW, W, S
-      return [ALL_DIRECTIONS[6], ALL_DIRECTIONS[7], ALL_DIRECTIONS[5], ALL_DIRECTIONS[0], ALL_DIRECTIONS[4], ALL_DIRECTIONS[1], ALL_DIRECTIONS[3], ALL_DIRECTIONS[2]];
-    } else if (isSouth && isEast) {
-      // SE of cluster → prefer SE, E, S
-      return [ALL_DIRECTIONS[4], ALL_DIRECTIONS[3], ALL_DIRECTIONS[5], ALL_DIRECTIONS[2], ALL_DIRECTIONS[6], ALL_DIRECTIONS[1], ALL_DIRECTIONS[7], ALL_DIRECTIONS[0]];
-    } else if (isNorth) {
-      // Due N → prefer N, NW, NE
-      return [ALL_DIRECTIONS[1], ALL_DIRECTIONS[0], ALL_DIRECTIONS[2], ALL_DIRECTIONS[7], ALL_DIRECTIONS[3], ALL_DIRECTIONS[6], ALL_DIRECTIONS[4], ALL_DIRECTIONS[5]];
-    } else if (isSouth) {
-      // Due S → prefer S, SW, SE
-      return [ALL_DIRECTIONS[5], ALL_DIRECTIONS[6], ALL_DIRECTIONS[4], ALL_DIRECTIONS[7], ALL_DIRECTIONS[3], ALL_DIRECTIONS[0], ALL_DIRECTIONS[2], ALL_DIRECTIONS[1]];
-    } else if (nearWestEdge) {
-      // Default for western hemisphere
-      return [ALL_DIRECTIONS[0], ALL_DIRECTIONS[7], ALL_DIRECTIONS[6], ALL_DIRECTIONS[1], ALL_DIRECTIONS[5], ALL_DIRECTIONS[2], ALL_DIRECTIONS[3], ALL_DIRECTIONS[4]];
+    // Use Y-rank to determine vertical preference
+    // Top third → prefer N, middle third → prefer E/W, bottom third → prefer S
+    if (yRank < 0.33) {
+      // Northern nodes → prefer N/NE/NW to keep boxes in north
+      if (isWestHemisphere) {
+        // NW, N, W, NE, SW, E, S, SE
+        return [ALL_DIRECTIONS[0], ALL_DIRECTIONS[1], ALL_DIRECTIONS[7], ALL_DIRECTIONS[2], ALL_DIRECTIONS[6], ALL_DIRECTIONS[3], ALL_DIRECTIONS[5], ALL_DIRECTIONS[4]];
+      } else {
+        // NE, N, E, NW, SE, W, S, SW
+        return [ALL_DIRECTIONS[2], ALL_DIRECTIONS[1], ALL_DIRECTIONS[3], ALL_DIRECTIONS[0], ALL_DIRECTIONS[4], ALL_DIRECTIONS[7], ALL_DIRECTIONS[5], ALL_DIRECTIONS[6]];
+      }
+    } else if (yRank > 0.67) {
+      // Southern nodes → prefer S/SE/SW to keep boxes in south
+      if (isWestHemisphere) {
+        // SW, S, W, SE, NW, E, N, NE
+        return [ALL_DIRECTIONS[6], ALL_DIRECTIONS[5], ALL_DIRECTIONS[7], ALL_DIRECTIONS[4], ALL_DIRECTIONS[0], ALL_DIRECTIONS[3], ALL_DIRECTIONS[1], ALL_DIRECTIONS[2]];
+      } else {
+        // SE, S, E, SW, NE, W, N, NW
+        return [ALL_DIRECTIONS[4], ALL_DIRECTIONS[5], ALL_DIRECTIONS[3], ALL_DIRECTIONS[6], ALL_DIRECTIONS[2], ALL_DIRECTIONS[7], ALL_DIRECTIONS[1], ALL_DIRECTIONS[0]];
+      }
     } else {
-      // Default for eastern hemisphere
-      return [ALL_DIRECTIONS[2], ALL_DIRECTIONS[3], ALL_DIRECTIONS[4], ALL_DIRECTIONS[1], ALL_DIRECTIONS[5], ALL_DIRECTIONS[0], ALL_DIRECTIONS[7], ALL_DIRECTIONS[6]];
+      // Middle nodes → prefer E/W (horizontal) to leave N/S for extremes
+      if (isWestHemisphere) {
+        // W, NW, SW, N, S, NE, SE, E
+        return [ALL_DIRECTIONS[7], ALL_DIRECTIONS[0], ALL_DIRECTIONS[6], ALL_DIRECTIONS[1], ALL_DIRECTIONS[5], ALL_DIRECTIONS[2], ALL_DIRECTIONS[4], ALL_DIRECTIONS[3]];
+      } else {
+        // E, NE, SE, N, S, NW, SW, W
+        return [ALL_DIRECTIONS[3], ALL_DIRECTIONS[2], ALL_DIRECTIONS[4], ALL_DIRECTIONS[1], ALL_DIRECTIONS[5], ALL_DIRECTIONS[0], ALL_DIRECTIONS[6], ALL_DIRECTIONS[7]];
+      }
     }
   }
 
@@ -567,21 +568,26 @@ function calculateOffsetsCompass(callouts, projection) {
     };
   });
 
-  // Calculate cluster centroid for direction preferences
-  const centroidX = nodes.reduce((sum, n) => sum + n.subjectX, 0) / nodes.length;
-  const centroidY = nodes.reduce((sum, n) => sum + n.subjectY, 0) / nodes.length;
+  // Calculate Y-ranks for direction preferences (0 = northernmost, 1 = southernmost)
+  // This ensures nodes maintain relative vertical ordering in their box positions
+  const sortedByY = [...nodes].sort((a, b) => a.subjectY - b.subjectY);
+  const yRanks = new Map();
+  sortedByY.forEach((node, index) => {
+    yRanks.set(node, nodes.length > 1 ? index / (nodes.length - 1) : 0.5);
+  });
 
-  // Sort nodes: process from top-left to bottom-right so NW placement is given to NW-most points
+  // Sort nodes by Y (north first) to ensure northern subject points get northern box positions
+  // This prevents connector crossings when boxes are vertically stacked
   const sortedIndices = nodes
-    .map((node, i) => ({ i, score: node.subjectX + node.subjectY }))
-    .sort((a, b) => a.score - b.score)
+    .map((node, i) => ({ i, y: node.subjectY, x: node.subjectX }))
+    .sort((a, b) => a.y - b.y || a.x - b.x)
     .map(item => item.i);
 
   // Place each callout in sorted order
   sortedIndices.forEach(nodeIndex => {
     const node = nodes[nodeIndex];
     let placed = false;
-    const directions = getDirectionOrder(node.subjectX, node.subjectY, centroidX, centroidY);
+    const directions = getDirectionOrder(node.subjectX, node.subjectY, yRanks.get(node));
 
     // Try each distance, then each direction
     for (const distance of OFFSET_DISTANCES) {
@@ -638,9 +644,57 @@ function calculateOffsetsCompass(callouts, projection) {
       }
     }
 
-    // Final fallback: force placement
+    // Final fallback: try harder with extended distances, checking box overlap and connector-through-box
     if (!placed) {
-      const distance = OFFSET_DISTANCES[2];
+      const extendedDistances = [...OFFSET_DISTANCES, 230, 260, 300];
+      outerLoop:
+      for (const distance of extendedDistances) {
+        for (const dir of directions) {
+          const boxX = node.subjectX + Math.cos(dir.angle) * distance - BOX_WIDTH / 2;
+          const boxY = node.subjectY + Math.sin(dir.angle) * distance - BOX_HEIGHT / 2;
+
+          // Check bounds (relaxed)
+          const inBounds = boxX >= mapLeft + 5 &&
+                          boxX <= mapLeft + mapWidth - BOX_WIDTH - 5 &&
+                          boxY >= mapTop + 5 &&
+                          boxY <= mapTop + mapHeight - BOX_HEIGHT - 5;
+          if (!inBounds) continue;
+
+          // Check box overlap
+          let boxOverlap = false;
+          for (const box of placedBoxes) {
+            if (boxX < box.x + BOX_WIDTH + 5 && boxX + BOX_WIDTH + 5 > box.x &&
+                boxY < box.y + BOX_HEIGHT + 5 && boxY + BOX_HEIGHT + 5 > box.y) {
+              boxOverlap = true;
+              break;
+            }
+          }
+          if (boxOverlap) continue;
+
+          // Check if our connector passes through any placed box
+          const connectorEndX = boxX + BOX_WIDTH / 2;
+          const connectorEndY = boxY + BOX_HEIGHT / 2;
+          let connectorThroughBox = false;
+          for (const box of placedBoxes) {
+            if (lineIntersectsBox(node.subjectX, node.subjectY, connectorEndX, connectorEndY, box)) {
+              connectorThroughBox = true;
+              break;
+            }
+          }
+          if (connectorThroughBox) continue;
+
+          node.targetX = boxX;
+          node.targetY = boxY;
+          placedBoxes.push({ x: boxX, y: boxY, subjectX: node.subjectX, subjectY: node.subjectY });
+          placed = true;
+          break outerLoop;
+        }
+      }
+    }
+
+    // Absolute last resort: place at first direction, longest distance (may overlap)
+    if (!placed) {
+      const distance = 300;
       const dir = directions[0];
       node.targetX = node.subjectX + Math.cos(dir.angle) * distance - BOX_WIDTH / 2;
       node.targetY = node.subjectY + Math.sin(dir.angle) * distance - BOX_HEIGHT / 2;
@@ -660,13 +714,179 @@ function calculateOffsetsCompass(callouts, projection) {
 }
 
 /**
+ * Four-winds layout - assigns each point to one of 4 diagonal directions (NW, NE, SW, SE)
+ * based on which "wind" (diagonal extreme) it represents.
+ *
+ * Algorithm:
+ * 1. NW: Find point with min(x + y) - first hit by 45° line pushed SE. Box goes NW.
+ * 2. NE: Find point with max(x - y) - most NE of remaining. Box goes NE.
+ * 3. SW: Find point with min(x - y) - most SW of remaining. Box goes SW.
+ * 4. SE: Find point with max(x + y) - most SE of remaining. Box goes SE.
+ *
+ * @author Claude Opus 4.5 Anthropic
+ */
+function calculateOffsetsFourWinds(callouts, projection) {
+  if (!Array.isArray(callouts) || !projection) return [];
+
+  const topLeft = projection([-180, 85]);
+  const bottomRight = projection([180, -85]);
+  const mapWidth = bottomRight[0] - topLeft[0];
+  const mapHeight = bottomRight[1] - topLeft[1];
+  const mapLeft = topLeft[0];
+  const mapTop = topLeft[1];
+
+  // Convert to screen coordinates
+  const nodes = callouts.map((callout) => {
+    const [x, y] = projection([callout.country.longitude, callout.country.latitude]);
+    return {
+      ...callout,
+      subjectX: x,
+      subjectY: y,
+      assigned: false,
+      angle: null
+    };
+  });
+
+  // Define the four winds - order matters (NW first, then NE, SW, SE)
+  // Each wind finds an extreme point based on a scoring function
+  const winds = [
+    { name: 'NW', angle: -3 * Math.PI / 4, scoreFn: (n) => n.subjectX + n.subjectY, findMin: true },
+    { name: 'NE', angle: -Math.PI / 4, scoreFn: (n) => n.subjectX - n.subjectY, findMin: false },
+    { name: 'SW', angle: 3 * Math.PI / 4, scoreFn: (n) => n.subjectX - n.subjectY, findMin: true },
+    { name: 'SE', angle: Math.PI / 4, scoreFn: (n) => n.subjectX + n.subjectY, findMin: false },
+  ];
+
+  // Assign each wind to the most extreme unassigned point
+  for (const wind of winds) {
+    const unassigned = nodes.filter(n => !n.assigned);
+    if (unassigned.length === 0) break;
+
+    // Find the extreme point for this wind
+    let extreme = unassigned[0];
+    let extremeScore = wind.scoreFn(extreme);
+
+    for (const node of unassigned) {
+      const score = wind.scoreFn(node);
+      if ((wind.findMin && score < extremeScore) || (!wind.findMin && score > extremeScore)) {
+        extreme = node;
+        extremeScore = score;
+      }
+    }
+
+    extreme.assigned = true;
+    extreme.angle = wind.angle;
+  }
+
+  // Place boxes at calculated distance in assigned direction, with overlap detection
+  const BASE_DISTANCE = 115;
+  const MAX_DISTANCE = 400;
+  const DISTANCE_INCREMENT = 8;
+  const BOX_PADDING = 35;
+
+  // Map bounds for clamping
+  const minX = mapLeft + EDGE_PADDING;
+  const maxX = mapLeft + mapWidth - BOX_WIDTH - EDGE_PADDING;
+  const minY = mapTop + EDGE_PADDING;
+  const maxY = mapTop + (mapHeight * SOUTHERN_LIMIT_RATIO) - BOX_HEIGHT - EDGE_PADDING;
+
+  // Track placed boxes for overlap detection
+  const placedBoxes = [];
+
+  // Helper to check if two boxes overlap (with padding)
+  function boxesOverlap(box1, box2) {
+    return box1.x < box2.x + BOX_WIDTH + BOX_PADDING &&
+           box1.x + BOX_WIDTH + BOX_PADDING > box2.x &&
+           box1.y < box2.y + BOX_HEIGHT + BOX_PADDING &&
+           box1.y + BOX_HEIGHT + BOX_PADDING > box2.y;
+  }
+
+  // Place each node, checking for overlaps
+  for (const node of nodes) {
+    if (node.assigned && node.angle !== null) {
+      let placed = false;
+      let lastBoxX, lastBoxY;
+
+      // Try increasing distances until no overlap
+      for (let distance = BASE_DISTANCE; distance <= MAX_DISTANCE && !placed; distance += DISTANCE_INCREMENT) {
+        let boxX = node.subjectX + Math.cos(node.angle) * distance - BOX_WIDTH / 2;
+        let boxY = node.subjectY + Math.sin(node.angle) * distance - BOX_HEIGHT / 2;
+
+        // Clamp to map bounds
+        boxX = Math.max(minX, Math.min(maxX, boxX));
+        boxY = Math.max(minY, Math.min(maxY, boxY));
+
+        lastBoxX = boxX;
+        lastBoxY = boxY;
+
+        // Check for overlap with already-placed boxes
+        const candidateBox = { x: boxX, y: boxY };
+        const hasOverlap = placedBoxes.some(box => boxesOverlap(candidateBox, box));
+
+        if (!hasOverlap) {
+          node.targetX = boxX;
+          node.targetY = boxY;
+          placedBoxes.push(candidateBox);
+          placed = true;
+        }
+      }
+
+      // If still not placed, try shifting perpendicular to the angle
+      if (!placed) {
+        const perpAngle = node.angle + Math.PI / 2;
+        for (const shift of [-50, 50, -100, 100, -150, 150]) {
+          let boxX = lastBoxX + Math.cos(perpAngle) * shift;
+          let boxY = lastBoxY + Math.sin(perpAngle) * shift;
+
+          boxX = Math.max(minX, Math.min(maxX, boxX));
+          boxY = Math.max(minY, Math.min(maxY, boxY));
+
+          const candidateBox = { x: boxX, y: boxY };
+          const hasOverlap = placedBoxes.some(box => boxesOverlap(candidateBox, box));
+
+          if (!hasOverlap) {
+            node.targetX = boxX;
+            node.targetY = boxY;
+            placedBoxes.push(candidateBox);
+            placed = true;
+            break;
+          }
+        }
+      }
+
+      // Final fallback
+      if (!placed) {
+        node.targetX = lastBoxX;
+        node.targetY = lastBoxY;
+        placedBoxes.push({ x: lastBoxX, y: lastBoxY });
+      }
+    } else {
+      // Fallback for unassigned nodes (more than 4 points)
+      node.targetX = node.subjectX - BOX_WIDTH / 2;
+      node.targetY = node.subjectY - BOX_HEIGHT / 2 - BASE_DISTANCE;
+    }
+  }
+
+  // Convert to dx/dy offsets (from subject point to box center)
+  return callouts.map((original, index) => {
+    const node = nodes[index];
+    return {
+      ...original,
+      dx: node.targetX + BOX_WIDTH / 2 - node.subjectX,
+      dy: node.targetY + BOX_HEIGHT / 2 - node.subjectY
+    };
+  });
+}
+
+/**
  * Main entry point - selects algorithm based on parameter
  * @param {Array} callouts - Array of callout objects with country data
  * @param {Function} projection - Map projection function
- * @param {string} algorithm - 'force' (default), 'rails', or 'compass'
+ * @param {string} algorithm - 'force' (default), 'rails', 'compass', or 'four-winds'
  */
 export function calculateOffsets(callouts, projection, algorithm = 'force') {
   switch (algorithm) {
+    case 'four-winds':
+      return calculateOffsetsFourWinds(callouts, projection);
     case 'rails':
       return calculateOffsetsRails(callouts, projection);
     case 'compass':

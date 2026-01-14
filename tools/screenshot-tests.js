@@ -4,7 +4,19 @@
  *
  * @author Claude Opus 4.5 (claude-opus-4-5-20251101)
  *
- * Usage: node tools/screenshot-tests.js
+ * Usage: node tools/screenshot-tests.js [options]
+ *
+ * Options:
+ *   --algos, -a    Comma-separated list of algorithms (default: all)
+ *                  Available: force, rails, compass, four-winds
+ *   --tests, -t    Comma-separated list of test cases (default: all)
+ *                  Available: 0-europe-asia, 1-wide-spread, 2-us-cluster,
+ *                             3-asian-cluster, 4-southern-hemisphere, 5-single-location
+ *
+ * Examples:
+ *   node screenshot-tests.js --algos four-winds
+ *   node screenshot-tests.js -a compass,four-winds -t 2-us-cluster,3-asian-cluster
+ *   node screenshot-tests.js  (runs all)
  *
  * Prerequisites:
  * - Backend running on localhost:8080
@@ -18,18 +30,38 @@ const SCREENSHOT_DIR = path.join(__dirname, 'screenshots');
 const FRONTEND_URL = 'http://localhost:3000';
 const SAMPLE_CALLOUTS_URL = 'http://localhost:8080/api/news/sampleCallouts';
 
-const TEST_CASE_NAMES = [
-  '0-europe-asia',
-  '1-wide-spread',
-  '2-us-cluster',
-  '3-asian-cluster',
-  '4-southern-hemisphere',
-  '5-single-location'
-];
+const ALL_TEST_CASES = {
+  '0-europe-asia': 0,
+  '1-wide-spread': 1,
+  '2-us-cluster': 2,
+  '3-asian-cluster': 3,
+  '4-southern-hemisphere': 4,
+  '5-single-location': 5
+};
 
-const ALGORITHMS = ['force', 'rails', 'compass'];
+const ALL_ALGORITHMS = ['force', 'rails', 'compass', 'four-winds'];
+
+// Parse command line arguments
+function parseArgs() {
+  const args = process.argv.slice(2);
+  let algorithms = ALL_ALGORITHMS;
+  let testCaseNames = Object.keys(ALL_TEST_CASES);
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--algos' || arg === '-a') {
+      algorithms = args[++i].split(',').map(s => s.trim());
+    } else if (arg === '--tests' || arg === '-t') {
+      testCaseNames = args[++i].split(',').map(s => s.trim());
+    }
+  }
+
+  return { algorithms, testCaseNames };
+}
 
 async function takeScreenshots() {
+  const { algorithms, testCaseNames } = parseArgs();
+
   const fs = require('fs');
   if (!fs.existsSync(SCREENSHOT_DIR)) {
     fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -41,22 +73,22 @@ async function takeScreenshots() {
   });
   const page = await context.newPage();
 
-  console.log('Taking screenshots of all test cases for each algorithm...\n');
+  console.log(`Algorithms: ${algorithms.join(', ')}`);
+  console.log(`Test cases: ${testCaseNames.join(', ')}\n`);
 
-  // Pre-fetch all test cases first (to get them in order)
-  const testCaseData = [];
-  for (let i = 0; i < TEST_CASE_NAMES.length; i++) {
-    const response = await fetch(SAMPLE_CALLOUTS_URL);
-    const body = await response.text();
-    testCaseData.push(body);
-  }
-
-  for (const algorithm of ALGORITHMS) {
+  for (const algorithm of algorithms) {
     console.log(`\n=== Algorithm: ${algorithm} ===`);
 
-    for (let i = 0; i < TEST_CASE_NAMES.length; i++) {
-      const testName = TEST_CASE_NAMES[i];
-      const calloutData = testCaseData[i];
+    for (const testName of testCaseNames) {
+      const testCaseNum = ALL_TEST_CASES[testName];
+      if (testCaseNum === undefined) {
+        console.log(`⚠ Unknown test case: ${testName}, skipping`);
+        continue;
+      }
+
+      // Fetch the specific test case from backend
+      const response = await fetch(`${SAMPLE_CALLOUTS_URL}?testCase=${testCaseNum}`);
+      const calloutData = await response.text();
 
       // Intercept the calloutsForDay API call and return pre-fetched data
       await page.route('**/api/news/calloutsForDay/**', async route => {

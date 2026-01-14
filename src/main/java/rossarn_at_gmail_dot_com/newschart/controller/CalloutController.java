@@ -20,8 +20,6 @@ public class CalloutController {
 
     private static final Logger log = LogManager.getLogger(CalloutController.class);
 
-    private int currentTestCase = 0;
-
     private final CalloutService calloutService;
 
     @Autowired
@@ -38,13 +36,15 @@ public class CalloutController {
     }
 
     /**
-     * Cycle through some predefined static examples - mainly used for testing layout algorithms.
+     * Return predefined static examples - mainly used for testing layout algorithms.
      *
      * @author Claude Sonnet 4.5 Anthropic
-     * @return json for one sample callout
+     * @author Claude Opus 4.5 Anthropic (added testCase parameter)
+     * @param testCase the test case number (0-5), defaults to 0
+     * @return json for sample callouts
      */
     @GetMapping("sampleCallouts")
-    public String sampleCallouts() {
+    public String sampleCallouts(@org.springframework.web.bind.annotation.RequestParam(defaultValue = "0") int testCase) {
         String[] testCases = {
                 // Test 0: Original Europe/Asia
                 """
@@ -273,15 +273,11 @@ public class CalloutController {
         """
         };
 
-        String result = testCases[currentTestCase];
+        // Clamp testCase to valid range
+        int index = Math.max(0, Math.min(testCase, testCases.length - 1));
 
-        log.info("currentTestCase {}; testCases.length {}", currentTestCase, testCases.length);
+        log.info("sampleCallouts testCase={}", index);
 
-        currentTestCase++;
-        if (currentTestCase >= testCases.length) {
-            currentTestCase = 0;
-        }
-
-        return result;
+        return testCases[index];
     }
 }
