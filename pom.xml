@@ -44,14 +44,6 @@
 			<artifactId>spring-boot-starter-web</artifactId>
             <version>4.0.1</version>
 		</dependency>
-        <!-- OWASP version patch - starter-web includes tomcat 10.1.46 which has MEDIUM CVE-2025-61795-->
-        <!-- <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>10.1.49</version>
-        </dependency> -->
-        <!-- END OWASP patch -->
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
@@ -69,21 +61,12 @@
 			<artifactId>spring-boot-testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <!-- OWASP version patch - spring includes lang3 3.17.0 which has MEDIUM CVE-2025-48924-->
-		<!--<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.19.0</version>
-		</dependency>-->
-        <!-- END OWASP patch -->
-
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>junit-jupiter</artifactId>
 			<version>1.21.3</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mongodb</artifactId>
@@ -102,7 +85,6 @@
 		</dependency>
 	</dependencies>
 
-
 	<build>
 		<plugins>
 			<plugin>
@@ -115,6 +97,7 @@
 				<version>12.1.8</version>
 				<configuration>
 					<failBuildOnCVSS>7</failBuildOnCVSS>
+					<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                     <ossIndexUsername>${env.OSS_INDEX_USERNAME}</ossIndexUsername>
                     <ossIndexPassword>${env.OSS_INDEX_PASSWORD}</ossIndexPassword>
                     <nvdApiKey>${nvd.api.key}</nvdApiKey>
