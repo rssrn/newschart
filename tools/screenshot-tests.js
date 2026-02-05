@@ -8,13 +8,14 @@
  *
  * Options:
  *   --algos, -a    Comma-separated list of algorithms (default: all)
- *                  Available: force, rails, compass, four-winds
+ *                  Available: force, rails, compass, four-winds, exhaustive
  *   --tests, -t    Comma-separated list of test cases (default: all)
  *                  Available: 0-europe-asia, 1-wide-spread, 2-us-cluster,
  *                             3-asian-cluster, 4-southern-hemisphere, 5-single-location
+ *   --bounds       Show bounding box overlay (red dashed rectangle)
  *
  * Examples:
- *   node screenshot-tests.js --algos four-winds
+ *   node screenshot-tests.js --algos exhaustive --bounds
  *   node screenshot-tests.js -a compass,four-winds -t 2-us-cluster,3-asian-cluster
  *   node screenshot-tests.js  (runs all)
  *
@@ -39,13 +40,14 @@ const ALL_TEST_CASES = {
   '5-single-location': 5
 };
 
-const ALL_ALGORITHMS = ['force', 'rails', 'compass', 'four-winds'];
+const ALL_ALGORITHMS = ['force', 'rails', 'compass', 'four-winds', 'exhaustive'];
 
 // Parse command line arguments
 function parseArgs() {
   const args = process.argv.slice(2);
   let algorithms = ALL_ALGORITHMS;
   let testCaseNames = Object.keys(ALL_TEST_CASES);
+  let showBounds = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -53,14 +55,16 @@ function parseArgs() {
       algorithms = args[++i].split(',').map(s => s.trim());
     } else if (arg === '--tests' || arg === '-t') {
       testCaseNames = args[++i].split(',').map(s => s.trim());
+    } else if (arg === '--bounds') {
+      showBounds = true;
     }
   }
 
-  return { algorithms, testCaseNames };
+  return { algorithms, testCaseNames, showBounds };
 }
 
 async function takeScreenshots() {
-  const { algorithms, testCaseNames } = parseArgs();
+  const { algorithms, testCaseNames, showBounds } = parseArgs();
 
   const fs = require('fs');
   if (!fs.existsSync(SCREENSHOT_DIR)) {
@@ -99,8 +103,9 @@ async function takeScreenshots() {
         });
       });
 
-      // Navigate with layout algorithm param
-      const url = `${FRONTEND_URL}?layout=${algorithm}`;
+      // Navigate with layout algorithm param (and optional bounding box)
+      const boundsParam = showBounds ? '&showBoundingBox=true' : '';
+      const url = `${FRONTEND_URL}?layout=${algorithm}${boundsParam}`;
       await page.goto(url, { waitUntil: 'networkidle' });
 
       // Extra wait for map animations/rendering

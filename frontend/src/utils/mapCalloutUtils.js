@@ -878,13 +878,225 @@ function calculateOffsetsFourWinds(callouts, projection) {
 }
 
 /**
+ * Exhaustive candidate enumeration layout - generates candidate positions for each
+ * callout, evaluates every combination, and picks the one with the lowest penalty score.
+ *
+ * With N=3-4 labels and ~20-30 candidates each this is trivially fast (<1ms) and
+ * guarantees finding the optimal layout for the given candidate set.
+ *
+ * Based on the Point-Feature Label Placement (PFLP) literature.
+ *
+ * @author Claude Opus 4.6 Anthropic
+ */
+function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600) {
+  if (!Array.isArray(callouts) || !projection) return [];
+  if (callouts.length === 0) return [];
+
+  // --- Coordinate setup ---
+  // Use SVG viewport bounds (react-simple-maps defaults: 800 wide)
+  const SVG_WIDTH = 800;
+
+  // Convert callouts to screen coordinates
+  const nodes = callouts.map((callout) => {
+    const [x, y] = projection([callout.country.longitude, callout.country.latitude]);
+    return { ...callout, subjectX: x, subjectY: y };
+  });
+
+  // --- Geometry helpers ---
+
+  function segmentsIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+    const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (Math.abs(denom) < 0.001) return false;
+    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+    const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+    return t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99;
+  }
+
+  function lineIntersectsBox(x1, y1, x2, y2, box) {
+    const pad = 5;
+    const bx = box.x - pad;
+    const by = box.y - pad;
+    const bw = BOX_WIDTH + pad * 2;
+    const bh = BOX_HEIGHT + pad * 2;
+    return segmentsIntersect(x1, y1, x2, y2, bx, by, bx + bw, by) ||
+           segmentsIntersect(x1, y1, x2, y2, bx + bw, by, bx + bw, by + bh) ||
+           segmentsIntersect(x1, y1, x2, y2, bx + bw, by + bh, bx, by + bh) ||
+           segmentsIntersect(x1, y1, x2, y2, bx, by + bh, bx, by);
+  }
+
+  function boxesOverlap(ax, ay, bx, by) {
+    const pad = 10; // minimum spacing between boxes
+    return ax < bx + BOX_WIDTH + pad &&
+           ax + BOX_WIDTH + pad > bx &&
+           ay < by + BOX_HEIGHT + pad &&
+           ay + BOX_HEIGHT + pad > by;
+  }
+
+  // --- Step 1: Viewport bounds for candidate filtering ---
+  const boundsMinX = EDGE_PADDING;
+  const boundsMaxX = SVG_WIDTH - BOX_WIDTH - EDGE_PADDING;
+  const boundsMinY = EDGE_PADDING;
+  const boundsMaxY = visibleSvgHeight - BOX_HEIGHT - EDGE_PADDING;
+
+  // --- Step 2: Generate candidate positions per callout ---
+  const DIRECTIONS = [
+    { angle: -3 * Math.PI / 4 }, // NW
+    { angle: -Math.PI / 2 },     // N
+    { angle: -Math.PI / 4 },     // NE
+    { angle: 0 },                // E
+    { angle: Math.PI / 4 },      // SE
+    { angle: Math.PI / 2 },      // S
+    { angle: 3 * Math.PI / 4 },  // SW
+    { angle: Math.PI },          // W
+  ];
+  const DISTANCES = [80, 110, 145, 185];
+  const ORIGIN_PADDING = 15;
+
+  const candidatesPerNode = nodes.map((node) => {
+    const candidates = [];
+    for (const dir of DIRECTIONS) {
+      for (const dist of DISTANCES) {
+        // Box top-left so that box centre lands at the candidate point
+        const boxX = node.subjectX + Math.cos(dir.angle) * dist - BOX_WIDTH / 2;
+        const boxY = node.subjectY + Math.sin(dir.angle) * dist - BOX_HEIGHT / 2;
+
+        // Hard reject: any part of box outside map bounds
+        if (boxX < boundsMinX || boxX > boundsMaxX ||
+            boxY < boundsMinY || boxY > boundsMaxY) {
+          continue;
+        }
+
+        // Hard reject: box would obscure any origin point
+        let obscuresOrigin = false;
+        for (const n of nodes) {
+          if (boxX - ORIGIN_PADDING < n.subjectX && n.subjectX < boxX + BOX_WIDTH + ORIGIN_PADDING &&
+              boxY - ORIGIN_PADDING < n.subjectY && n.subjectY < boxY + BOX_HEIGHT + ORIGIN_PADDING) {
+            obscuresOrigin = true;
+            break;
+          }
+        }
+        if (obscuresOrigin) continue;
+
+        candidates.push({ boxX, boxY, dist });
+      }
+    }
+    return candidates;
+  });
+
+  // --- Step 3: Enumerate all combinations and score ---
+
+  // Score a full combination of placements
+  function scoreCombination(placements) {
+    let score = 0;
+    const n = placements.length;
+
+    // Check all pairs
+    for (let i = 0; i < n; i++) {
+      const pi = placements[i];
+      const ni = nodes[i];
+      // Connector from subject point to box centre
+      const ciX = pi.boxX + BOX_WIDTH / 2;
+      const ciY = pi.boxY + BOX_HEIGHT / 2;
+
+      for (let j = i + 1; j < n; j++) {
+        const pj = placements[j];
+        const nj = nodes[j];
+        const cjX = pj.boxX + BOX_WIDTH / 2;
+        const cjY = pj.boxY + BOX_HEIGHT / 2;
+
+        // Hard reject: box overlap
+        if (boxesOverlap(pi.boxX, pi.boxY, pj.boxX, pj.boxY)) {
+          return Infinity;
+        }
+
+        // Penalty: connector i crosses connector j
+        if (segmentsIntersect(ni.subjectX, ni.subjectY, ciX, ciY,
+                              nj.subjectX, nj.subjectY, cjX, cjY)) {
+          score += 100;
+        }
+
+        // Penalty: connector i passes through box j
+        if (lineIntersectsBox(ni.subjectX, ni.subjectY, ciX, ciY,
+                              { x: pj.boxX, y: pj.boxY })) {
+          score += 80;
+        }
+        // Penalty: connector j passes through box i
+        if (lineIntersectsBox(nj.subjectX, nj.subjectY, cjX, cjY,
+                              { x: pi.boxX, y: pi.boxY })) {
+          score += 80;
+        }
+      }
+
+      // Penalty: connector length (prefer short connectors)
+      score += pi.dist * 1.0;
+    }
+
+    return score;
+  }
+
+  // Recursive enumeration of cartesian product of candidates
+  let bestScore = Infinity;
+  let bestPlacements = null;
+
+  function enumerate(nodeIndex, currentPlacements) {
+    if (nodeIndex === nodes.length) {
+      const score = scoreCombination(currentPlacements);
+      if (score < bestScore) {
+        bestScore = score;
+        bestPlacements = [...currentPlacements];
+      }
+      return;
+    }
+
+    const candidates = candidatesPerNode[nodeIndex];
+    for (const candidate of candidates) {
+      // Early prune: check overlap with already-placed boxes before recursing
+      let overlaps = false;
+      for (let i = 0; i < currentPlacements.length; i++) {
+        if (boxesOverlap(candidate.boxX, candidate.boxY,
+                         currentPlacements[i].boxX, currentPlacements[i].boxY)) {
+          overlaps = true;
+          break;
+        }
+      }
+      if (overlaps) continue;
+
+      currentPlacements.push(candidate);
+      enumerate(nodeIndex + 1, currentPlacements);
+      currentPlacements.pop();
+    }
+  }
+
+  enumerate(0, []);
+
+  // --- Step 4: Convert to dx/dy offsets ---
+  if (!bestPlacements) {
+    console.warn(`[exhaustive] No valid combination found (${nodes.length} nodes, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}). Falling back to compass.`);
+    return calculateOffsetsCompass(callouts, projection);
+  }
+  console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}`);
+
+  return callouts.map((original, index) => {
+    const p = bestPlacements[index];
+    return {
+      ...original,
+      dx: p.boxX + BOX_WIDTH / 2 - nodes[index].subjectX,
+      dy: p.boxY + BOX_HEIGHT / 2 - nodes[index].subjectY,
+    };
+  });
+}
+
+/**
  * Main entry point - selects algorithm based on parameter
  * @param {Array} callouts - Array of callout objects with country data
  * @param {Function} projection - Map projection function
- * @param {string} algorithm - 'force' (default), 'rails', 'compass', or 'four-winds'
+ * @param {string} algorithm - 'exhaustive' (default), 'force', 'rails', 'compass', or 'four-winds'
+ * @param {number} visibleSvgHeight - Visible SVG height in SVG coordinates (accounts for viewport clipping)
  */
-export function calculateOffsets(callouts, projection, algorithm = 'force') {
+export function calculateOffsets(callouts, projection, algorithm = 'exhaustive', visibleSvgHeight = 600) {
   switch (algorithm) {
+    case 'exhaustive':
+      return calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight);
     case 'four-winds':
       return calculateOffsetsFourWinds(callouts, projection);
     case 'rails':

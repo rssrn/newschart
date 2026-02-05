@@ -19,10 +19,13 @@ const MapChart = () => {
     scale: 90,
   };
 
+  // Must match react-simple-maps' internal projection: translate = [width/2, height/2]
+  // where ComposableMap defaults to width=800, height=600
   const projection = useMemo(() => {
-    return geoMercator() // alternative: geoEqualEarth
+    return geoMercator()
       .center(projectionConfig.center)
-      .scale(projectionConfig.scale);
+      .scale(projectionConfig.scale)
+      .translate([400, 300]);
   }, []);
 
   return (

@@ -91,8 +91,12 @@ React SPA using react-simple-maps for world map visualization:
 - `force` (default) - D3.js force simulation with collision detection
 - `rails` - Places callouts on left/right edges based on hemisphere
 - `compass` - Cardinal directions, starting NW and rotating clockwise
+- `four-winds` - Assigns 4 extreme points to diagonal directions
+- `exhaustive` - Generates candidate positions per callout and evaluates every combination to find the optimal layout (feasible because N≤4)
 
-Select via URL parameter: `?layout=force|rails|compass`
+Select via URL parameter: `?layout=force|rails|compass|four-winds|exhaustive`
+
+**Layout Algorithm Research & Plan:** See [callout layout research plan](file://.claude/plans/fancy-imagining-quasar.md) for analysis of PFLP (Point-Feature Label Placement) approaches and recommended next algorithm (exhaustive candidate enumeration).
 
 **Layout Algorithm Success Criteria:**
 1. Callout boxes must not overlap or touch each other

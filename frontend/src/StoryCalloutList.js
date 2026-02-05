@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 
 import { Annotation } from "react-simple-maps";
 
@@ -7,13 +7,44 @@ import { calculateOffsets } from "./utils/mapCalloutUtils";
 // Read layout algorithm from URL param: ?layout=rails or ?layout=force
 function getLayoutAlgorithm() {
   const params = new URLSearchParams(window.location.search);
-  return params.get('layout') || 'force';
+  return params.get('layout') || 'exhaustive';
+}
+
+function getShowBoundingBox() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('showBoundingBox') === 'true';
 }
 
 function StoryCalloutList({ projection }) {
 
 const [callouts, setCallouts] = useState([]);
+const [viewportSize, setViewportSize] = useState({ w: window.innerWidth, h: window.innerHeight });
 const layoutAlgorithm = getLayoutAlgorithm();
+const showBoundingBox = getShowBoundingBox();
+
+// Track viewport size for visible SVG height calculation
+useEffect(() => {
+  const handleResize = () => setViewportSize({ w: window.innerWidth, h: window.innerHeight });
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+
+// SVG viewBox is 800×600, rendered at full width. Visible height in SVG coords:
+const SVG_WIDTH = 800;
+const visibleSvgHeight = Math.min(600, SVG_WIDTH * (viewportSize.h / viewportSize.w));
+
+// Compute bounding box coordinates for debug overlay
+// Shows the full area where any part of a box can appear
+const boundingBox = useMemo(() => {
+  if (!showBoundingBox) return null;
+  const EDGE_PADDING = 40;
+
+  const x = EDGE_PADDING;
+  const y = EDGE_PADDING;
+  const w = SVG_WIDTH - EDGE_PADDING * 2;
+  const h = visibleSvgHeight - EDGE_PADDING * 2;
+  return { x, y, w, h };
+}, [showBoundingBox, visibleSvgHeight]);
 
 // temp logging
 const tmpCallouts = useMemo(() => {
@@ -42,11 +73,15 @@ const tmpCallouts = useMemo(() => {
 
 
 // fetch list of callouts from backend
-// TODO for now, just fetching sample list
   useEffect(() => {
-    // TODO could be useful to have a GUI to switch to e.g. sampleCallouts
-    const today = new Date().toISOString().split('T')[0];
-    fetch(`/api/news/calloutsForDay/${today}`)
+    const params = new URLSearchParams(window.location.search);
+    const testCase = params.get('testCase');
+
+    const url = testCase !== null
+      ? `/api/news/sampleCallouts?testCase=${testCase}`
+      : `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}`;
+
+    fetch(url)
       .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
@@ -56,7 +91,6 @@ const tmpCallouts = useMemo(() => {
       })
       .catch((error) => {
         console.error("Error fetching callouts:", error);
-        // TODO setError("Failed to load callouts");
       });
   }, []);
 
@@ -64,12 +98,20 @@ const tmpCallouts = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
     if (callouts.length === 0 || !projection) return [];
 
-    // Pass the projection function and layout algorithm:
-    return calculateOffsets(callouts, projection, layoutAlgorithm);
-  }, [callouts, projection, layoutAlgorithm]);
+    // Pass the projection function, layout algorithm, and visible height:
+    return calculateOffsets(callouts, projection, layoutAlgorithm, visibleSvgHeight);
+  }, [callouts, projection, layoutAlgorithm, visibleSvgHeight]);
 
   return (
   <>
+  {boundingBox && (
+    <rect
+      x={boundingBox.x} y={boundingBox.y}
+      width={boundingBox.w} height={boundingBox.h}
+      fill="none" stroke="red" strokeWidth={1} strokeDasharray="6 3"
+      style={{ pointerEvents: "none" }}
+    />
+  )}
   {processedCallouts.map((callout) => (
         <Annotation
           subject={[callout.country.longitude, callout.country.latitude]}
