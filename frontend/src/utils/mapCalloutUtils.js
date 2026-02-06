@@ -902,6 +902,12 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
     return { ...callout, subjectX: x, subjectY: y };
   });
 
+  // The foreignObject is BOX_WIDTH x BOX_HEIGHT (135x100) but has overflow:visible,
+  // so the rendered box is taller than declared. Use RENDERED_HEIGHT for collision
+  // detection, and ANCHOR_Y for the annotation point offset from box top.
+  const RENDERED_HEIGHT = 150; // measured: 133-144 SVG units (varies with text length)
+  const ANCHOR_Y = 50; // foreignObject y=-50: annotation point is 50px below box top
+
   // --- Geometry helpers ---
 
   function segmentsIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -917,7 +923,7 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
     const bx = box.x - pad;
     const by = box.y - pad;
     const bw = BOX_WIDTH + pad * 2;
-    const bh = BOX_HEIGHT + pad * 2;
+    const bh = RENDERED_HEIGHT + pad * 2;
     return segmentsIntersect(x1, y1, x2, y2, bx, by, bx + bw, by) ||
            segmentsIntersect(x1, y1, x2, y2, bx + bw, by, bx + bw, by + bh) ||
            segmentsIntersect(x1, y1, x2, y2, bx + bw, by + bh, bx, by + bh) ||
@@ -928,15 +934,15 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
     const pad = 10; // minimum spacing between boxes
     return ax < bx + BOX_WIDTH + pad &&
            ax + BOX_WIDTH + pad > bx &&
-           ay < by + BOX_HEIGHT + pad &&
-           ay + BOX_HEIGHT + pad > by;
+           ay < by + RENDERED_HEIGHT + pad &&
+           ay + RENDERED_HEIGHT + pad > by;
   }
 
   // --- Step 1: Viewport bounds for candidate filtering ---
   const boundsMinX = EDGE_PADDING;
   const boundsMaxX = SVG_WIDTH - BOX_WIDTH - EDGE_PADDING;
   const boundsMinY = EDGE_PADDING;
-  const boundsMaxY = visibleSvgHeight - BOX_HEIGHT - EDGE_PADDING;
+  const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT - 15; // less bottom padding: nothing below the map
 
   // --- Step 2: Generate candidate positions per callout ---
   const DIRECTIONS = [
@@ -949,16 +955,17 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
     { angle: 3 * Math.PI / 4 },  // SW
     { angle: Math.PI },          // W
   ];
-  const DISTANCES = [80, 110, 145, 185];
-  const ORIGIN_PADDING = 15;
+  const DISTANCES = [80, 110, 145, 185, 225];
+  const ORIGIN_PADDING = 10;
 
   const candidatesPerNode = nodes.map((node) => {
     const candidates = [];
     for (const dir of DIRECTIONS) {
       for (const dist of DISTANCES) {
-        // Box top-left so that box centre lands at the candidate point
+        // Box top-left: annotation point at (subjectX + cos*dist, subjectY + sin*dist),
+        // box top is ANCHOR_Y above that point (matching foreignObject y=-50)
         const boxX = node.subjectX + Math.cos(dir.angle) * dist - BOX_WIDTH / 2;
-        const boxY = node.subjectY + Math.sin(dir.angle) * dist - BOX_HEIGHT / 2;
+        const boxY = node.subjectY + Math.sin(dir.angle) * dist - ANCHOR_Y;
 
         // Hard reject: any part of box outside map bounds
         if (boxX < boundsMinX || boxX > boundsMaxX ||
@@ -970,7 +977,7 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
         let obscuresOrigin = false;
         for (const n of nodes) {
           if (boxX - ORIGIN_PADDING < n.subjectX && n.subjectX < boxX + BOX_WIDTH + ORIGIN_PADDING &&
-              boxY - ORIGIN_PADDING < n.subjectY && n.subjectY < boxY + BOX_HEIGHT + ORIGIN_PADDING) {
+              boxY - ORIGIN_PADDING < n.subjectY && n.subjectY < boxY + RENDERED_HEIGHT + ORIGIN_PADDING) {
             obscuresOrigin = true;
             break;
           }
@@ -994,15 +1001,15 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
     for (let i = 0; i < n; i++) {
       const pi = placements[i];
       const ni = nodes[i];
-      // Connector from subject point to box centre
+      // Connector from subject point to annotation point (ANCHOR_Y below box top)
       const ciX = pi.boxX + BOX_WIDTH / 2;
-      const ciY = pi.boxY + BOX_HEIGHT / 2;
+      const ciY = pi.boxY + ANCHOR_Y;
 
       for (let j = i + 1; j < n; j++) {
         const pj = placements[j];
         const nj = nodes[j];
         const cjX = pj.boxX + BOX_WIDTH / 2;
-        const cjY = pj.boxY + BOX_HEIGHT / 2;
+        const cjY = pj.boxY + ANCHOR_Y;
 
         // Hard reject: box overlap
         if (boxesOverlap(pi.boxX, pi.boxY, pj.boxX, pj.boxY)) {
@@ -1029,6 +1036,23 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
 
       // Penalty: connector length (prefer short connectors)
       score += pi.dist * 1.0;
+
+      // Penalty: origin point proximity to this box
+      for (let k = 0; k < n; k++) {
+        const nk = nodes[k];
+        // Hard reject: origin literally inside the box
+        if (nk.subjectX > pi.boxX && nk.subjectX < pi.boxX + BOX_WIDTH &&
+            nk.subjectY > pi.boxY && nk.subjectY < pi.boxY + RENDERED_HEIGHT) {
+          return Infinity;
+        }
+        // Graduated penalty: origin near the box edge
+        const nearestX = Math.max(pi.boxX, Math.min(pi.boxX + BOX_WIDTH, nk.subjectX));
+        const nearestY = Math.max(pi.boxY, Math.min(pi.boxY + RENDERED_HEIGHT, nk.subjectY));
+        const edgeDist = Math.sqrt((nearestX - nk.subjectX) ** 2 + (nearestY - nk.subjectY) ** 2);
+        if (edgeDist < 70) {
+          score += (70 - edgeDist) * 10;
+        }
+      }
     }
 
     return score;
@@ -1074,14 +1098,14 @@ function calculateOffsetsExhaustive(callouts, projection, visibleSvgHeight = 600
     console.warn(`[exhaustive] No valid combination found (${nodes.length} nodes, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}). Falling back to compass.`);
     return calculateOffsetsCompass(callouts, projection);
   }
-  console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}`);
+  console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}, svgH=${visibleSvgHeight}`);
 
   return callouts.map((original, index) => {
     const p = bestPlacements[index];
     return {
       ...original,
       dx: p.boxX + BOX_WIDTH / 2 - nodes[index].subjectX,
-      dy: p.boxY + BOX_HEIGHT / 2 - nodes[index].subjectY,
+      dy: p.boxY + ANCHOR_Y - nodes[index].subjectY,
     };
   });
 }
