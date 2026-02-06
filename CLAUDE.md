@@ -87,16 +87,8 @@ React SPA using react-simple-maps for world map visualization:
 - **MapChart** - Main map component using Mercator projection
 - **StoryCalloutList** - Renders callout boxes with connectors to country points
 
-**Layout Algorithms** (`utils/mapCalloutUtils.js`):
-- `force` (default) - D3.js force simulation with collision detection
-- `rails` - Places callouts on left/right edges based on hemisphere
-- `compass` - Cardinal directions, starting NW and rotating clockwise
-- `four-winds` - Assigns 4 extreme points to diagonal directions
-- `exhaustive` - Generates candidate positions per callout and evaluates every combination to find the optimal layout (feasible because N≤4)
-
-Select via URL parameter: `?layout=force|rails|compass|four-winds|exhaustive`
-
-**Layout Algorithm Research & Plan:** See [callout layout research plan](file://.claude/plans/fancy-imagining-quasar.md) for analysis of PFLP (Point-Feature Label Placement) approaches and recommended next algorithm (exhaustive candidate enumeration).
+**Layout Algorithm** (`utils/mapCalloutUtils.js`):
+Exhaustive candidate enumeration - generates ~20-30 candidate positions per callout (8 directions × 5 distances, filtered by bounds/origin-obscuring), evaluates every combination, and picks the lowest-penalty layout. Feasible because N≤4. Based on PFLP (Point-Feature Label Placement) literature.
 
 **Layout Algorithm Success Criteria:**
 1. Callout boxes must not overlap or touch each other
@@ -116,11 +108,11 @@ Test scenarios are defined in `CalloutController.sampleCallouts()` including clu
 3. News is parsed, summarized, and geo-tagged
 4. Results stored in MongoDB as `StoryCallout` documents
 5. Frontend fetches callouts via REST API
-6. Map displays callouts positioned using selected layout algorithm
+6. Map displays callouts positioned using exhaustive layout algorithm
 
 ## Key Technologies
 - **Backend**: Spring Boot 4.0.x, Java 21, MongoDB, WebFlux
-- **Frontend**: React 18, react-simple-maps, d3-force
+- **Frontend**: React 18, react-simple-maps
 - **Testing**: Testcontainers (MongoDB), React Testing Library, Playwright
 - **AI**: Google Gemini API (gemini-2.5-flash-lite model)
 

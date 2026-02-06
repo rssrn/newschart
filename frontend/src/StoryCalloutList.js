@@ -1,14 +1,9 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import { Annotation } from "react-simple-maps";
 
 import { calculateOffsets } from "./utils/mapCalloutUtils";
 
-// Read layout algorithm from URL param: ?layout=rails or ?layout=force
-function getLayoutAlgorithm() {
-  const params = new URLSearchParams(window.location.search);
-  return params.get('layout') || 'exhaustive';
-}
 
 function getShowBoundingBox() {
   const params = new URLSearchParams(window.location.search);
@@ -19,7 +14,6 @@ function StoryCalloutList({ projection }) {
 
 const [callouts, setCallouts] = useState([]);
 const [viewportSize, setViewportSize] = useState({ w: window.innerWidth, h: window.innerHeight });
-const layoutAlgorithm = getLayoutAlgorithm();
 const showBoundingBox = getShowBoundingBox();
 
 // Track viewport size for visible SVG height calculation
@@ -68,8 +62,8 @@ const tmpCallouts = useMemo(() => {
     console.log(`Callout ${i} (${c.headline}): subject at [${x}, ${y}]`);
   });
 
-  return calculateOffsets(callouts, projection, layoutAlgorithm);
-}, [callouts, projection, layoutAlgorithm]);
+  return calculateOffsets(callouts, projection);
+}, [callouts, projection]);
 
 
 // fetch list of callouts from backend
@@ -98,9 +92,8 @@ const tmpCallouts = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
     if (callouts.length === 0 || !projection) return [];
 
-    // Pass the projection function, layout algorithm, and visible height:
-    return calculateOffsets(callouts, projection, layoutAlgorithm, visibleSvgHeight);
-  }, [callouts, projection, layoutAlgorithm, visibleSvgHeight]);
+    return calculateOffsets(callouts, projection, visibleSvgHeight);
+  }, [callouts, projection, visibleSvgHeight]);
 
   return (
   <>
