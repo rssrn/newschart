@@ -116,6 +116,9 @@ Test scenarios are defined in `CalloutController.sampleCallouts()` including clu
 - **Testing**: Testcontainers (MongoDB), React Testing Library, Playwright
 - **AI**: Google Gemini API (gemini-2.5-flash-lite model)
 
+## Saved Plans
+- **TypeScript migration**: `~/.claude/plans/purrfect-sauteeing-squirrel.md` — migrate frontend from JavaScript to TypeScript
+
 ## Environment Variables
 - `NVD_API_KEY` - For OWASP NVD vulnerability database
 - `OSS_INDEX_USERNAME` / `OSS_INDEX_PASSWORD` - For OSS Index scanning
