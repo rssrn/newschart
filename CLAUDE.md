@@ -123,3 +123,7 @@ Test scenarios are defined in `CalloutController.sampleCallouts()` including clu
 - `NVD_API_KEY` - For OWASP NVD vulnerability database
 - `OSS_INDEX_USERNAME` / `OSS_INDEX_PASSWORD` - For OSS Index scanning
 - Gemini API key configured in application properties
+
+## Claude Assistance
+- For the frontend it's likely Claude will be producing/updating code
+- For the backend, Claude is likely to be giving review/advice only, so don't offer to make edits
