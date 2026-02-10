@@ -274,7 +274,7 @@ public class CalloutController {
         };
 
         // Clamp testCase to valid range
-        int index = Math.max(0, Math.min(testCase, testCases.length - 1));
+        int index = Math.clamp(testCase, 0, testCases.length - 1);
 
         log.info("sampleCallouts testCase={}", index);
 
