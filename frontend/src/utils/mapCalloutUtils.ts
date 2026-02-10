@@ -25,6 +25,11 @@ const BOX_WIDTH = 135;
 const BOX_HEIGHT = 100;
 const EDGE_PADDING = 40;
 
+interface Point {
+  x: number;
+  y: number;
+}
+
 /**
  * Exhaustive candidate enumeration layout - generates candidate positions for each
  * callout, evaluates every combination, and picks the one with the lowest penalty score.
@@ -69,30 +74,24 @@ export function calculateOffsets(
 
   // --- Geometry helpers ---
 
-  function segmentsIntersect(
-    x1: number, y1: number, x2: number, y2: number,
-    x3: number, y3: number, x4: number, y4: number
-  ): boolean {
-    const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+  function segmentsIntersect(p1: Point, p2: Point, p3: Point, p4: Point): boolean {
+    const denom = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
     if (Math.abs(denom) < 0.001) return false;
-    const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
-    const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+    const t = ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) / denom;
+    const u = -((p1.x - p2.x) * (p1.y - p3.y) - (p1.y - p2.y) * (p1.x - p3.x)) / denom;
     return t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99;
   }
 
-  function lineIntersectsBox(
-    x1: number, y1: number, x2: number, y2: number,
-    box: { x: number; y: number }
-  ): boolean {
+  function lineIntersectsBox(p1: Point, p2: Point, box: Point): boolean {
     const pad = 5;
     const bx = box.x - pad;
     const by = box.y - pad;
     const bw = BOX_WIDTH + pad * 2;
     const bh = RENDERED_HEIGHT + pad * 2;
-    return segmentsIntersect(x1, y1, x2, y2, bx, by, bx + bw, by) ||
-           segmentsIntersect(x1, y1, x2, y2, bx + bw, by, bx + bw, by + bh) ||
-           segmentsIntersect(x1, y1, x2, y2, bx + bw, by + bh, bx, by + bh) ||
-           segmentsIntersect(x1, y1, x2, y2, bx, by + bh, bx, by);
+    return segmentsIntersect(p1, p2, { x: bx, y: by }, { x: bx + bw, y: by }) ||
+           segmentsIntersect(p1, p2, { x: bx + bw, y: by }, { x: bx + bw, y: by + bh }) ||
+           segmentsIntersect(p1, p2, { x: bx + bw, y: by + bh }, { x: bx, y: by + bh }) ||
+           segmentsIntersect(p1, p2, { x: bx, y: by + bh }, { x: bx, y: by });
   }
 
   function boxesOverlap(ax: number, ay: number, bx: number, by: number): boolean {
@@ -123,6 +122,23 @@ export function calculateOffsets(
   const DISTANCES: number[] = [80, 110, 145, 185, 225];
   const ORIGIN_PADDING = 10;
 
+  // Helper: check if a box position would obscure any origin point
+  function boxObscuresOrigin(boxX: number, boxY: number): boolean {
+    for (const n of nodes) {
+      if (boxX - ORIGIN_PADDING < n.subjectX && n.subjectX < boxX + BOX_WIDTH + ORIGIN_PADDING &&
+          boxY - ORIGIN_PADDING < n.subjectY && n.subjectY < boxY + RENDERED_HEIGHT + ORIGIN_PADDING) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Helper: check if a box position is within viewport bounds
+  function isWithinBounds(boxX: number, boxY: number): boolean {
+    return boxX >= boundsMinX && boxX <= boundsMaxX &&
+           boxY >= boundsMinY && boxY <= boundsMaxY;
+  }
+
   const candidatesPerNode: LayoutCandidate[][] = nodes.map((node) => {
     const candidates: LayoutCandidate[] = [];
     for (const dir of DIRECTIONS) {
@@ -132,22 +148,10 @@ export function calculateOffsets(
         const boxX = node.subjectX + Math.cos(dir.angle) * dist - BOX_WIDTH / 2;
         const boxY = node.subjectY + Math.sin(dir.angle) * dist - ANCHOR_Y;
 
-        // Hard reject: any part of box outside map bounds
-        if (boxX < boundsMinX || boxX > boundsMaxX ||
-            boxY < boundsMinY || boxY > boundsMaxY) {
+        // Hard reject: any part of box outside map bounds or obscuring origin
+        if (!isWithinBounds(boxX, boxY) || boxObscuresOrigin(boxX, boxY)) {
           continue;
         }
-
-        // Hard reject: box would obscure any origin point
-        let obscuresOrigin = false;
-        for (const n of nodes) {
-          if (boxX - ORIGIN_PADDING < n.subjectX && n.subjectX < boxX + BOX_WIDTH + ORIGIN_PADDING &&
-              boxY - ORIGIN_PADDING < n.subjectY && n.subjectY < boxY + RENDERED_HEIGHT + ORIGIN_PADDING) {
-            obscuresOrigin = true;
-            break;
-          }
-        }
-        if (obscuresOrigin) continue;
 
         candidates.push({ boxX, boxY, dist });
       }
@@ -156,6 +160,65 @@ export function calculateOffsets(
   });
 
   // --- Step 3: Enumerate all combinations and score ---
+
+  // Helper: calculate penalty for interaction between two placements
+  function scorePairInteraction(
+    i: number, j: number,
+    pi: LayoutCandidate, pj: LayoutCandidate,
+    ni: LayoutNode, nj: LayoutNode
+  ): number {
+    const ci: Point = { x: pi.boxX + BOX_WIDTH / 2, y: pi.boxY + ANCHOR_Y };
+    const cj: Point = { x: pj.boxX + BOX_WIDTH / 2, y: pj.boxY + ANCHOR_Y };
+
+    // Hard reject: box overlap
+    if (boxesOverlap(pi.boxX, pi.boxY, pj.boxX, pj.boxY)) {
+      return Infinity;
+    }
+
+    let penalty = 0;
+
+    // Penalty: connector i crosses connector j
+    if (segmentsIntersect({ x: ni.subjectX, y: ni.subjectY }, ci,
+                          { x: nj.subjectX, y: nj.subjectY }, cj)) {
+      penalty += 100;
+    }
+
+    // Penalty: connector i passes through box j
+    if (lineIntersectsBox({ x: ni.subjectX, y: ni.subjectY }, ci,
+                          { x: pj.boxX, y: pj.boxY })) {
+      penalty += 80;
+    }
+    // Penalty: connector j passes through box i
+    if (lineIntersectsBox({ x: nj.subjectX, y: nj.subjectY }, cj,
+                          { x: pi.boxX, y: pi.boxY })) {
+      penalty += 80;
+    }
+
+    return penalty;
+  }
+
+  // Helper: calculate penalty for origin points near a placement
+  function scoreOriginProximity(pi: LayoutCandidate): number {
+    for (const nk of nodes) {
+      // Hard reject: origin literally inside the box
+      if (nk.subjectX > pi.boxX && nk.subjectX < pi.boxX + BOX_WIDTH &&
+          nk.subjectY > pi.boxY && nk.subjectY < pi.boxY + RENDERED_HEIGHT) {
+        return Infinity;
+      }
+    }
+
+    let penalty = 0;
+    for (const nk of nodes) {
+      // Graduated penalty: origin near the box edge
+      const nearestX = Math.max(pi.boxX, Math.min(pi.boxX + BOX_WIDTH, nk.subjectX));
+      const nearestY = Math.max(pi.boxY, Math.min(pi.boxY + RENDERED_HEIGHT, nk.subjectY));
+      const edgeDist = Math.hypot(nearestX - nk.subjectX, nearestY - nk.subjectY);
+      if (edgeDist < 70) {
+        penalty += (70 - edgeDist) * 10;
+      }
+    }
+    return penalty;
+  }
 
   // Score a full combination of placements
   function scoreCombination(placements: LayoutCandidate[]): number {
@@ -166,58 +229,24 @@ export function calculateOffsets(
     for (let i = 0; i < n; i++) {
       const pi = placements[i];
       const ni = nodes[i];
-      // Connector from subject point to annotation point (ANCHOR_Y below box top)
-      const ciX = pi.boxX + BOX_WIDTH / 2;
-      const ciY = pi.boxY + ANCHOR_Y;
 
       for (let j = i + 1; j < n; j++) {
-        const pj = placements[j];
-        const nj = nodes[j];
-        const cjX = pj.boxX + BOX_WIDTH / 2;
-        const cjY = pj.boxY + ANCHOR_Y;
-
-        // Hard reject: box overlap
-        if (boxesOverlap(pi.boxX, pi.boxY, pj.boxX, pj.boxY)) {
+        const pairPenalty = scorePairInteraction(i, j, pi, placements[j], ni, nodes[j]);
+        if (pairPenalty === Infinity) {
           return Infinity;
         }
-
-        // Penalty: connector i crosses connector j
-        if (segmentsIntersect(ni.subjectX, ni.subjectY, ciX, ciY,
-                              nj.subjectX, nj.subjectY, cjX, cjY)) {
-          score += 100;
-        }
-
-        // Penalty: connector i passes through box j
-        if (lineIntersectsBox(ni.subjectX, ni.subjectY, ciX, ciY,
-                              { x: pj.boxX, y: pj.boxY })) {
-          score += 80;
-        }
-        // Penalty: connector j passes through box i
-        if (lineIntersectsBox(nj.subjectX, nj.subjectY, cjX, cjY,
-                              { x: pi.boxX, y: pi.boxY })) {
-          score += 80;
-        }
+        score += pairPenalty;
       }
 
       // Penalty: connector length (prefer short connectors)
-      score += pi.dist * 1.0;
+      score += pi.dist;
 
       // Penalty: origin point proximity to this box
-      for (let k = 0; k < n; k++) {
-        const nk = nodes[k];
-        // Hard reject: origin literally inside the box
-        if (nk.subjectX > pi.boxX && nk.subjectX < pi.boxX + BOX_WIDTH &&
-            nk.subjectY > pi.boxY && nk.subjectY < pi.boxY + RENDERED_HEIGHT) {
-          return Infinity;
-        }
-        // Graduated penalty: origin near the box edge
-        const nearestX = Math.max(pi.boxX, Math.min(pi.boxX + BOX_WIDTH, nk.subjectX));
-        const nearestY = Math.max(pi.boxY, Math.min(pi.boxY + RENDERED_HEIGHT, nk.subjectY));
-        const edgeDist = Math.sqrt((nearestX - nk.subjectX) ** 2 + (nearestY - nk.subjectY) ** 2);
-        if (edgeDist < 70) {
-          score += (70 - edgeDist) * 10;
-        }
+      const proximityPenalty = scoreOriginProximity(pi);
+      if (proximityPenalty === Infinity) {
+        return Infinity;
       }
+      score += proximityPenalty;
     }
 
     return score;
@@ -241,9 +270,9 @@ export function calculateOffsets(
     for (const candidate of candidates) {
       // Early prune: check overlap with already-placed boxes before recursing
       let overlaps = false;
-      for (let i = 0; i < currentPlacements.length; i++) {
+      for (const placement of currentPlacements) {
         if (boxesOverlap(candidate.boxX, candidate.boxY,
-                         currentPlacements[i].boxX, currentPlacements[i].boxY)) {
+                         placement.boxX, placement.boxY)) {
           overlaps = true;
           break;
         }
