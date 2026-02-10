@@ -1,27 +1,23 @@
-import React, {useMemo } from "react";
-
-import { geoMercator } from "d3-geo";
-
-import StoryCalloutList from './StoryCalloutList.js'
-
+import React, { useMemo } from "react";
+import { geoMercator, GeoProjection } from "d3-geo";
+import StoryCalloutList from './StoryCalloutList';
 import {
   ComposableMap,
   Geographies,
   Geography,
-  Annotation,
-  ZoomableGroup,
 } from "react-simple-maps";
 
-const MapChart = () => {
+// Static projection config - moved outside component to avoid useMemo dependency warning
+const projectionConfig: { center: [number, number]; scale: number } = {
+  center: [0, -35],
+  scale: 90,
+};
 
-  const projectionConfig = {
-    center: [0, -35],
-    scale: 90,
-  };
+const MapChart = (): React.ReactElement => {
 
   // Must match react-simple-maps' internal projection: translate = [width/2, height/2]
   // where ComposableMap defaults to width=800, height=600
-  const projection = useMemo(() => {
+  const projection: GeoProjection = useMemo(() => {
     return geoMercator()
       .center(projectionConfig.center)
       .scale(projectionConfig.scale)

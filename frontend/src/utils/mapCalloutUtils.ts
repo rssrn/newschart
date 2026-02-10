@@ -17,6 +17,9 @@
 // and picks the lowest-penalty layout. With N≤4 labels this is trivially fast (<1ms).
 //
 // @author Claude Opus 4.6 Anthropic
+// @author Claude Sonnet 4.5 Anthropic (TypeScript migration)
+
+import { StoryCallout, PositionedCallout, LayoutNode, LayoutCandidate, MapProjection } from '../types/news';
 
 const BOX_WIDTH = 135;
 const BOX_HEIGHT = 100;
@@ -28,11 +31,18 @@ const EDGE_PADDING = 40;
  *
  * Based on the Point-Feature Label Placement (PFLP) literature.
  *
- * @param {Array} callouts - Array of callout objects with country data
- * @param {Function} projection - Map projection function
- * @param {number} visibleSvgHeight - Visible SVG height in SVG coordinates (accounts for viewport clipping)
+ * @param callouts - Array of callout objects with country data
+ * @param projection - Map projection function
+ * @param visibleSvgHeight - Visible SVG height in SVG coordinates (accounts for viewport clipping)
+ * @returns Array of callouts with dx/dy offsets for positioning
+ *
+ * @author Claude Sonnet 4.5 Anthropic
  */
-export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
+export function calculateOffsets(
+  callouts: StoryCallout[],
+  projection: MapProjection,
+  visibleSvgHeight: number = 600
+): PositionedCallout[] {
   if (!Array.isArray(callouts) || !projection) return [];
   if (callouts.length === 0) return [];
 
@@ -41,8 +51,13 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
   const SVG_WIDTH = 800;
 
   // Convert callouts to screen coordinates
-  const nodes = callouts.map((callout) => {
-    const [x, y] = projection([callout.country.longitude, callout.country.latitude]);
+  const nodes: LayoutNode[] = callouts.map((callout) => {
+    const projected = projection([callout.country.longitude, callout.country.latitude]);
+    // d3 projection can return null if point is not projectable
+    if (!projected) {
+      throw new Error(`Could not project coordinates for ${callout.country.name}`);
+    }
+    const [x, y] = projected;
     return { ...callout, subjectX: x, subjectY: y };
   });
 
@@ -54,7 +69,10 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
 
   // --- Geometry helpers ---
 
-  function segmentsIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
+  function segmentsIntersect(
+    x1: number, y1: number, x2: number, y2: number,
+    x3: number, y3: number, x4: number, y4: number
+  ): boolean {
     const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
     if (Math.abs(denom) < 0.001) return false;
     const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
@@ -62,7 +80,10 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
     return t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99;
   }
 
-  function lineIntersectsBox(x1, y1, x2, y2, box) {
+  function lineIntersectsBox(
+    x1: number, y1: number, x2: number, y2: number,
+    box: { x: number; y: number }
+  ): boolean {
     const pad = 5;
     const bx = box.x - pad;
     const by = box.y - pad;
@@ -74,7 +95,7 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
            segmentsIntersect(x1, y1, x2, y2, bx, by + bh, bx, by);
   }
 
-  function boxesOverlap(ax, ay, bx, by) {
+  function boxesOverlap(ax: number, ay: number, bx: number, by: number): boolean {
     const pad = 10; // minimum spacing between boxes
     return ax < bx + BOX_WIDTH + pad &&
            ax + BOX_WIDTH + pad > bx &&
@@ -89,7 +110,7 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
   const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT - 15; // less bottom padding: nothing below the map
 
   // --- Step 2: Generate candidate positions per callout ---
-  const DIRECTIONS = [
+  const DIRECTIONS: { angle: number }[] = [
     { angle: -3 * Math.PI / 4 }, // NW
     { angle: -Math.PI / 2 },     // N
     { angle: -Math.PI / 4 },     // NE
@@ -99,11 +120,11 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
     { angle: 3 * Math.PI / 4 },  // SW
     { angle: Math.PI },          // W
   ];
-  const DISTANCES = [80, 110, 145, 185, 225];
+  const DISTANCES: number[] = [80, 110, 145, 185, 225];
   const ORIGIN_PADDING = 10;
 
-  const candidatesPerNode = nodes.map((node) => {
-    const candidates = [];
+  const candidatesPerNode: LayoutCandidate[][] = nodes.map((node) => {
+    const candidates: LayoutCandidate[] = [];
     for (const dir of DIRECTIONS) {
       for (const dist of DISTANCES) {
         // Box top-left: annotation point at (subjectX + cos*dist, subjectY + sin*dist),
@@ -137,7 +158,7 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
   // --- Step 3: Enumerate all combinations and score ---
 
   // Score a full combination of placements
-  function scoreCombination(placements) {
+  function scoreCombination(placements: LayoutCandidate[]): number {
     let score = 0;
     const n = placements.length;
 
@@ -203,10 +224,10 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
   }
 
   // Recursive enumeration of cartesian product of candidates
-  let bestScore = Infinity;
-  let bestPlacements = null;
+  let bestScore: number = Infinity;
+  let bestPlacements: LayoutCandidate[] | null = null;
 
-  function enumerate(nodeIndex, currentPlacements) {
+  function enumerate(nodeIndex: number, currentPlacements: LayoutCandidate[]): void {
     if (nodeIndex === nodes.length) {
       const score = scoreCombination(currentPlacements);
       if (score < bestScore) {
@@ -242,10 +263,13 @@ export function calculateOffsets(callouts, projection, visibleSvgHeight = 600) {
     console.warn(`[exhaustive] No valid combination found (${nodes.length} nodes, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}). Using zero offsets.`);
     return callouts.map((original) => ({ ...original, dx: 0, dy: -80 }));
   }
+
+  // TypeScript needs this reassignment to understand bestPlacements is non-null here
+  const finalPlacements: LayoutCandidate[] = bestPlacements;
   console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}, svgH=${visibleSvgHeight}`);
 
   return callouts.map((original, index) => {
-    const p = bestPlacements[index];
+    const p: LayoutCandidate = finalPlacements[index];
     return {
       ...original,
       dx: p.boxX + BOX_WIDTH / 2 - nodes[index].subjectX,

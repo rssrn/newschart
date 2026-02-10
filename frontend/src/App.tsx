@@ -1,7 +1,7 @@
 import './App.css';
-import MapChart from './MapChart.js';
+import MapChart from './MapChart';
 
-function App() {
+function App(): React.ReactElement {
   return (
     <div className="App">
       <div className="map-container">

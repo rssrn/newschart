@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useMemo } from "react";
-
 import { Annotation } from "react-simple-maps";
-
 import { calculateOffsets } from "./utils/mapCalloutUtils";
+import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./types/news";
 
+interface StoryCalloutListProps {
+  projection: MapProjection;
+}
 
-function getShowBoundingBox() {
+function getShowBoundingBox(): boolean {
   const params = new URLSearchParams(window.location.search);
   return params.get('showBoundingBox') === 'true';
 }
 
-function StoryCalloutList({ projection }) {
+function StoryCalloutList({ projection }: StoryCalloutListProps): React.ReactElement {
 
-const [callouts, setCallouts] = useState([]);
-const [viewportSize, setViewportSize] = useState({ w: window.innerWidth, h: window.innerHeight });
+const [callouts, setCallouts] = useState<StoryCallout[]>([]);
+const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
 
 // Track viewport size for visible SVG height calculation
@@ -40,32 +42,6 @@ const boundingBox = useMemo(() => {
   return { x, y, w, h };
 }, [showBoundingBox, visibleSvgHeight]);
 
-// temp logging
-const tmpCallouts = useMemo(() => {
-  if (callouts.length === 0 || !projection) return [];
-
-  // LOG VIEWPORT INFO
-  console.log('=== MAP VIEWPORT INFO ===');
-
-  // Get the bounds of the projection
-  const topLeft = projection([-180, 85]);
-  const bottomRight = projection([180, -85]);
-
-  console.log('Top-left corner:', topLeft);
-  console.log('Bottom-right corner:', bottomRight);
-  console.log('Map width:', bottomRight[0] - topLeft[0]);
-  console.log('Map height:', bottomRight[1] - topLeft[1]);
-
-  // Also log where each callout's subject point appears on screen
-  callouts.forEach((c, i) => {
-    const [x, y] = projection([c.country.longitude, c.country.latitude]);
-    console.log(`Callout ${i} (${c.headline}): subject at [${x}, ${y}]`);
-  });
-
-  return calculateOffsets(callouts, projection);
-}, [callouts, projection]);
-
-
 // fetch list of callouts from backend
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -80,7 +56,7 @@ const tmpCallouts = useMemo(() => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
-      .then((data) => {
+      .then((data: StoryCallout[]) => {
         setCallouts(data);
       })
       .catch((error) => {
@@ -88,7 +64,7 @@ const tmpCallouts = useMemo(() => {
       });
   }, []);
 
-  const processedCallouts = useMemo(() => {
+  const processedCallouts: PositionedCallout[] = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
     if (callouts.length === 0 || !projection) return [];
 
@@ -107,6 +83,7 @@ const tmpCallouts = useMemo(() => {
   )}
   {processedCallouts.map((callout) => (
         <Annotation
+          key={`${callout.country.name}-${callout.headline}`}
           subject={[callout.country.longitude, callout.country.latitude]}
           dx={callout.dx}
           dy={callout.dy}
@@ -148,7 +125,7 @@ const tmpCallouts = useMemo(() => {
 
 }
 
-function getCountryFlag(countryCode) {
+function getCountryFlag(countryCode: string | undefined): string {
   if (!countryCode || countryCode.length !== 2) {
     return '🌍'; // Default globe emoji for unknown/international
   }
