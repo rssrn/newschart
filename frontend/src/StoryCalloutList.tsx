@@ -126,7 +126,7 @@ const boundingBox = useMemo(() => {
 }
 
 function getCountryFlag(countryCode: string | undefined): string {
-  if (countryCode && countryCode.length === 2) {
+  if (countryCode?.length === 2) {
     // Convert country code to flag emoji using regional indicator symbols
     // Each letter maps to a regional indicator symbol (🇦 = U+1F1E6, 🇧 = U+1F1E7, etc.)
     const codePoints = countryCode

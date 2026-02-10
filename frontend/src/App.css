@@ -48,12 +48,6 @@ svg {
   border-bottom: 1px solid #dbeafe;
 }
 
-.map-annotation-location {
-  font-size: 8px; /* Reduced from 10px */
-  color: #4b5563;
-  font-weight: 500;
-  text-align: left;
-}
 
 /* Title */
 .map-annotation-title {
