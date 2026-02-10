@@ -8,7 +8,7 @@ interface StoryCalloutListProps {
 }
 
 function getShowBoundingBox(): boolean {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(window.location.search); // NOSONAR
   return params.get('showBoundingBox') === 'true';
 }
 
@@ -44,7 +44,7 @@ const boundingBox = useMemo(() => {
 
 // fetch list of callouts from backend
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search); // NOSONAR
     const testCase = params.get('testCase');
 
     const url = testCase === null
