@@ -34,11 +34,11 @@ public class NewYorkTimesRssParserService implements PipelineStep {
 
     private static final Logger log = LogManager.getLogger(NewYorkTimesRssParserService.class);
 
-    private DocumentBuilder builder;
-    private XPath xpath;
-    private XPathExpression expr;
+    private final DocumentBuilder builder; // not thread-safe, but not expecting concurrent use
+    private final XPath xpath;
+    private final XPathExpression expr;
 
-    private CountryFactory countryFactory;
+    private final CountryFactory countryFactory;
 
     @Autowired
     public NewYorkTimesRssParserService(CountryFactory countryFactory) throws RuntimeException {
@@ -86,8 +86,8 @@ public class NewYorkTimesRssParserService implements PipelineStep {
                 List<Country> countries = new ArrayList<>();
                 for (int j = 0; j < geoNodes.getLength(); j++) {
                     Element geoEl = (Element) geoNodes.item(j);
-                    log.info(" --> geo: {}", geoEl.getTextContent().trim());
                     String countryName = geoEl.getTextContent().trim();
+                    log.info(" --> geo country: {}", countryName);
                     if (countryFactory.isValidCountry(countryName)) {
                         countries.add(countryFactory.getCountry(countryName));
                     }
