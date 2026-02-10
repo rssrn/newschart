@@ -4,7 +4,7 @@ import { calculateOffsets } from "./utils/mapCalloutUtils";
 import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./types/news";
 
 interface StoryCalloutListProps {
-  projection: MapProjection;
+  readonly projection: MapProjection;
 }
 
 function getShowBoundingBox(): boolean {
@@ -47,9 +47,9 @@ const boundingBox = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     const testCase = params.get('testCase');
 
-    const url = testCase !== null
-      ? `/api/news/sampleCallouts?testCase=${testCase}`
-      : `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}`;
+    const url = testCase === null
+      ? `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}`
+      : `/api/news/sampleCallouts?testCase=${testCase}`;
 
     fetch(url)
       .then((response) => {
@@ -126,18 +126,18 @@ const boundingBox = useMemo(() => {
 }
 
 function getCountryFlag(countryCode: string | undefined): string {
-  if (!countryCode || countryCode.length !== 2) {
-    return '🌍'; // Default globe emoji for unknown/international
+  if (countryCode && countryCode.length === 2) {
+    // Convert country code to flag emoji using regional indicator symbols
+    // Each letter maps to a regional indicator symbol (🇦 = U+1F1E6, 🇧 = U+1F1E7, etc.)
+    const codePoints = countryCode
+      .toUpperCase()
+      .split('')
+      .map(char => 127397 + char.codePointAt(0)!); // 127397 = 0x1F1E6 - 65
+
+    return String.fromCodePoint(...codePoints);
   }
 
-  // Convert country code to flag emoji using regional indicator symbols
-  // Each letter maps to a regional indicator symbol (🇦 = U+1F1E6, 🇧 = U+1F1E7, etc.)
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0)); // 127397 = 0x1F1E6 - 65
-
-  return String.fromCodePoint(...codePoints);
+  return '🌍'; // Default globe emoji for unknown/international
 }
 
 export default StoryCalloutList;
