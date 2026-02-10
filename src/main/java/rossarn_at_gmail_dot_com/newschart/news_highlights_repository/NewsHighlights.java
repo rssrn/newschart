@@ -26,6 +26,14 @@ public class NewsHighlights {
         return id;
     }
 
+    public CalloutSource getSource() {
+        return source;
+    }
+
+    public Instant getFetchTime() {
+        return fetchTime;
+    }
+
     public void setSource(CalloutSource source) {
         this.source = source;
     }
