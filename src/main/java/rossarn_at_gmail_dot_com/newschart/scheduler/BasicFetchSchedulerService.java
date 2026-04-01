@@ -44,11 +44,26 @@ public class BasicFetchSchedulerService extends BaseScheduler {
     @PreDestroy
     public void shutdown() {
         executorService.shutdown();
+        try {
+          if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+              log.warn("Pipeline did not finish within shutdown timeout");
+              executorService.shutdownNow();
+          }
+      } catch (InterruptedException e) {
+          executorService.shutdownNow();
+          Thread.currentThread().interrupt();
+      }
     }
 
     private void scheduleNYT() {
         if(config.getNyt().isEnabled()) {
-            executorService.schedule(this::fetchNewYorkTimes, config.getNyt().getFetchDelaySeconds(), TimeUnit.SECONDS);
+            executorService.schedule(() -> {
+                try {
+                    fetchNewYorkTimes();
+                } catch (Exception e) {
+                    log.error("NYT pipeline failed", e);
+                }
+            }, config.getNyt().getFetchDelaySeconds(), TimeUnit.SECONDS);
             log.info("Scheduled NYT pipeline for {} seconds in the future", config.getNyt().getFetchDelaySeconds());
         } else {
             log.info("NYT fetch is disabled in config, skipping");
@@ -57,7 +72,13 @@ public class BasicFetchSchedulerService extends BaseScheduler {
 
     private void scheduleGemini() {
         if(config.getGemini().isEnabled()) {
-            executorService.schedule(this::fetchGemini, config.getGemini().getFetchDelaySeconds(), TimeUnit.SECONDS);
+            executorService.schedule(() -> {
+                try {
+                    fetchGemini();
+                } catch (Exception e) {
+                    log.error("Gemini pipeline failed", e);
+                }
+            }, config.getGemini().getFetchDelaySeconds(), TimeUnit.SECONDS);
             log.info("Scheduled Gemini pipeline for {} seconds in the future", config.getGemini().getFetchDelaySeconds());
         } else {
             log.info("Gemini fetch is disabled in config, skipping");
