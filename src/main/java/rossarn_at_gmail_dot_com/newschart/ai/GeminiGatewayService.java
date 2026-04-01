@@ -2,13 +2,16 @@ package rossarn_at_gmail_dot_com.newschart.ai;
 
 import org.springframework.stereotype.Service;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.core.ParameterizedTypeReference;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.CountryNews;
 import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,7 +36,7 @@ public class GeminiGatewayService {
     static final String FIND_NEWS_PROMPT = """
             Find today's top 3 international news stories.  The returned title must be 8 words or fewer.
             The returned content must be 12-25 words.  The returned country should be the primary location of the story.
-            The response must be a json list of 3 news story objects.
+            Return a list of exactly 3 items.
             """;
 
     public GeminiGatewayService(ChatClient.Builder chatClientBuilder) {
@@ -61,6 +64,20 @@ public class GeminiGatewayService {
                         .user(prompt)
                         .call()
                         .entity(StoryOutline.class)
+        );
+    }
+
+    /**
+     * Use LLM to generate top news stories for today.
+     *
+     * @return list of story callouts suggested by the LLM
+     */
+    public Optional<List<StoryCallout>> getCallouts() {
+        return Optional.ofNullable(
+                chatClient.prompt()
+                        .user(FIND_NEWS_PROMPT)
+                        .call()
+                        .entity(new ParameterizedTypeReference<List<StoryCallout>>() {})
         );
     }
 }
