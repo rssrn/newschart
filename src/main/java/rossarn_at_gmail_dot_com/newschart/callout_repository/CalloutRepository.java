@@ -1,6 +1,5 @@
 package rossarn_at_gmail_dot_com.newschart.callout_repository;
 
-import okhttp3.Call;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

@@ -93,7 +93,7 @@ public class GeminiGatewayService {
                                 .temperature(1.0)            // Recommended for search tasks
                                 .build())
                         .call()
-                        .entity(new ParameterizedTypeReference<List<StoryCallout>>() {
+                        .entity(new ParameterizedTypeReference<>() {
                         })
         );
     }
