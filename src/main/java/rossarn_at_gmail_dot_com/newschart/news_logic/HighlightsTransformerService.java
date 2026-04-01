@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -40,12 +41,16 @@ public class HighlightsTransformerService implements PipelineStep {
         List<StoryCallout> result = new ArrayList<>();
         for (CountryNews countryNews: newsHighlights.getNewsItemsForCountry()) {
 
-            GeminiGatewayService.StoryOutline outline = geminiGatewayService.summariseStories(countryNews).orElseThrow();
+            Optional<GeminiGatewayService.StoryOutline> outlineOpt = geminiGatewayService.summariseStories(countryNews);
+            if (outlineOpt.isEmpty()) {
+                log.warn("Gemini returned empty outline for country: {}", countryNews.getCountry().getName());
+                continue;
+            }
 
             StoryCallout.Builder builder = new StoryCallout.Builder(createdAt);
             builder.country(countryNews.getCountry());
-            builder.headline(outline.title());
-            builder.detail(outline.body());
+            builder.headline(outlineOpt.get().title());
+            builder.detail(outlineOpt.get().body());
             builder.type(type);
             builder.source(source);
             result.add(builder.build());
