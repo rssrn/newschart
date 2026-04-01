@@ -29,11 +29,14 @@ public class CountryFactory {
     public void init() throws IOException {
         // load all countries from static csv
         Resource resource = resourceLoader.getResource("classpath:static/countries.csv");
-        BufferedReader csvReader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
-        List<Country> countryList = new CsvToBeanBuilder<Country>(csvReader).withType(Country.class).build().parse();
-        log.info("Loaded {} countries", countryList.size());
-        for (Country country: countryList) {
-            countryMap.put(country.getName(), country);
+        try (BufferedReader csvReader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+            List<Country> countryList = new CsvToBeanBuilder<Country>(csvReader).withType(Country.class).build().parse();
+            log.info("Loaded {} countries", countryList.size());
+            for (Country country : countryList) {
+                countryMap.put(country.getName(), country);
+            }
+        } catch (Exception e) {
+            log.error("Failed to read country csv", e);
         }
     }
 
