@@ -67,6 +67,6 @@ public class CalloutService implements PipelineStep {
         Date startDate = Date.from(startOfDay.toInstant());
         Date endDate = Date.from(endOfDay.toInstant());
 
-        return calloutRepository.findByGeneratedAtBetween(startDate, endDate);
+        return calloutRepository.findByGeneratedAtBetweenAndSource(startDate, endDate, CalloutSource.NEW_YORK_TIMES);
     }
 }
