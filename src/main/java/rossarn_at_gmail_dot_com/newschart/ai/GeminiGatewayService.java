@@ -1,5 +1,6 @@
 package rossarn_at_gmail_dot_com.newschart.ai;
 
+import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
 import org.springframework.stereotype.Service;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.ParameterizedTypeReference;
@@ -34,10 +35,16 @@ public class GeminiGatewayService {
             """;
 
     static final String FIND_NEWS_PROMPT = """
-            Find today's top 3 international news stories.  The returned title must be 8 words or fewer.
-            The returned content must be 12-25 words.  The returned country should be the primary location of the story.
+            Using the Google Search tool, find today's top 3 international news stories.  Do not include sport.
+            Focus only on information retrieved from search.
+            The returned title must be 8 words or fewer.
+            The returned content must be 12-25 words.
+            The returned country should be the primary location of the story.
             Return a list of exactly 3 items.
             """;
+
+    static final String MAIN_SUMMARY_MODEL = "gemini-2.5-flash-lite";
+    static final String FIND_NEWS_MODEL = "gemini-3.1-flash-lite-preview";
 
     public GeminiGatewayService(ChatClient.Builder chatClientBuilder) {
         this.chatClient = chatClientBuilder.build();
@@ -62,6 +69,10 @@ public class GeminiGatewayService {
         return Optional.ofNullable(
                 chatClient.prompt()
                         .user(prompt)
+                        .options(GoogleGenAiChatOptions.builder()
+                                .model(MAIN_SUMMARY_MODEL)
+                                .googleSearchRetrieval(false) // We don't want search
+                                .build())
                         .call()
                         .entity(StoryOutline.class)
         );
@@ -76,8 +87,14 @@ public class GeminiGatewayService {
         return Optional.ofNullable(
                 chatClient.prompt()
                         .user(FIND_NEWS_PROMPT)
+                        .options(GoogleGenAiChatOptions.builder()
+                                .model(FIND_NEWS_MODEL)
+                                .googleSearchRetrieval(true) // Ground the response with search
+                                .temperature(1.0)            // Recommended for search tasks
+                                .build())
                         .call()
-                        .entity(new ParameterizedTypeReference<List<StoryCallout>>() {})
+                        .entity(new ParameterizedTypeReference<List<StoryCallout>>() {
+                        })
         );
     }
 }
