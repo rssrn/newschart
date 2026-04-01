@@ -44,12 +44,13 @@ public class NewYorkTimesRssIngestionService implements PipelineStep {
         if (existingRss.isPresent()) {
             context.setNewsRss(existingRss.get());
             log.info("Found existing news RSS for today so not hitting external URL, returning from DB instead");
+            context.setCalloutSource(source);
             return context;
         } else {
             log.info("Did not find any existing news RSS for today");
         }
 
-        String result = "";
+        String result;
         try {
             WebClient webClient = WebClient.create(URL);
             result = webClient.get().retrieve().bodyToMono(String.class).block();
