@@ -3,6 +3,7 @@ package rossarn_at_gmail_dot_com.newschart.callout_repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
 import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
@@ -59,7 +60,9 @@ public class CalloutService implements PipelineStep {
         return firstMatch.isPresent();
     }
 
+    @Cacheable(value="callouts", key="#date.toString() + '_' + #source.name()")
     public List<StoryCallout> calloutsForDay(LocalDate date, CalloutSource source) {
+        log.info("Cache miss for {} {} - fetching callouts from repository", date, source);
 
         ZonedDateTime startOfDay = date.atStartOfDay(ZoneId.of("UTC"));
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
