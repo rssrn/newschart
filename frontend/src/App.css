@@ -60,6 +60,12 @@ svg {
   cursor: pointer;
 }
 
+.selector-divider {
+  height: 1px;
+  background-color: #dbeafe;
+  margin: 4px 0;
+}
+
 /* Main callout box - SMALLER (2/3 size) */
 .map-annotation-box {
   background-color: white;

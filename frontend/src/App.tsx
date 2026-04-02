@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import MapChart from './MapChart';
+import MapChart, { ProjectionType, PROJECTION_OPTIONS } from './MapChart';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI';
@@ -12,6 +12,7 @@ const NEWS_SOURCES: { value: NewsSource; label: string }[] = [
 
 function App(): React.ReactElement {
   const [source, setSource] = useState<NewsSource>('NEW_YORK_TIMES');
+  const [projectionType, setProjectionType] = useState<ProjectionType>('geoMercator');
 
   return (
     <div className="App">
@@ -29,8 +30,21 @@ function App(): React.ReactElement {
               {label}
             </label>
           ))}
+          <div className="selector-divider" />
+          {PROJECTION_OPTIONS.map(({ value, label }) => (
+            <label key={value} className="source-radio-label">
+              <input
+                type="radio"
+                name="projection"
+                value={value}
+                checked={projectionType === value}
+                onChange={() => setProjectionType(value)}
+              />
+              {label}
+            </label>
+          ))}
         </div>
-        <MapChart source={source}/>
+        <MapChart source={source} projectionType={projectionType}/>
       </div>
     </div>
   );

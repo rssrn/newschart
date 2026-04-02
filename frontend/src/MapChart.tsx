@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { geoMercator, GeoProjection } from "d3-geo";
+import { geoMercator, geoNaturalEarth1, geoEqualEarth, geoEquirectangular, GeoProjection } from "d3-geo";
 import StoryCalloutList from './StoryCalloutList';
 import { StoryCallout } from './types/news';
 import {
@@ -8,11 +8,22 @@ import {
   Geography,
 } from "react-simple-maps";
 
-// Static projection config - moved outside component to avoid useMemo dependency warning
-const projectionConfig: { center: [number, number]; scale: number } = {
-  center: [0, -35],
-  scale: 90,
-};
+// @author Claude Sonnet 4.6 Anthropic
+export type ProjectionType = 'geoMercator' | 'geoNaturalEarth1' | 'geoEqualEarth' | 'geoEquirectangular';
+
+export interface ProjectionOption {
+  readonly value: ProjectionType;
+  readonly label: string;
+  readonly d3Constructor: () => GeoProjection;
+  readonly config: { center: [number, number]; scale: number };
+}
+
+export const PROJECTION_OPTIONS: ProjectionOption[] = [
+  { value: 'geoMercator',       label: 'Mercator',       d3Constructor: geoMercator,       config: { center: [0, -25], scale: 90  } },
+  { value: 'geoNaturalEarth1',  label: 'Natural Earth',  d3Constructor: geoNaturalEarth1,  config: { center: [0, -28], scale: 153 } },
+  { value: 'geoEqualEarth',     label: 'Equal Earth',    d3Constructor: geoEqualEarth,     config: { center: [0, -28], scale: 153 } },
+  { value: 'geoEquirectangular',label: 'Equirectangular',d3Constructor: geoEquirectangular,config: { center: [0, -20], scale: 125 } },
+];
 
 const ACTIVE_COUNTRY_FILL   = "#FDE68A"; // amber-200
 const ACTIVE_COUNTRY_STROKE = "#D97706"; // amber-600
@@ -21,21 +32,27 @@ const DEFAULT_STROKE        = "#FFFFFF";
 
 interface MapChartProps {
   readonly source: string;
+  readonly projectionType: ProjectionType;
 }
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
+
+  const projectionOption = useMemo(
+    () => PROJECTION_OPTIONS.find(p => p.value === projectionType) ?? PROJECTION_OPTIONS[0],
+    [projectionType]
+  );
 
   // Must match react-simple-maps' internal projection: translate = [width/2, height/2]
   // where ComposableMap defaults to width=800, height=600
   const projection: GeoProjection = useMemo(() => {
-    return geoMercator()
-      .center(projectionConfig.center)
-      .scale(projectionConfig.scale)
+    return projectionOption.d3Constructor()
+      .center(projectionOption.config.center)
+      .scale(projectionOption.config.scale)
       .translate([400, 300]);
-  }, []);
+  }, [projectionOption]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search); // NOSONAR
@@ -66,8 +83,8 @@ const MapChart = ({ source }: MapChartProps): React.ReactElement => {
 
   return (
     <ComposableMap
-      projection="geoMercator"
-      projectionConfig={projectionConfig}
+      projection={projectionType}
+      projectionConfig={projectionOption.config}
       style={{
         width: "100%",
         height: "auto",
