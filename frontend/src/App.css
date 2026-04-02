@@ -27,6 +27,37 @@ svg {
   max-height: 100vh;
   overflow: hidden;
   background-color: #ffffff;
+  position: relative;
+}
+
+.source-selector-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.10);
+}
+
+.source-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.source-radio-label input[type="radio"] {
+  accent-color: #2563eb;
+  cursor: pointer;
 }
 
 /* Main callout box - SMALLER (2/3 size) */

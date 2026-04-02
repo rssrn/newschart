@@ -13,7 +13,12 @@ const projectionConfig: { center: [number, number]; scale: number } = {
   scale: 90,
 };
 
-const MapChart = (): React.ReactElement => {
+interface MapChartProps {
+  readonly source: string;
+}
+
+// @author Claude Sonnet 4.6 Anthropic
+const MapChart = ({ source }: MapChartProps): React.ReactElement => {
 
   // Must match react-simple-maps' internal projection: translate = [width/2, height/2]
   // where ComposableMap defaults to width=800, height=600
@@ -49,7 +54,7 @@ const MapChart = (): React.ReactElement => {
         }
       </Geographies>
       {/* Annotations handled by StoryCalloutList */}
-      <StoryCalloutList projection={projection}/>
+      <StoryCalloutList projection={projection} source={source}/>
     </ComposableMap>
   );
 };

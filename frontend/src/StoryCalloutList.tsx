@@ -5,6 +5,7 @@ import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./
 
 interface StoryCalloutListProps {
   readonly projection: MapProjection;
+  readonly source: string;
 }
 
 function getShowBoundingBox(): boolean {
@@ -12,7 +13,7 @@ function getShowBoundingBox(): boolean {
   return params.get('showBoundingBox') === 'true';
 }
 
-function StoryCalloutList({ projection }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, source }: StoryCalloutListProps): React.ReactElement {
 
 const [callouts, setCallouts] = useState<StoryCallout[]>([]);
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
@@ -48,7 +49,7 @@ const boundingBox = useMemo(() => {
     const testCase = params.get('testCase');
 
     const url = testCase === null
-      ? `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}`
+      ? `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}?source=${source}`
       : `/api/news/sampleCallouts?testCase=${testCase}`;
 
     fetch(url)
@@ -62,7 +63,7 @@ const boundingBox = useMemo(() => {
       .catch((error) => {
         console.error("Error fetching callouts:", error);
       });
-  }, []);
+  }, [source]);
 
   const processedCallouts: PositionedCallout[] = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
