@@ -5,7 +5,7 @@ import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./
 
 interface StoryCalloutListProps {
   readonly projection: MapProjection;
-  readonly source: string;
+  readonly callouts: StoryCallout[];
 }
 
 function getShowBoundingBox(): boolean {
@@ -13,9 +13,8 @@ function getShowBoundingBox(): boolean {
   return params.get('showBoundingBox') === 'true';
 }
 
-function StoryCalloutList({ projection, source }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts }: StoryCalloutListProps): React.ReactElement {
 
-const [callouts, setCallouts] = useState<StoryCallout[]>([]);
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
 
@@ -42,28 +41,6 @@ const boundingBox = useMemo(() => {
   const h = visibleSvgHeight - EDGE_PADDING * 2;
   return { x, y, w, h };
 }, [showBoundingBox, visibleSvgHeight]);
-
-// fetch list of callouts from backend
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search); // NOSONAR
-    const testCase = params.get('testCase');
-
-    const url = testCase === null
-      ? `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}?source=${source}`
-      : `/api/news/sampleCallouts?testCase=${testCase}`;
-
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) throw new Error("Network response was not ok");
-        return response.json();
-      })
-      .then((data: StoryCallout[]) => {
-        setCallouts(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching callouts:", error);
-      });
-  }, [source]);
 
   const processedCallouts: PositionedCallout[] = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready

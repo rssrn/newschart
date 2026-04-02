@@ -11,7 +11,8 @@ export interface Country {
   latitude: number;
   longitude: number;
   name: string;
-  iso2: string;  // Two-letter country code (e.g., "US", "GB")
+  iso2: string;       // Two-letter country code (e.g., "US", "GB")
+  isoNumeric?: string; // Three-digit ISO 3166-1 numeric code (e.g., "840", "016")
 }
 
 /**
