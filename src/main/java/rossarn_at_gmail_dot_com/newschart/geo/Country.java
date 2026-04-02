@@ -11,6 +11,8 @@ public class Country {
     private String name;
     @CsvBindByName(column = "ISO")
     private String iso2;
+    @CsvBindByName(column = "ISO_NUMERIC")
+    private String isoNumeric;
 
     @Override
     public boolean equals(Object o) {
@@ -55,6 +57,14 @@ public class Country {
 
     public void setIso2(String iso2) {
         this.iso2 = iso2;
+    }
+
+    public String getIsoNumeric() {
+        return isoNumeric;
+    }
+
+    public void setIsoNumeric(String isoNumeric) {
+        this.isoNumeric = isoNumeric;
     }
 
     @Override
