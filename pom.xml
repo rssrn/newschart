@@ -86,11 +86,6 @@
 			<artifactId>opencsv</artifactId>
 			<version>5.12.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.google.genai</groupId>
-			<artifactId>google-genai</artifactId>
-			<version>1.32.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>
