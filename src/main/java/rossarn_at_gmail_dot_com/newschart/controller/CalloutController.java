@@ -7,8 +7,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutService;
+import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
 import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
 
 import java.time.LocalDate;
@@ -29,10 +31,11 @@ public class CalloutController {
 
     @GetMapping("calloutsForDay/{date}")
     public List<StoryCallout> calloutsForDay (
-        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        log.info("calloutsForDay {}", date);
+        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+        @RequestParam(required = false, defaultValue = "NEW_YORK_TIMES") CalloutSource source) {
+        log.info("calloutsForDay {} {}", date, source);
 
-        return calloutService.calloutsForDay(date);
+        return calloutService.calloutsForDay(date, source);
     }
 
     /**

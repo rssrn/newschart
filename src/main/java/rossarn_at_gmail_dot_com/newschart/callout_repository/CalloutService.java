@@ -59,7 +59,7 @@ public class CalloutService implements PipelineStep {
         return firstMatch.isPresent();
     }
 
-    public List<StoryCallout> calloutsForDay(LocalDate date) {
+    public List<StoryCallout> calloutsForDay(LocalDate date, CalloutSource source) {
 
         ZonedDateTime startOfDay = date.atStartOfDay(ZoneId.of("UTC"));
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
@@ -67,6 +67,6 @@ public class CalloutService implements PipelineStep {
         Date startDate = Date.from(startOfDay.toInstant());
         Date endDate = Date.from(endOfDay.toInstant());
 
-        return calloutRepository.findByGeneratedAtBetweenAndSource(startDate, endDate, CalloutSource.NEW_YORK_TIMES);
+        return calloutRepository.findByGeneratedAtBetweenAndSource(startDate, endDate, source);
     }
 }
