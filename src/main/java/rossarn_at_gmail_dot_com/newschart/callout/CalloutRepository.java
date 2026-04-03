@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CalloutRepository extends MongoRepository<StoryCallout, String> {
+public interface CalloutRepository extends MongoRepository<Callout, String> {
 
-    List<StoryCallout> findByGeneratedAtBetweenAndSource(Date start, Date end, CalloutSource source);
+    List<Callout> findByGeneratedAtBetweenAndSource(Date start, Date end, CalloutSource source);
 
-    Optional<StoryCallout> findFirstByGeneratedAtBetweenAndSourceOrderByGeneratedAtAsc(Instant start, Instant end, CalloutSource source);
+    Optional<Callout> findFirstByGeneratedAtBetweenAndSourceOrderByGeneratedAtAsc(Instant start, Instant end, CalloutSource source);
 }

@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
  *
  */
 @Service
-public class MostCommonCountryHighlighter implements PipelineStep {
+public class TopCountryHighlighter implements PipelineStep {
 
-    private static final Logger log = LogManager.getLogger(MostCommonCountryHighlighter.class);
+    private static final Logger log = LogManager.getLogger(TopCountryHighlighter.class);
 
 
     /**

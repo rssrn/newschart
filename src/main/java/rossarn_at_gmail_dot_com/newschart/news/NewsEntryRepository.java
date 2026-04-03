@@ -8,9 +8,9 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Repository
-public interface NewsRssRepository extends MongoRepository<NewsRss, String> {
+public interface NewsEntryRepository extends MongoRepository<NewsEntry, String> {
 
-    Optional<NewsRss> findFirstByFetchTimeBetweenAndSourceOrderByFetchTimeAsc(
+    Optional<NewsEntry> findFirstByFetchTimeBetweenAndSourceOrderByFetchTimeAsc(
             Instant startTime,
             Instant endTime,
             CalloutSource source

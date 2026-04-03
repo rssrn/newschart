@@ -5,18 +5,18 @@ import org.apache.logging.log4j.Logger;
 
 import rossarn_at_gmail_dot_com.newschart.ai.GeminiGatewayService;
 import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
-import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.callout.Callout;
 
 import java.util.List;
 import java.util.Optional;
 
-public class GeminiNewsPipelineStep implements PipelineStep {
+public class GeminiPipelineStep implements PipelineStep {
 
     private final GeminiGatewayService geminiGatewayService;
 
-    private static final Logger log = LogManager.getLogger(GeminiNewsPipelineStep.class);
+    private static final Logger log = LogManager.getLogger(GeminiPipelineStep.class);
 
-    public GeminiNewsPipelineStep(GeminiGatewayService geminiGatewayService) {
+    public GeminiPipelineStep(GeminiGatewayService geminiGatewayService) {
         this.geminiGatewayService = geminiGatewayService;
     }
 
@@ -24,7 +24,7 @@ public class GeminiNewsPipelineStep implements PipelineStep {
     public PipelineContext execute(PipelineContext context) {
         context.setCalloutSource(CalloutSource.GOOGLE_GEMINI);
 
-        Optional<List<StoryCallout>> calloutsOpt = geminiGatewayService.getCallouts();
+        Optional<List<Callout>> calloutsOpt = geminiGatewayService.getCallouts();
 
         if (calloutsOpt.isEmpty()) {
             log.error("Gemini failed to generate news items");

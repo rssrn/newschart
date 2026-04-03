@@ -8,7 +8,7 @@ import java.time.Instant;
  * Represents one story presented for user consumption.  As it is geo tagged, naming it as Callout
  * although the frontend could choose to display it in some other way.
  */
-public class StoryCallout {
+public class Callout {
     private Country country;
     private String headline;
     private String detail;
@@ -16,11 +16,11 @@ public class StoryCallout {
     private CalloutSource source;
     private Instant generatedAt;
 
-    private StoryCallout() {
+    private Callout() {
         // for MongoDB deserialization
     }
 
-    private StoryCallout(Builder builder) {
+    private Callout(Builder builder) {
         this.country = builder.country;
         this.headline = builder.headline;
         this.detail = builder.detail;
@@ -66,8 +66,8 @@ public class StoryCallout {
             return this;
         }
 
-        public StoryCallout build() {
-            return new StoryCallout(this);
+        public Callout build() {
+            return new Callout(this);
         }
     }
 

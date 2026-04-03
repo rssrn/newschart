@@ -8,7 +8,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.callout.Callout;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.CountryNews;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsItem;
 
@@ -83,7 +83,7 @@ public class GeminiGatewayService {
      *
      * @return list of story callouts suggested by the LLM
      */
-    public Optional<List<StoryCallout>> getCallouts() {
+    public Optional<List<Callout>> getCallouts() {
         return Optional.ofNullable(
                 chatClient.prompt()
                         .user(FIND_NEWS_PROMPT)

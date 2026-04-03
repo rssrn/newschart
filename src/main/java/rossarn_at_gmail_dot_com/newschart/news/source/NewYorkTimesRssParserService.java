@@ -15,7 +15,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import rossarn_at_gmail_dot_com.newschart.news.NewsRss;
+import rossarn_at_gmail_dot_com.newschart.news.NewsEntry;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineContext;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineStep;
 
@@ -112,7 +112,7 @@ public class NewYorkTimesRssParserService implements PipelineStep {
 
     @Override
     public PipelineContext execute(PipelineContext context) {
-        NewsRss newsRss = context.getNewsRss();
+        NewsEntry newsRss = context.getNewsEntry();
         if (Objects.isNull(newsRss)) {
             log.error("Step {} missing required context newsRss", this.getClass().getName());
             context.setFailed(true);

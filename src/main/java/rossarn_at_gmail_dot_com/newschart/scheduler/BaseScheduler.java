@@ -1,15 +1,15 @@
 package rossarn_at_gmail_dot_com.newschart.scheduler;
 
-import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiNewsPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiPipelineOrchestrator;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.NYTPipelineOrchestrator;
 
 public abstract class BaseScheduler {
 
     protected final NYTPipelineOrchestrator nytPipelineOrchestrator;
-    protected final GeminiNewsPipelineOrchestrator geminiNewsPipelineOrchestrator;
+    protected final GeminiPipelineOrchestrator geminiNewsPipelineOrchestrator;
 
     protected BaseScheduler(NYTPipelineOrchestrator nytPipelineOrchestrator,
-                            GeminiNewsPipelineOrchestrator geminiNewsPipelineOrchestrator) {
+                            GeminiPipelineOrchestrator geminiNewsPipelineOrchestrator) {
         this.nytPipelineOrchestrator = nytPipelineOrchestrator;
         this.geminiNewsPipelineOrchestrator = geminiNewsPipelineOrchestrator;
     }

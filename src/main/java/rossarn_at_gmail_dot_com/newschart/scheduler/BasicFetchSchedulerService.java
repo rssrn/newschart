@@ -7,7 +7,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiNewsPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiPipelineOrchestrator;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.NYTPipelineOrchestrator;
 
 import java.util.concurrent.Executors;
@@ -28,7 +28,7 @@ public class BasicFetchSchedulerService extends BaseScheduler {
     private final BasicFetchSchedulerConfig config;
 
     public BasicFetchSchedulerService(NYTPipelineOrchestrator nytPipelineOrchestrator,
-                                      GeminiNewsPipelineOrchestrator geminiNewsPipelineOrchestrator,
+                                      GeminiPipelineOrchestrator geminiNewsPipelineOrchestrator,
                                       BasicFetchSchedulerConfig config) {
         super(nytPipelineOrchestrator, geminiNewsPipelineOrchestrator);
         this.config = config;

@@ -32,7 +32,7 @@ public class CalloutService implements PipelineStep {
 
     @Override
     public PipelineContext execute(PipelineContext context) {
-        List<StoryCallout> callouts = context.getCallouts();
+        List<Callout> callouts = context.getCallouts();
         if (Objects.isNull(callouts)) {
             log.error("Pipeline step missing callouts");
             context.setFailed(true);
@@ -55,13 +55,13 @@ public class CalloutService implements PipelineStep {
 
         log.info("Checking start {} end {} source {}", start, end, source);
 
-        Optional<StoryCallout> firstMatch = calloutRepository.findFirstByGeneratedAtBetweenAndSourceOrderByGeneratedAtAsc(start, end, source);
+        Optional<Callout> firstMatch = calloutRepository.findFirstByGeneratedAtBetweenAndSourceOrderByGeneratedAtAsc(start, end, source);
 
         return firstMatch.isPresent();
     }
 
     @Cacheable(value="callouts", key="#date.toString() + '_' + #source.name()")
-    public List<StoryCallout> calloutsForDay(LocalDate date, CalloutSource source) {
+    public List<Callout> calloutsForDay(LocalDate date, CalloutSource source) {
         log.info("Cache miss for {} {} - fetching callouts from repository", date, source);
 
         ZonedDateTime startOfDay = date.atStartOfDay(ZoneId.of("UTC"));

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.ai.GeminiGatewayService;
 import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 import rossarn_at_gmail_dot_com.newschart.callout.CalloutType;
-import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.callout.Callout;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.CountryNews;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlights;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineContext;
@@ -23,22 +23,22 @@ import java.util.Optional;
  *
  */
 @Service
-public class HighlightsTransformerService implements PipelineStep {
+public class CalloutBuilderService implements PipelineStep {
 
     private final GeminiGatewayService geminiGatewayService;
 
-    private static final Logger log = LogManager.getLogger(HighlightsTransformerService.class);
+    private static final Logger log = LogManager.getLogger(CalloutBuilderService.class);
 
     @Autowired
-    public HighlightsTransformerService(GeminiGatewayService geminiGatewayService) {
+    public CalloutBuilderService(GeminiGatewayService geminiGatewayService) {
         this.geminiGatewayService = geminiGatewayService;
     }
 
-    public List<StoryCallout> toCalloutList(NewsHighlights newsHighlights,
+    public List<Callout> toCalloutList(NewsHighlights newsHighlights,
                                             CalloutType type,
                                             CalloutSource source,
                                             Instant createdAt) {
-        List<StoryCallout> result = new ArrayList<>();
+        List<Callout> result = new ArrayList<>();
         for (CountryNews countryNews: newsHighlights.getNewsItemsForCountry()) {
 
             Optional<GeminiGatewayService.StoryOutline> outlineOpt = geminiGatewayService.summariseStories(countryNews);
@@ -47,7 +47,7 @@ public class HighlightsTransformerService implements PipelineStep {
                 continue;
             }
 
-            StoryCallout.Builder builder = new StoryCallout.Builder(createdAt);
+            Callout.Builder builder = new Callout.Builder(createdAt);
             builder.country(countryNews.getCountry());
             builder.headline(outlineOpt.get().title());
             builder.detail(outlineOpt.get().body());
@@ -72,8 +72,8 @@ public class HighlightsTransformerService implements PipelineStep {
         context.setCallouts(toCalloutList(
                 newsHighlights,
                 CalloutType.NEWS,
-                context.getNewsRss().getSource(),
-                context.getNewsRss().getFetchTime()
+                context.getNewsEntry().getSource(),
+                context.getNewsEntry().getFetchTime()
                 ));
         return context;
     }

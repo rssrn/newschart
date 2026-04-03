@@ -1,10 +1,10 @@
 package rossarn_at_gmail_dot_com.newschart.news.pipeline;
 
 import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
-import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.callout.Callout;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlights;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsItem;
-import rossarn_at_gmail_dot_com.newschart.news.NewsRss;
+import rossarn_at_gmail_dot_com.newschart.news.NewsEntry;
 
 import java.util.List;
 
@@ -12,17 +12,17 @@ public class PipelineContext {
 
     private boolean failed = false;
 
-    private NewsRss newsRss;
+    private NewsEntry newsRss;
     private List<NewsItem> newsItems;
     private NewsHighlights newsHighlights;
-    private List<StoryCallout> callouts;
+    private List<Callout> callouts;
     private CalloutSource calloutSource;
 
-    public NewsRss getNewsRss() {
+    public NewsEntry getNewsEntry() {
         return newsRss;
     }
 
-    public void setNewsRss(NewsRss newsRss) {
+    public void setNewsEntry(NewsEntry newsRss) {
         this.newsRss = newsRss;
     }
 
@@ -50,11 +50,11 @@ public class PipelineContext {
         this.failed = failed;
     }
 
-    public List<StoryCallout> getCallouts() {
+    public List<Callout> getCallouts() {
         return callouts;
     }
 
-    public void setCallouts(List<StoryCallout> callouts) {
+    public void setCallouts(List<Callout> callouts) {
         this.callouts = callouts;
     }
 

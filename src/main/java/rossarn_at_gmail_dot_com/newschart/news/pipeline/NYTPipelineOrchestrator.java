@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 
 import rossarn_at_gmail_dot_com.newschart.callout.CalloutService;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlightsService;
-import rossarn_at_gmail_dot_com.newschart.news.highlights.HighlightsTransformerService;
-import rossarn_at_gmail_dot_com.newschart.news.highlights.MostCommonCountryHighlighter;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.CalloutBuilderService;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.TopCountryHighlighter;
 import rossarn_at_gmail_dot_com.newschart.news.source.NewYorkTimesRssIngestionService;
 import rossarn_at_gmail_dot_com.newschart.news.source.NewYorkTimesRssParserService;
 
@@ -14,17 +14,17 @@ public class NYTPipelineOrchestrator extends BasePipelineOrchestrator {
 
     private final NewYorkTimesRssIngestionService ingestionService;
     private final NewYorkTimesRssParserService parserService;
-    private final MostCommonCountryHighlighter highlighter;
+    private final TopCountryHighlighter highlighter;
     private final NewsHighlightsService highlightsService;
-    private final HighlightsTransformerService transformService;
+    private final CalloutBuilderService transformService;
     private final CalloutService calloutService;
 
     public NYTPipelineOrchestrator(
             NewYorkTimesRssIngestionService newYorkTimesRssIngestionService,
             NewYorkTimesRssParserService parserService,
-            MostCommonCountryHighlighter highlighter,
+            TopCountryHighlighter highlighter,
             NewsHighlightsService newsHighlightsService,
-            HighlightsTransformerService transformService, CalloutService calloutService) {
+            CalloutBuilderService transformService, CalloutService calloutService) {
         this.ingestionService = newYorkTimesRssIngestionService;
         this.parserService = parserService;
         this.highlighter = highlighter;

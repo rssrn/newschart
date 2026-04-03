@@ -7,7 +7,7 @@ import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 import java.time.Instant;
 
 @Document(collection = "news_rss")
-public class NewsRss {
+public class NewsEntry {
     @Id
     private String id;
 
@@ -15,7 +15,7 @@ public class NewsRss {
     private final Instant fetchTime;
     private final String blob;
 
-    public NewsRss(String blob, CalloutSource source) {
+    public NewsEntry(String blob, CalloutSource source) {
         this.blob = blob;
         this.source = source;
         this.fetchTime = Instant.now();

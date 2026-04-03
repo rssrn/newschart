@@ -12,23 +12,23 @@ import java.time.ZoneOffset;
 import java.util.Optional;
 
 @Service
-public class NewsRssService {
+public class NewsEntryService {
 
-    private static final Logger log = LogManager.getLogger(NewsRssService.class);
+    private static final Logger log = LogManager.getLogger(NewsEntryService.class);
 
-    private final NewsRssRepository repository;
+    private final NewsEntryRepository repository;
 
     @Autowired
-    public NewsRssService(NewsRssRepository repository) {
+    public NewsEntryService(NewsEntryRepository repository) {
         this.repository = repository;
     }
 
-    public NewsRss saveNewsRss(NewsRss newsRss) {
+    public NewsEntry saveNewsEntry(NewsEntry newsRss) {
         log.info("Saving RSS");
         return repository.save(newsRss);
     }
 
-    public Optional<NewsRss> findRssForTodayWithSource(CalloutSource source) {
+    public Optional<NewsEntry> findRssForTodayWithSource(CalloutSource source) {
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
         Instant start = today.atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant end = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
