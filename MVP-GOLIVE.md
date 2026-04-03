@@ -89,6 +89,8 @@ Items are grouped into three tiers:
 
 ### Observability
 
+- [x] **Prometheus** Install, including node exporter
+- [x] **Grafana** Install, add basic node exporter dashboard
 - [ ] **Health check endpoint** — Spring Boot Actuator `/actuator/health` enabled and used by uptime monitor
 - [ ] **Uptime monitoring** — set up a free monitor (e.g. UptimeRobot) pointing at the health endpoint
 
