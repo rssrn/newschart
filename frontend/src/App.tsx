@@ -12,7 +12,15 @@ const NEWS_SOURCES: { value: NewsSource; label: string }[] = [
 
 function App(): React.ReactElement {
   const [source, setSource] = useState<NewsSource>('NEW_YORK_TIMES');
-  const [projectionType, setProjectionType] = useState<ProjectionType>('geoMercator');
+  const [projectionType, setProjectionType] = useState<ProjectionType>(
+    () => (localStorage.getItem('projectionType') as ProjectionType | null) ?? 'geoMercator'
+  );
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const handleProjectionChange = (value: ProjectionType) => {
+    setProjectionType(value);
+    localStorage.setItem('projectionType', value);
+  };
 
   return (
     <div className="App">
@@ -38,7 +46,7 @@ function App(): React.ReactElement {
                 name="projection"
                 value={value}
                 checked={projectionType === value}
-                onChange={() => setProjectionType(value)}
+                onChange={() => handleProjectionChange(value)}
               />
               {label}
             </label>
