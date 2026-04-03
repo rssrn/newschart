@@ -127,3 +127,4 @@ Test scenarios are defined in `CalloutController.sampleCallouts()` including clu
 ## Claude Assistance
 - For the frontend it's likely Claude will be producing/updating code
 - For the backend, Claude is likely to be giving review/advice only, so don't offer to make edits
+- When completing work that satisfies an item in `MVP-GOLIVE.md`, proactively check it off (change `- [ ]` to `- [x]`) and mention it to the user
