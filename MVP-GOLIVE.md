@@ -38,6 +38,7 @@ Items are grouped into three tiers:
 
 ### Hosting — Oracle Cloud (OCI)
 
+- [x] **Register for OCI Account**
 - [ ] **Provision OCI compute instance** — ARM-based Ampere A1 (free tier eligible)
 - [ ] **Install JDK 21 on instance**
 - [ ] **Install Node.js on instance** (or serve frontend as static build via Nginx)

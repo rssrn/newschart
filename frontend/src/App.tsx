@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
-import MapChart, { ProjectionType, PROJECTION_OPTIONS } from './MapChart';
+import MapChart, { ProjectionType, PROJECTION_OPTIONS, FetchStatus } from './MapChart';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI';
@@ -17,12 +17,24 @@ function App(): React.ReactElement {
   );
   // @author Claude Sonnet 4.6 Anthropic
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  // @author Claude Sonnet 4.6 Anthropic
+  const [fetchStatus, setFetchStatus] = useState<FetchStatus | null>(null);
+  const [errorDismissed, setErrorDismissed] = useState(false);
 
   // @author Claude Sonnet 4.6 Anthropic
   const handleProjectionChange = (value: ProjectionType) => {
     setProjectionType(value);
     localStorage.setItem('projectionType', value);
   };
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const handleFetchStatus = useCallback((status: FetchStatus) => {
+    setFetchStatus(status);
+    if (status === 'loading') setErrorDismissed(false);
+  }, []);
+
+  const showError = fetchStatus === 'error' && !errorDismissed;
+  const isLoading = fetchStatus === 'loading';
 
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
@@ -42,7 +54,7 @@ function App(): React.ReactElement {
       <div className="map-container">
 
         {/* Desktop controls overlay */}
-        <div className="source-selector-overlay">
+        <div className={`source-selector-overlay${isLoading ? ' controls-loading' : ''}`}>
           {NEWS_SOURCES.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
               <input
@@ -51,6 +63,7 @@ function App(): React.ReactElement {
                 value={value}
                 checked={source === value}
                 onChange={() => setSource(value)}
+                disabled={isLoading}
               />
               {label}
             </label>
@@ -64,10 +77,31 @@ function App(): React.ReactElement {
                 value={value}
                 checked={projectionType === value}
                 onChange={() => handleProjectionChange(value)}
+                disabled={isLoading}
               />
               {label}
             </label>
           ))}
+        </div>
+
+        {/* Error toast – @author Claude Sonnet 4.6 Anthropic */}
+        <div className={`fetch-error-toast${showError ? ' visible' : ''}`} role="alert" aria-live="assertive">
+          <svg className="fetch-error-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <span className="fetch-error-text">News service unavailable · Check your connection</span>
+          <button
+            className="fetch-error-dismiss"
+            onClick={() => setErrorDismissed(true)}
+            aria-label="Dismiss error"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
 
         {/* Mobile toggle pill – @author Claude Sonnet 4.6 Anthropic */}
@@ -112,6 +146,7 @@ function App(): React.ReactElement {
                 value={value}
                 checked={source === value}
                 onChange={() => setSource(value)}
+                disabled={isLoading}
               />
               {label}
             </label>
@@ -126,6 +161,7 @@ function App(): React.ReactElement {
                 value={value}
                 checked={projectionType === value}
                 onChange={() => handleProjectionChange(value)}
+                disabled={isLoading}
               />
               {label}
             </label>
@@ -138,7 +174,7 @@ function App(): React.ReactElement {
           </button>
         </div>
 
-        <MapChart source={source} projectionType={projectionType}/>
+        <MapChart source={source} projectionType={projectionType} onFetchStatus={handleFetchStatus}/>
         <div className="map-footer-overlay">
           <a
             href="https://github.com/rssrn/newschart"

@@ -157,6 +157,85 @@ svg {
   font-style: italic;
 }
 
+/* ── Controls loading state ──────────────────────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+.controls-loading {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+/* ── Fetch error toast ───────────────────────────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+@keyframes toastSlideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.fetch-error-toast {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255, 251, 235, 0.97);
+  border: 1px solid #fbbf24;
+  border-radius: 6px;
+  padding: 6px 8px 6px 10px;
+  box-shadow: 0 1px 6px rgba(245, 158, 11, 0.18);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.fetch-error-toast.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+  animation: toastSlideDown 0.25s ease forwards;
+}
+
+.fetch-error-icon {
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.fetch-error-text {
+  font-size: 11px;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.fetch-error-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b45309;
+  padding: 2px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+  margin-left: 2px;
+}
+
+.fetch-error-dismiss:hover {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+}
+
 .map-footer-overlay {
   position: absolute;
   bottom: 8px;
@@ -205,6 +284,20 @@ svg {
   /* Hide the desktop overlay */
   .source-selector-overlay {
     display: none;
+  }
+
+  /* Error toast: full-width on mobile, sits below the toggle pill */
+  .fetch-error-toast {
+    left: 12px;
+    right: 12px;
+    top: 52px;
+    transform: translateY(-6px);
+    white-space: normal;
+  }
+
+  .fetch-error-toast.visible {
+    transform: translateY(0);
+    animation: none;
   }
 
   /* Body scroll lock when sheet is open */

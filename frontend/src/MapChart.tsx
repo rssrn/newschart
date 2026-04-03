@@ -10,6 +10,8 @@ import {
 
 // @author Claude Sonnet 4.6 Anthropic
 export type ProjectionType = 'geoMercator' | 'geoNaturalEarth1' | 'geoEqualEarth' | 'geoEquirectangular';
+// @author Claude Sonnet 4.6 Anthropic
+export type FetchStatus = 'loading' | 'error' | 'success';
 
 export interface ProjectionOption {
   readonly value: ProjectionType;
@@ -33,12 +35,17 @@ const DEFAULT_STROKE        = "#FFFFFF";
 interface MapChartProps {
   readonly source: string;
   readonly projectionType: ProjectionType;
+  readonly onFetchStatus?: (status: FetchStatus) => void;
 }
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
+
+  // Stable ref so the fetch effect doesn't re-run when parent re-renders the callback
+  const onFetchStatusRef = React.useRef(onFetchStatus);
+  useEffect(() => { onFetchStatusRef.current = onFetchStatus; }, [onFetchStatus]);
 
   const projectionOption = useMemo(
     () => PROJECTION_OPTIONS.find(p => p.value === projectionType) ?? PROJECTION_OPTIONS[0],
@@ -54,7 +61,13 @@ const MapChart = ({ source, projectionType }: MapChartProps): React.ReactElement
       .translate([400, 300]);
   }, [projectionOption]);
 
+  // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
+    const controller = new AbortController();
+
+    setCallouts([]);
+    onFetchStatusRef.current?.('loading');
+
     const params = new URLSearchParams(window.location.search); // NOSONAR
     const testCase = params.get('testCase');
 
@@ -62,13 +75,22 @@ const MapChart = ({ source, projectionType }: MapChartProps): React.ReactElement
       ? `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}?source=${source}`
       : `/api/news/sampleCallouts?testCase=${testCase}`;
 
-    fetch(url)
+    fetch(url, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
-      .then((data: StoryCallout[]) => setCallouts(data))
-      .catch((error) => console.error("Error fetching callouts:", error));
+      .then((data: StoryCallout[]) => {
+        setCallouts(data);
+        onFetchStatusRef.current?.('success');
+      })
+      .catch((error) => {
+        if (error.name === 'AbortError') return;
+        console.error("Error fetching callouts:", error);
+        onFetchStatusRef.current?.('error');
+      });
+
+    return () => controller.abort();
   }, [source]);
 
   // Build set of ISO numeric codes (as numbers) for active callouts
