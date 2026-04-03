@@ -1,14 +1,14 @@
-package rossarn_at_gmail_dot_com.newschart.news_logic;
+package rossarn_at_gmail_dot_com.newschart.news.highlights;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.geo.Country;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.CountryNews;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlights;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.CountryNews;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlights;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsItem;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineContext;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineStep;
 
 import java.util.Comparator;
 import java.util.HashMap;

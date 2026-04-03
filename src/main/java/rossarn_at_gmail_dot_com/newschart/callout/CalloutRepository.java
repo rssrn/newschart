@@ -1,4 +1,4 @@
-package rossarn_at_gmail_dot_com.newschart.callout_repository;
+package rossarn_at_gmail_dot_com.newschart.callout;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;

@@ -1,10 +1,10 @@
-package rossarn_at_gmail_dot_com.newschart.pipeline;
+package rossarn_at_gmail_dot_com.newschart.news.pipeline;
 
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlights;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
-import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRss;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlights;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsItem;
+import rossarn_at_gmail_dot_com.newschart.news.NewsRss;
 
 import java.util.List;
 

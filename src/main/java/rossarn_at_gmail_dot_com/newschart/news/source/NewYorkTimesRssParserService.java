@@ -1,10 +1,10 @@
-package rossarn_at_gmail_dot_com.newschart.news_source;
+package rossarn_at_gmail_dot_com.newschart.news.source;
 
 
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 import rossarn_at_gmail_dot_com.newschart.geo.Country;
 import rossarn_at_gmail_dot_com.newschart.geo.CountryFactory;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsItem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,9 +15,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRss;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
+import rossarn_at_gmail_dot_com.newschart.news.NewsRss;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineContext;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineStep;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

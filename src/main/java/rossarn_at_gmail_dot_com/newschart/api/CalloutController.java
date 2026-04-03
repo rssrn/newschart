@@ -1,4 +1,4 @@
-package rossarn_at_gmail_dot_com.newschart.controller;
+package rossarn_at_gmail_dot_com.newschart.api;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutService;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutService;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
 
 import java.time.LocalDate;
 import java.util.List;

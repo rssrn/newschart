@@ -1,10 +1,10 @@
-package rossarn_at_gmail_dot_com.newschart.news_repository;
+package rossarn_at_gmail_dot_com.newschart.news;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 
 import java.time.Instant;
 import java.time.LocalDate;

@@ -1,13 +1,13 @@
-package rossarn_at_gmail_dot_com.newschart.pipeline;
+package rossarn_at_gmail_dot_com.newschart.news.pipeline;
 
 import org.springframework.stereotype.Service;
 
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutService;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsHighlightsService;
-import rossarn_at_gmail_dot_com.newschart.news_logic.HighlightsTransformerService;
-import rossarn_at_gmail_dot_com.newschart.news_logic.MostCommonCountryHighlighter;
-import rossarn_at_gmail_dot_com.newschart.news_source.NewYorkTimesRssIngestionService;
-import rossarn_at_gmail_dot_com.newschart.news_source.NewYorkTimesRssParserService;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutService;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlightsService;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.HighlightsTransformerService;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.MostCommonCountryHighlighter;
+import rossarn_at_gmail_dot_com.newschart.news.source.NewYorkTimesRssIngestionService;
+import rossarn_at_gmail_dot_com.newschart.news.source.NewYorkTimesRssParserService;
 
 @Service
 public class NYTPipelineOrchestrator extends BasePipelineOrchestrator {

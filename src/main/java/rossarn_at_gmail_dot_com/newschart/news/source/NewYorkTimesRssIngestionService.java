@@ -1,4 +1,4 @@
-package rossarn_at_gmail_dot_com.newschart.news_source;
+package rossarn_at_gmail_dot_com.newschart.news.source;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,11 +9,11 @@ import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
-import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRss;
-import rossarn_at_gmail_dot_com.newschart.news_repository.NewsRssService;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.news.NewsRss;
+import rossarn_at_gmail_dot_com.newschart.news.NewsRssService;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineContext;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineStep;
 
 import java.util.Objects;
 import java.util.Optional;

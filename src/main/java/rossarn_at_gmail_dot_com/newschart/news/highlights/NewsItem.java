@@ -1,6 +1,6 @@
-package rossarn_at_gmail_dot_com.newschart.news_highlights_repository;
+package rossarn_at_gmail_dot_com.newschart.news.highlights;
 
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 import rossarn_at_gmail_dot_com.newschart.geo.Country;
 
 import java.util.List;

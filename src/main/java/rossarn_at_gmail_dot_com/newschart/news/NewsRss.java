@@ -1,8 +1,8 @@
-package rossarn_at_gmail_dot_com.newschart.news_repository;
+package rossarn_at_gmail_dot_com.newschart.news;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 
 import java.time.Instant;
 

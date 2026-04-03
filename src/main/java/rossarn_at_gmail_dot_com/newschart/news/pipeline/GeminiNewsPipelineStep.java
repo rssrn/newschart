@@ -1,11 +1,11 @@
-package rossarn_at_gmail_dot_com.newschart.pipeline;
+package rossarn_at_gmail_dot_com.newschart.news.pipeline;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import rossarn_at_gmail_dot_com.newschart.ai.GeminiGatewayService;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutSource;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,12 +1,12 @@
-package rossarn_at_gmail_dot_com.newschart.callout_repository;
+package rossarn_at_gmail_dot_com.newschart.callout;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineContext;
-import rossarn_at_gmail_dot_com.newschart.pipeline.PipelineStep;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineContext;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineStep;
 
 import java.time.Instant;
 import java.time.LocalDate;

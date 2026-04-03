@@ -1,8 +1,8 @@
-package rossarn_at_gmail_dot_com.newschart.pipeline;
+package rossarn_at_gmail_dot_com.newschart.news.pipeline;
 
 import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.ai.GeminiGatewayService;
-import rossarn_at_gmail_dot_com.newschart.callout_repository.CalloutService;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutService;
 
 /**
  * Use Google Gemini to find top news stories

@@ -8,9 +8,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import rossarn_at_gmail_dot_com.newschart.callout_repository.StoryCallout;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.CountryNews;
-import rossarn_at_gmail_dot_com.newschart.news_highlights_repository.NewsItem;
+import rossarn_at_gmail_dot_com.newschart.callout.StoryCallout;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.CountryNews;
+import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsItem;
 
 import java.util.List;
 import java.util.Optional;

@@ -7,8 +7,8 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import rossarn_at_gmail_dot_com.newschart.pipeline.GeminiNewsPipelineOrchestrator;
-import rossarn_at_gmail_dot_com.newschart.pipeline.NYTPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiNewsPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.NYTPipelineOrchestrator;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

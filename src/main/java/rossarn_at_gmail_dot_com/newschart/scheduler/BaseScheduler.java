@@ -1,7 +1,7 @@
 package rossarn_at_gmail_dot_com.newschart.scheduler;
 
-import rossarn_at_gmail_dot_com.newschart.pipeline.GeminiNewsPipelineOrchestrator;
-import rossarn_at_gmail_dot_com.newschart.pipeline.NYTPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiNewsPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.NYTPipelineOrchestrator;
 
 public abstract class BaseScheduler {
 

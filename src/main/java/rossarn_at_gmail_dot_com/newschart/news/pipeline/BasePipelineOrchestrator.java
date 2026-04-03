@@ -1,4 +1,4 @@
-package rossarn_at_gmail_dot_com.newschart.pipeline;
+package rossarn_at_gmail_dot_com.newschart.news.pipeline;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

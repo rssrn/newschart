@@ -60,26 +60,28 @@ node screenshot-tests.js  # Requires both backend and frontend running
 ### Backend Structure
 The backend uses a pipeline-based architecture for processing news:
 
-1. **Controllers** (`controller/`) - REST API at `/api/news`
+1. **Controllers** (`api/`) - REST API at `/api/news`
    - `GET /api/news/calloutsForDay/{date}` - Get news callouts for a specific date
    - `GET /api/news/sampleCallouts` - Get sample callout data
 
-2. **Pipeline Processing** (`pipeline/`) - Modular news processing
-   - `BasePipelineOrchestrator` - Abstract base for pipeline execution
-   - `NYTPipelineOrchestrator` - Processes New York Times RSS feeds
-   - `GeminiNewsPipelineOrchestrator` - Processes AI-generated news summaries
-   - `PipelineStep` interface - Each step implements `execute(PipelineContext)`
+2. **News ingestion** (`news/`) - Raw RSS storage and processing
+   - `news/source/` - NYT RSS ingestion and parsing
+   - `news/highlights/` - Processed highlights, transformer, country highlighter
+   - `news/pipeline/` - Modular pipeline execution
+     - `BasePipelineOrchestrator` - Abstract base for pipeline execution
+     - `NYTPipelineOrchestrator` - Processes New York Times RSS feeds
+     - `GeminiNewsPipelineOrchestrator` - Processes AI-generated news summaries
+     - `PipelineStep` interface - Each step implements `execute(PipelineContext)`
 
-3. **Schedulers** (`scheduler/`) - Background task scheduling
+3. **Callouts** (`callout/`) - Story callout domain: entity, repo, service
+
+4. **Schedulers** (`scheduler/`) - Background task scheduling
    - Triggers pipeline runs on configured intervals
 
-4. **AI Integration** (`ai/`) - Google Gemini API
+5. **AI Integration** (`ai/`) - Google Gemini API
    - `GeminiGatewayService` - Summarizes news into structured story outlines
 
-5. **Repositories** - MongoDB data access
-   - `callout_repository/` - Story callouts with geographic data
-   - `news_repository/` - Raw RSS feed storage
-   - `news_highlights_repository/` - Processed highlights
+6. **Geo** (`geo/`) - Country entity and factory
 
 ### Frontend Structure
 React SPA using react-simple-maps for world map visualization:
