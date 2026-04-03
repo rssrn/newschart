@@ -39,3 +39,4 @@ tools/screenshots/
 ### MCP ###
 .mcp.json
 .playwright-mcp/
+.aider*

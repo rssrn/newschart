@@ -217,6 +217,17 @@ const Credits = (): React.ReactElement => (
           </tr>
         </tbody>
         <tbody>
+          <tr><td colSpan={4} className="sec-hdr" role="rowheader">Academic References</td></tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="dl.acm.org" alt="" /></td>
+            <td><a href="https://doi.org/10.1145/212332.212334" target="_blank" rel="noopener noreferrer">Christensen, Marks &amp; Shieber (1995)</a></td>
+            <td>
+              <em>An Empirical Study of Algorithms for Point-Feature Label Placement</em> — the candidate-enumeration and penalty-scoring approach underpinning the NewsChart callout layout algorithm
+            </td>
+            <td>ACM</td>
+          </tr>
+        </tbody>
+        <tbody>
           <tr><td colSpan={4} className="sec-hdr" role="rowheader">Development &amp; Testing</td></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="testcontainers.com" alt="" /></td>

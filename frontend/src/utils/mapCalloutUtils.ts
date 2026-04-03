@@ -153,7 +153,7 @@ export function calculateOffsets(
           continue;
         }
 
-        candidates.push({ boxX, boxY, dist });
+        candidates.push({ boxX, boxY, dist, angle: dir.angle });
       }
     }
     return candidates;
@@ -176,6 +176,14 @@ export function calculateOffsets(
     }
 
     let penalty = 0;
+
+    // Penalty: vertical clustering (prefer vertical spread so layout isn't flat)
+    const ci_centerY = pi.boxY + RENDERED_HEIGHT / 2;
+    const cj_centerY = pj.boxY + RENDERED_HEIGHT / 2;
+    const verticalSep = Math.abs(ci_centerY - cj_centerY);
+    if (verticalSep < 100) {
+      penalty += (100 - verticalSep) * 0.5;
+    }
 
     // Penalty: connector i crosses connector j
     if (segmentsIntersect({ x: ni.subjectX, y: ni.subjectY }, ci,
@@ -241,6 +249,11 @@ export function calculateOffsets(
       // Penalty: connector length (prefer short connectors)
       score += pi.dist;
 
+      // Penalty: cardinal directions (bias towards diagonals for visual variety)
+      // sin(2θ) is 0 at cardinals (0, π/2, π, 3π/2) and ±1 at diagonals
+      const diagonalBias = 1 - Math.abs(Math.sin(2 * pi.angle));
+      score += diagonalBias * 60;
+
       // Penalty: origin point proximity to this box
       const proximityPenalty = scoreOriginProximity(pi);
       if (proximityPenalty === Infinity) {
@@ -296,6 +309,11 @@ export function calculateOffsets(
   // TypeScript needs this reassignment to understand bestPlacements is non-null here
   const finalPlacements: LayoutCandidate[] = bestPlacements;
   console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}, svgH=${visibleSvgHeight}`);
+  finalPlacements.forEach((p, i) => {
+    const n = nodes[i];
+    const angle = p.angle * 180 / Math.PI;
+    console.log(`[exhaustive] node[${i}] ${n.country?.name}: dist=${p.dist.toFixed(0)} angle=${angle.toFixed(0)}° boxXY=(${p.boxX.toFixed(0)},${p.boxY.toFixed(0)}) subject=(${n.subjectX.toFixed(0)},${n.subjectY.toFixed(0)})`);
+  });
 
   return callouts.map((original, index) => {
     const p: LayoutCandidate = finalPlacements[index];

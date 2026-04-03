@@ -103,6 +103,13 @@ Items are grouped into three tiers:
 - [ ] **Manual Lighthouse audit** — run Lighthouse in Chrome DevTools against the live site; fix any critical accessibility or performance issues
 - [ ] **Pre-commit hooks** — wire ESLint and html-validate into `.pre-commit-config.yaml`
 
+### Observability
+
+- [ ] **Backend** Enable metrics on spring actuator endpoint for key components.  Consider custom metrics too.
+- [ ] **Prometheus** Scrape and store metrics
+- [ ] **Grafana** Dashboards with relevant metrics
+- [ ] **Screenshots** provide screenshots of dashboards for portfolio
+
 ### Frontend — Polish
 
 - [ ] **Basic SEO meta tags** — description, og:title for portfolio discoverability

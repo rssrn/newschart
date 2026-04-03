@@ -53,6 +53,7 @@ export interface LayoutCandidate {
   boxX: number;    // Top-left X coordinate of the callout box
   boxY: number;    // Top-left Y coordinate of the callout box
   dist: number;    // Distance from the subject point (used for scoring)
+  angle: number;   // Direction angle in radians (used for diagonal bias penalty)
 }
 
 /**
