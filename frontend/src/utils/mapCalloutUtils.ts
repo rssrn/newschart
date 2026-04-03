@@ -309,11 +309,6 @@ export function calculateOffsets(
   // TypeScript needs this reassignment to understand bestPlacements is non-null here
   const finalPlacements: LayoutCandidate[] = bestPlacements;
   console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}, svgH=${visibleSvgHeight}`);
-  finalPlacements.forEach((p, i) => {
-    const n = nodes[i];
-    const angle = p.angle * 180 / Math.PI;
-    console.log(`[exhaustive] node[${i}] ${n.country?.name}: dist=${p.dist.toFixed(0)} angle=${angle.toFixed(0)}° boxXY=(${p.boxX.toFixed(0)},${p.boxY.toFixed(0)}) subject=(${n.subjectX.toFixed(0)},${n.subjectY.toFixed(0)})`);
-  });
 
   return callouts.map((original, index) => {
     const p: LayoutCandidate = finalPlacements[index];
