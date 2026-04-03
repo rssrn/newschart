@@ -77,7 +77,9 @@ Items are grouped into three tiers:
 
 ### Frontend — Supporting Pages
 
-- [ ] **`credits.html`** — acknowledge all open-source libraries, services, and data sources (cover React libs, react-simple-maps, Spring Boot, MongoDB, Gemini API, map data sources, etc.)
+- [x] **`credits.html`** — acknowledge all open-source libraries, services, and data sources (cover React libs, react-simple-maps, Spring Boot, MongoDB, Gemini API, map data sources, etc.)
+- [ ] **`credits.html`** — second pass, final check to add credit for any additional components added during the golive push
+- [ ] **`credits.html`** - final check to confirm we are compliant with all licenses
 
 ### Observability
 

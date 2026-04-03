@@ -53,6 +53,18 @@ function App(): React.ReactElement {
           ))}
         </div>
         <MapChart source={source} projectionType={projectionType}/>
+        <div className="map-footer-overlay">
+          <a
+            href="https://github.com/rssrn/newschart"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="newschart on GitHub (opens in new tab)"
+          >
+            GitHub
+          </a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
+          <a href="/credits">Credits</a>
+        </div>
       </div>
     </div>
   );

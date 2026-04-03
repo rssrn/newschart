@@ -156,3 +156,33 @@ svg {
   font-weight: bold;
   font-style: italic;
 }
+
+.map-footer-overlay {
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #dbeafe;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-footer-overlay a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.map-footer-overlay a:hover,
+.map-footer-overlay a:focus {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.map-footer-sep {
+  color: #9ca3af;
+}
