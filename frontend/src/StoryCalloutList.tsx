@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import ReactDOM from "react-dom";
 import { Annotation } from "react-simple-maps";
 import { calculateOffsets } from "./utils/mapCalloutUtils";
 import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./types/news";
@@ -13,10 +14,121 @@ function getShowBoundingBox(): boolean {
   return params.get('showBoundingBox') === 'true';
 }
 
+// @author Claude Sonnet 4.6 Anthropic
+function formatDateTime(isoString: string): string {
+  try {
+    return new Date(isoString).toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    });
+  } catch {
+    return isoString;
+  }
+}
+
+// @author Claude Sonnet 4.6 Anthropic
+function formatDatelinePart(isoString: string): string {
+  try {
+    return new Date(isoString).toLocaleDateString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+    }).toUpperCase();
+  } catch {
+    return isoString;
+  }
+}
+
+// @author Claude Sonnet 4.6 Anthropic
+interface StoryDetailModalProps {
+  callout: StoryCallout;
+  onClose: () => void;
+}
+
+// @author Claude Sonnet 4.6 Anthropic
+function StoryDetailModal({ callout, onClose }: StoryDetailModalProps): React.ReactElement {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  const flag = getCountryFlag(callout.country.iso2);
+  const sourceLabel = callout.source?.replace(/_/g, ' ');
+
+  const headerMeta = [
+    sourceLabel,
+    callout.generatedAt ? formatDatelinePart(callout.generatedAt) : null,
+  ].filter(Boolean).join(' · ');
+
+  return ReactDOM.createPortal(
+    <div
+      className="story-detail-backdrop"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={callout.headline}
+    >
+      <article className="story-detail-card" onClick={e => e.stopPropagation()}>
+        <header className="story-detail-header">
+          <div className="story-detail-location">
+            <span className="story-detail-flag">{flag}</span>
+            <span className="story-detail-country">{callout.country.name}</span>
+            {headerMeta && <span className="story-detail-header-meta">· {headerMeta}</span>}
+          </div>
+          <button className="story-detail-close" onClick={onClose} aria-label="Close">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </header>
+
+        <div className="story-detail-body">
+          <h2 className="story-detail-headline">{callout.headline}</h2>
+          <p className="story-detail-lead">{callout.detail}</p>
+          {callout.extendedDetail && (<>
+            <hr className="story-detail-extended-divider" />
+            <p className="story-detail-extended">{callout.extendedDetail}</p>
+          </>)}
+        </div>
+
+        <footer className="story-detail-meta">
+          <div className="story-detail-meta-grid">
+            {callout.type && (
+              <div className="story-detail-meta-item">
+                <span className="story-detail-meta-label">Type</span>
+                <span className="story-detail-meta-value">{callout.type}</span>
+              </div>
+            )}
+            {callout.generatedAt && (
+              <div className="story-detail-meta-item story-detail-meta-item--wide">
+                <span className="story-detail-meta-label">Fetched</span>
+                <span className="story-detail-meta-value">{formatDateTime(callout.generatedAt)}</span>
+              </div>
+            )}
+          </div>
+        </footer>
+      </article>
+    </div>,
+    document.body
+  );
+}
+
 function StoryCalloutList({ projection, callouts }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
+// @author Claude Sonnet 4.6 Anthropic
+const [selectedCallout, setSelectedCallout] = useState<StoryCallout | null>(null);
+
+// @author Claude Sonnet 4.6 Anthropic
+const handleMoreDetails = useCallback((callout: StoryCallout) => {
+  setSelectedCallout(callout);
+}, []);
+
+// @author Claude Sonnet 4.6 Anthropic
+const handleCloseModal = useCallback(() => {
+  setSelectedCallout(null);
+}, []);
 
 // Track viewport size for visible SVG height calculation
 useEffect(() => {
@@ -77,27 +189,30 @@ const boundingBox = useMemo(() => {
           y={-50}
           width="135"
           height="100"
-          style={{ overflow: 'visible' }}>
+          style={{ overflow: 'visible', pointerEvents: 'all' }}>
 
             <div className="map-annotation-box">
-              <div className="map-annotation-header">
+              <div className="map-annotation-header map-annotation-header--clickable" onClick={() => handleMoreDetails(callout)}>
                 <div className="map-annotation-location">
                   <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
                   <span>{callout.country.name}</span>
                 </div>
+                <svg className="map-annotation-expand" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="15 3 21 3 21 9"/>
+                  <polyline points="9 21 3 21 3 15"/>
+                  <line x1="21" y1="3" x2="14" y2="10"/>
+                  <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
               </div>
               <h4 className="map-annotation-title">{callout.headline}</h4>
               <p className="map-annotation-text">{callout.detail}</p>
-              <div className="map-annotation-footer">
-                <div className="map-annotation-info">
-                  <span className="info-icon">i</span>
-                  <span>More details</span>
-                </div>
-              </div>
             </div>
           </foreignObject>
         </Annotation>
   ))}
+  {selectedCallout && (
+    <StoryDetailModal callout={selectedCallout} onClose={handleCloseModal} />
+  )}
   </>
   );
 

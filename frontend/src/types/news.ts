@@ -22,6 +22,7 @@ export interface Country {
 export interface StoryCallout {
   headline: string;
   detail: string;
+  extendedDetail?: string;
   country: Country;
   type?: string;
   source?: string;
