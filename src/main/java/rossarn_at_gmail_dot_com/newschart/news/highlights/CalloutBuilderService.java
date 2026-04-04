@@ -8,8 +8,6 @@ import rossarn_at_gmail_dot_com.newschart.ai.GeminiGatewayService;
 import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 import rossarn_at_gmail_dot_com.newschart.callout.CalloutType;
 import rossarn_at_gmail_dot_com.newschart.callout.Callout;
-import rossarn_at_gmail_dot_com.newschart.news.highlights.CountryNews;
-import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlights;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineContext;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.PipelineStep;
 
@@ -51,6 +49,7 @@ public class CalloutBuilderService implements PipelineStep {
             builder.country(countryNews.getCountry());
             builder.headline(outlineOpt.get().title());
             builder.detail(outlineOpt.get().body());
+            builder.extendedDetail(outlineOpt.get().extendedBody());
             builder.type(type);
             builder.source(source);
             result.add(builder.build());

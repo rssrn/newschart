@@ -21,24 +21,25 @@ public class GeminiGatewayService {
 
     private static final Logger log = LogManager.getLogger(GeminiGatewayService.class);
 
-    public record StoryOutline(String country, String title, String body) {
+    public record StoryOutline(String country, String title, String body, String extendedBody) {
     }
 
     static final String MAIN_SUMMARY_PROMPT = """
             Given the following list of news stories, return a summary consisting of one summarised header and
-            one summarised body.  Do not get any input from web sources, only use the given input.  Some
+            one summarised body, and a longer extended detail description.  Do not get any input from web sources, only use the given input.  Some
             of the input data may be outliers, so if a small number of input items seem less related to the overall
             theme, they can be ignored.
             Tone of the summary should be factual and concise, suitable for a general-purpose news feed.
             The input data includes a field to indicate the main country of interest for the returned summary.
-            The returned title must be 3-7 words.  The returned content must be 12-25 words.
+            The returned title must be 3-7 words.  The returned detail must be 12-20 words.  The returned extended detail can be up to 100 words.
             """;
 
     static final String FIND_NEWS_PROMPT = """
             Using the Google Search tool, find today's top 3 international news stories.  Do not include sport.
             Focus only on information retrieved from search.
             The returned title must be 8 words or fewer.
-            The returned content must be 12-25 words.
+            The returned detail must be 12-20 words.
+            The returned extended detail can be up to 100 words.
             The returned country should be the primary location of the story.
             Return a list of exactly 3 items.
             """;

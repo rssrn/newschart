@@ -12,6 +12,7 @@ public class Callout {
     private Country country;
     private String headline;
     private String detail;
+    private String extendedDetail;
     private CalloutType type;
     private CalloutSource source;
     private Instant generatedAt;
@@ -24,6 +25,7 @@ public class Callout {
         this.country = builder.country;
         this.headline = builder.headline;
         this.detail = builder.detail;
+        this.extendedDetail = builder.extendedDetail;
         this.type = builder.type;
         this.source = builder.source;
         this.generatedAt = builder.generatedAt;
@@ -33,6 +35,7 @@ public class Callout {
         private Country country;
         private String headline;
         private String detail;
+        private String extendedDetail;
         private CalloutType type;
         private CalloutSource source;
         private Instant generatedAt;
@@ -53,6 +56,11 @@ public class Callout {
 
         public Builder detail(String detail) {
             this.detail = detail;
+            return this;
+        }
+
+        public Builder extendedDetail(String extendedDetail) {
+            this.extendedDetail = extendedDetail;
             return this;
         }
 
@@ -83,6 +91,10 @@ public class Callout {
         return detail;
     }
 
+    public String getExtendedDetail() {
+        return extendedDetail;
+    }
+
     public CalloutType getType() {
         return type;
     }
@@ -105,6 +117,10 @@ public class Callout {
 
     public void setDetail(String detail) {
         this.detail = detail;
+    }
+
+    public void setExtendedDetail(String extendedDetail) {
+        this.extendedDetail = extendedDetail;
     }
 
     public void setType(CalloutType type) {
