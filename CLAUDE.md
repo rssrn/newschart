@@ -89,7 +89,7 @@ React SPA using react-simple-maps for world map visualization:
 - **MapChart** - Main map component using Mercator projection
 - **StoryCalloutList** - Renders callout boxes with connectors to country points
 
-**Layout Algorithm** (`utils/mapCalloutUtils.js`):
+**Layout Algorithm** (`utils/mapCalloutUtils.ts`):
 Exhaustive candidate enumeration - generates ~20-30 candidate positions per callout (8 directions × 5 distances, filtered by bounds/origin-obscuring), evaluates every combination, and picks the lowest-penalty layout. Feasible because N≤4. Based on PFLP (Point-Feature Label Placement) literature.
 
 **Layout Algorithm Success Criteria:**
@@ -117,9 +117,6 @@ Test scenarios are defined in `CalloutController.sampleCallouts()` including clu
 - **Frontend**: React 18, react-simple-maps
 - **Testing**: Testcontainers (MongoDB), React Testing Library, Playwright
 - **AI**: Google Gemini API (gemini-2.5-flash-lite model)
-
-## Saved Plans
-- **TypeScript migration**: `~/.claude/plans/purrfect-sauteeing-squirrel.md` — migrate frontend from JavaScript to TypeScript
 
 ## Environment Variables
 - `NVD_API_KEY` - For OWASP NVD vulnerability database
