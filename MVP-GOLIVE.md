@@ -28,10 +28,10 @@ Items are grouped into three tiers:
 
 ### Database — MongoDB Atlas
 
-- [ ] **Provision Atlas cluster** — free/shared tier is fine for MVP
+- [x] **Provision Atlas cluster** — free/shared tier is fine for MVP
 - [ ] **Configure connection string** — externalise via environment variable (`MONGODB_URI`)
-- [ ] **Set up Atlas IP allowlist** — restrict to Oracle Cloud egress IP(s)
-- [ ] **Create Atlas DB user** — least-privilege read/write role scoped to the newschart DB
+- [x] **Set up Atlas IP allowlist** — restrict to Oracle Cloud egress IP(s)
+- [x] **Create Atlas DB user** — least-privilege read/write role scoped to the newschart DB
 - [ ] **Data indexes** — ensure indexes exist for date-based callout queries
 - [ ] **Atlas backup policy** — confirm automated backups are enabled
 - [ ] **Connection pool tuning** — review default Spring Data Mongo pool settings for a small OCI instance with limited RAM; size down if needed
@@ -46,7 +46,7 @@ Items are grouped into three tiers:
 - [x] **Install JDK 21 on instance**
 - [ ] **Install Node.js on instance** (or serve frontend as static build via Nginx)
 - [x] **Install nginx**
-- [ ] **Harden and Perfermance-optimise nginx**
+- [ ] **Harden and Performance-optimise nginx**
 - [ ] **Nginx reverse proxy config** — proxy `/api` to Spring Boot (`:8080`), serve React build from root
 - [ ] **TLS / HTTPS** — Let's Encrypt cert via Certbot
 - [ ] **Domain name** — register or point existing DNS to OCI instance IP
@@ -118,6 +118,16 @@ Items are grouped into three tiers:
 - [ ] **Grafana** Dashboards with relevant metrics
 - [ ] **Screenshots** provide screenshots of dashboards for portfolio
 
+### Migrate from Create React App to Vite
+
+- [ ] **Replace `react-scripts` with Vite** — CRA is unmaintained since 2022; TS5 peer dep conflict is an early symptom
+- [ ] **Add `vite.config.ts`** — configure `@vitejs/plugin-react` and proxy `/api` to `:8080`
+- [ ] **Update `index.html`** — move to project root, add `<script type="module" src="/src/index.tsx">`
+- [ ] **Swap test runner to Vitest** — near-identical API to Jest, replaces `react-scripts test`
+- [ ] **Remove `react-app-env.d.ts`** — replace with `vite/client` types in tsconfig
+- [ ] **Update CI workflow** — no changes expected; `npm test` still works via Vitest
+- [ ] **Remove `frontend/.npmrc` legacy-peer-deps workaround** — no longer needed after migration
+
 ### Frontend — Polish
 
 - [ ] **Basic SEO meta tags** — description, og:title for portfolio discoverability
@@ -132,7 +142,6 @@ Items are grouped into three tiers:
 
 - [ ] **Playwright screenshot tests in CI** — run against a spun-up local stack, or keep as manual-only
 - [ ] **Umami analytics** — embed cookieless tracking snippet, verify data flowing, acknowledge in credits
-- [ ] **TypeScript migration** (see saved plan `~/.claude/plans/purrfect-sauteeing-squirrel.md`)
 
 ---
 
