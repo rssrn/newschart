@@ -1,5 +1,6 @@
 name: Tailscale Connection Test
-on: [push]
+on:
+  workflow_dispatch: 
 
 jobs:
   test-connection:
