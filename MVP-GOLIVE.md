@@ -147,4 +147,11 @@ Items are grouped into three tiers:
 
 ---
 
-_Last updated: 2026-04-03_
+## Server Hardening (from security review)
+
+- [ ] **Systemd service hardening** — add `NoNewPrivileges`, `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`, `ProtectKernelTunables`, `ProtectKernelModules`, `ProtectControlGroups`, `RestrictAddressFamilies`, `LockPersonality` to `newschart.service`
+- [ ] **SSH: disable X11Forwarding** — set `X11Forwarding no` in `/etc/ssh/sshd_config`
+
+---
+
+_Last updated: 2026-04-06_
