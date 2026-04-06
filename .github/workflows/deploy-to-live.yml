@@ -20,7 +20,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           
-          # Sync a folder (e.g., './src') to your Ubuntu home directory
-          # Replace <USER> and <IP> with your actual details
-          rsync -avz -e "tailscale ssh" ./src/README.md newschart@100.103.218.16:/home/newschart
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            ./src/README.md \
+            newschart@100.103.218.16:/home/newschart/
 
