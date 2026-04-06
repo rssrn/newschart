@@ -22,7 +22,6 @@
 import { StoryCallout, PositionedCallout, LayoutNode, LayoutCandidate, MapProjection } from '../types/news';
 
 const BOX_WIDTH = 135;
-const _BOX_HEIGHT = 100; // reserved for future use; actual height is dynamic
 const EDGE_PADDING = 40;
 
 interface Point {
