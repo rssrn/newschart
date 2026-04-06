@@ -1,0 +1,28 @@
+
+name: Deploy Files to Ubuntu
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Deploy via rsync
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          # Save the private key to a file and set permissions
+          echo "$SSH_PRIVATE_KEY" > deploy_key
+          chmod 600 deploy_key
+          
+          # Sync a folder (e.g., './src') to your Ubuntu home directory
+          # Replace <USER> and <IP> with your actual details
+          rsync -avz -e "tailscale ssh" ./src/README.md newschart@100.103.218.16:/home/newschart
+
