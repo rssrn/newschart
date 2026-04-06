@@ -1,0 +1,17 @@
+name: Tailscale Connection Test
+on: [push]
+
+jobs:
+  test-connection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Ping Ubuntu Box
+        run: ping -c 4 100.103.218.16
