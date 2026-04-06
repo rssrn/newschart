@@ -142,6 +142,8 @@ Items are grouped into three tiers:
 
 - [ ] **Playwright screenshot tests in CI** — run against a spun-up local stack, or keep as manual-only
 - [ ] **Umami analytics** — embed cookieless tracking snippet, verify data flowing, acknowledge in credits
+- [ ] **Separate GCP API keys per environment** — create a dedicated `GOOGLE_API_KEY` for prod (separate key or separate GCP project) for cost isolation, quota separation, and independent key rotation
+- [ ] **Dedicated MongoDB Atlas app user** — replace `rossarn_db_user` with an app-specific Atlas user scoped to newschart DB only; retire the personal user
 
 ---
 
