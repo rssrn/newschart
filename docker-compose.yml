@@ -1,0 +1,51 @@
+# @author Claude Opus 4.6 Anthropic
+services:
+  mongodb:
+    image: mongo:8.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    mem_limit: 512m
+
+  prometheus:
+    image: prom/prometheus:v2.45.3
+    profiles: ["monitoring"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    mem_limit: 200m
+
+  grafana:
+    image: grafana/grafana:12.4.2
+    profiles: ["monitoring"]
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    mem_limit: 200m
+
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    profiles: ["monitoring"]
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    mem_limit: 50m
+
+volumes:
+  mongodb_data:
+  prometheus_data:
+  grafana_data:
