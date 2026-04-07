@@ -44,15 +44,15 @@ Items are grouped into three tiers:
 - [x] **Harden SSH** - disable root login, disable password login, install fail2ban
 - [x] **Install basic sysadmin tools** - htop, iotop, nethogs
 - [x] **Install JDK 21 on instance**
-- [ ] **Install Node.js on instance** (or serve frontend as static build via Nginx)
+- [x] **Install Node.js on instance** (or serve frontend as static build via Nginx)
 - [x] **Install nginx**
 - [ ] **Harden and Performance-optimise nginx**
-- [ ] **Nginx reverse proxy config** — proxy `/api` to Spring Boot (`:8080`), serve React build from root
+- [x] **Nginx reverse proxy config** — proxy `/api` to Spring Boot (`:8080`), serve React build from root
 - [ ] **TLS / HTTPS** — Let's Encrypt cert via Certbot
 - [ ] **Domain name** — register or point existing DNS to OCI instance IP
 - [ ] **Firewall rules** — OCI security list: allow 80/443 inbound, block direct :8080
 - [ ] **Systemd service** — Spring Boot runs as a systemd unit, restarts on failure
-- [ ] **Environment variable management on host** — `.env` file or systemd `EnvironmentFile`, not in repo
+- [x] **Environment variable management on host** — `.env` file loaded via systemd `EnvironmentFile`, not in repo
 - [ ] **Rollback plan** — keep previous JAR on deploy; if the new one fails to start, systemd can fall back or you can swap manually
 - [ ] **Log rotation** — configure `journald` max size or `logrotate` for application logs to prevent disk fill on a small instance
 
