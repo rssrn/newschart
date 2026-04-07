@@ -4,14 +4,13 @@ import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiPipelineOrchestrator;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.NYTPipelineOrchestrator;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
@@ -19,12 +18,11 @@ import java.util.concurrent.TimeUnit;
  * Schedule to fetch from all our sources soon after startup
  */
 @Component
-@Profile({"dev", "default"}) // TODO make a similar class for prod that uses @Scheduled(cron = "0 30 2 * * *\")") etc
 public class BasicFetchSchedulerService extends BaseScheduler {
 
     private static final Logger log = LogManager.getLogger(BasicFetchSchedulerService.class);
 
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1);
     private final BasicFetchSchedulerConfig config;
 
     public BasicFetchSchedulerService(NYTPipelineOrchestrator nytPipelineOrchestrator,
@@ -36,9 +34,8 @@ public class BasicFetchSchedulerService extends BaseScheduler {
 
     @EventListener(ApplicationReadyEvent.class)
     public void applicationReady() {
-        log.info("Application ready - scheduling actions according to config");
-        scheduleNYT();
-        scheduleGemini();
+        log.info("Application ready - scheduling initial fetches on startup");
+        scheduleDefaultFetches();
     }
 
     @PreDestroy
@@ -53,6 +50,21 @@ public class BasicFetchSchedulerService extends BaseScheduler {
           executorService.shutdownNow();
           Thread.currentThread().interrupt();
       }
+    }
+
+    @Scheduled(cron = "0 5 6 * * *")
+    public void scheduledFetch() {
+        log.info("Regular scheduled fetch");
+        scheduleDefaultFetches();
+    }
+
+    private void scheduleDefaultFetches() {
+        if (!executorService.getQueue().isEmpty()) {
+            log.info("Fetch(es) already queued, skipping");
+            return;
+        }
+        scheduleNYT();
+        scheduleGemini();
     }
 
     private void scheduleNYT() {

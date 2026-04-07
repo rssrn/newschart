@@ -24,7 +24,7 @@ Items are grouped into three tiers:
 - [ ] **Review error handling** — ensure pipeline failures don't silently swallow errors in production
 - [ ] **Logging review** — appropriate log levels, no secrets or PII in logs
 - [ ] **API key / secrets management** — move all secrets to environment variables or a secrets store, none in `application.properties` committed to git
-- [ ] **Production scheduler** — implement scheduled pipeline runs (currently only runs on startup; needs new cron/scheduling code, e.g. `@Scheduled`) with a sensible interval for prod
+- [x] **Production scheduler** — implement scheduled pipeline runs (currently only runs on startup; needs new cron/scheduling code, e.g. `@Scheduled`) with a sensible interval for prod
 
 ### Database — MongoDB Atlas
 
@@ -49,7 +49,7 @@ Items are grouped into three tiers:
 - [ ] **Harden and Performance-optimise nginx**
 - [x] **Nginx reverse proxy config** — proxy `/api` to Spring Boot (`:8080`), serve React build from root
 - [ ] **TLS / HTTPS** — Let's Encrypt cert via Certbot
-- [ ] **Domain name** — register or point existing DNS to OCI instance IP
+- [ ] **Domain name** — register or point existing DNS to OCI instance IP.  Options: 4ny51d or any2ld
 - [ ] **Firewall rules** — OCI security list: allow 80/443 inbound, block direct :8080
 - [ ] **Systemd service** — Spring Boot runs as a systemd unit, restarts on failure
 - [x] **Environment variable management on host** — `.env` file loaded via systemd `EnvironmentFile`, not in repo
