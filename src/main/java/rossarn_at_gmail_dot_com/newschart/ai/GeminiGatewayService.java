@@ -65,7 +65,8 @@ public class GeminiGatewayService {
         String promptInput = "Country: " + country + "\nTitles: " + concatTitle + "\nContent: " + concatBody;
         String prompt = MAIN_SUMMARY_PROMPT + promptInput;
 
-        log.info("Calling Gemini with prompt: {}", prompt);
+        log.info("Calling Gemini to summarise stories");
+        log.debug("... with prompt: {}", prompt);
 
         return Optional.ofNullable(
                 chatClient.prompt()

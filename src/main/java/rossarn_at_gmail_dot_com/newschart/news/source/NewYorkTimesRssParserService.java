@@ -74,9 +74,9 @@ public class NewYorkTimesRssParserService implements PipelineStep {
                 String link = (String) xpath.evaluate("link/text()", item, XPathConstants.STRING);
                 String text = (String) xpath.evaluate("description/text()", item, XPathConstants.STRING);
 
-                log.info("Title: {}", title);
-                log.info("Link: {}", link);
-                log.info("Text: {}", text);
+                log.debug("Title: {}", title);
+                log.debug("Link: {}", link);
+                log.debug("Text: {}", text);
 
                 // iterate over nyt_geo elements to collect geo tags
                 // note this can include multiple regions, countries, states, etc
