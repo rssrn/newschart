@@ -3010,7 +3010,9 @@
   ],
   "refresh": "30s",
   "schemaVersion": 42,
-  "tags": ["production"],
+  "tags": [
+    "production"
+  ],
   "templating": {
     "list": [
       {
@@ -3135,6 +3137,6 @@
   "timezone": "browser",
   "title": "JVM (Micrometer)",
   "uid": "adjnkmw",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
