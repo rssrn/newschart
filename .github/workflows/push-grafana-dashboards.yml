@@ -1,0 +1,58 @@
+# @author Claude Sonnet 4.6 Anthropic
+name: Push Grafana Dashboards
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'grafana/dashboards/**'
+
+jobs:
+  push-dashboards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+      - name: Push production-tagged dashboards to Grafana
+        env:
+          GRAFANA_URL: http://100.103.218.16:3000
+          GRAFANA_API_TOKEN: ${{ secrets.GRAFANA_API_TOKEN }}
+        run: |
+          pushed=0
+          skipped=0
+          failed=0
+
+          for file in grafana/dashboards/*.json; do
+            [ -f "$file" ] || continue
+
+            if jq -e '.tags // [] | contains(["production"])' "$file" > /dev/null; then
+              echo "Pushing $file..."
+              payload=$(jq 'del(.id) | {dashboard: ., overwrite: true}' "$file")
+              response=$(curl -s -o /tmp/gf_response.json -w "%{http_code}" \
+                -X POST "$GRAFANA_URL/api/dashboards/db" \
+                -H "Authorization: Bearer $GRAFANA_API_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "$payload")
+              if [ "$response" -eq 200 ]; then
+                echo "  OK (HTTP $response)"
+                pushed=$((pushed + 1))
+              else
+                echo "  FAILED (HTTP $response)"
+                cat /tmp/gf_response.json
+                failed=$((failed + 1))
+              fi
+            else
+              echo "Skipping $file (no 'production' tag)"
+              skipped=$((skipped + 1))
+            fi
+          done
+
+          echo ""
+          echo "Done: $pushed pushed, $skipped skipped, $failed failed"
+          [ "$failed" -eq 0 ] || exit 1

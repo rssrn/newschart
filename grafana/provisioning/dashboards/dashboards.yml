@@ -1,0 +1,8 @@
+# @author Claude Sonnet 4.6 Anthropic
+apiVersion: 1
+providers:
+  - name: default
+    type: file
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
