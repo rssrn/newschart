@@ -33,7 +33,7 @@ jobs:
 
             if jq -e '.tags // [] | contains(["production"])' "$file" > /dev/null; then
               echo "Pushing $file..."
-              payload=$(jq 'del(.id) | {dashboard: ., overwrite: true}' "$file")
+              payload=$(jq 'del(.id) | (.. | select(.datasource? and .datasource.uid?) | .datasource.uid) |= null | {dashboard: ., overwrite: true}' "$file")
               response=$(curl -s -o /tmp/gf_response.json -w "%{http_code}" \
                 -X POST "$GRAFANA_URL/api/dashboards/db" \
                 -H "Authorization: Bearer $GRAFANA_API_TOKEN" \
