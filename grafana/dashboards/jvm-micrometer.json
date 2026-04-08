@@ -3010,7 +3010,7 @@
   ],
   "refresh": "30s",
   "schemaVersion": 42,
-  "tags": [],
+  "tags": ["production"],
   "templating": {
     "list": [
       {
