@@ -39,6 +39,9 @@ interface MapChartProps {
 }
 
 // @author Claude Sonnet 4.6 Anthropic
+const calloutsCache = new Map<string, StoryCallout[]>();
+
+// @author Claude Sonnet 4.6 Anthropic
 const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
@@ -65,9 +68,6 @@ const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): Rea
   useEffect(() => {
     const controller = new AbortController();
 
-    setCallouts([]);
-    onFetchStatusRef.current?.('loading');
-
     const params = new URLSearchParams(window.location.search); // NOSONAR
     const testCase = params.get('testCase');
 
@@ -75,12 +75,23 @@ const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): Rea
       ? `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}?source=${source}`
       : `/api/news/sampleCallouts?testCase=${testCase}`;
 
+    const cached = calloutsCache.get(url);
+    if (cached) {
+      setCallouts(cached);
+      onFetchStatusRef.current?.('success');
+      return;
+    }
+
+    setCallouts([]);
+    onFetchStatusRef.current?.('loading');
+
     fetch(url, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
       .then((data: StoryCallout[]) => {
+        calloutsCache.set(url, data);
         setCallouts(data);
         onFetchStatusRef.current?.('success');
       })
