@@ -105,7 +105,7 @@ export function calculateOffsets(
   const boundsMinX = EDGE_PADDING;
   const boundsMaxX = SVG_WIDTH - BOX_WIDTH - EDGE_PADDING;
   const boundsMinY = EDGE_PADDING;
-  const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT - 15; // less bottom padding: nothing below the map
+  const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT;
 
   // --- Step 2: Generate candidate positions per callout ---
   const DIRECTIONS: { angle: number }[] = [
@@ -118,12 +118,16 @@ export function calculateOffsets(
     { angle: 3 * Math.PI / 4 },  // SW
     { angle: Math.PI },          // W
   ];
-  const DISTANCES: number[] = [80, 110, 145, 185, 225];
+  const DISTANCES: number[] = [80, 110, 145, 185, 225, 270];
   const ORIGIN_PADDING = 10;
 
-  // Helper: check if a box position would obscure any origin point
-  function boxObscuresOrigin(boxX: number, boxY: number): boolean {
-    for (const n of nodes) {
+  // Helper: check if a box position would obscure another callout's origin point.
+  // Skips the callout's own origin — its box is expected to be near its own subject point.
+  // @author Claude Opus 4.6 Anthropic
+  function boxObscuresOrigin(boxX: number, boxY: number, selfIndex: number): boolean {
+    for (let k = 0; k < nodes.length; k++) {
+      if (k === selfIndex) continue;
+      const n = nodes[k];
       if (boxX - ORIGIN_PADDING < n.subjectX && n.subjectX < boxX + BOX_WIDTH + ORIGIN_PADDING &&
           boxY - ORIGIN_PADDING < n.subjectY && n.subjectY < boxY + RENDERED_HEIGHT + ORIGIN_PADDING) {
         return true;
@@ -138,7 +142,7 @@ export function calculateOffsets(
            boxY >= boundsMinY && boxY <= boundsMaxY;
   }
 
-  const candidatesPerNode: LayoutCandidate[][] = nodes.map((node) => {
+  const candidatesPerNode: LayoutCandidate[][] = nodes.map((node, nodeIndex) => {
     const candidates: LayoutCandidate[] = [];
     for (const dir of DIRECTIONS) {
       for (const dist of DISTANCES) {
@@ -147,8 +151,8 @@ export function calculateOffsets(
         const boxX = node.subjectX + Math.cos(dir.angle) * dist - BOX_WIDTH / 2;
         const boxY = node.subjectY + Math.sin(dir.angle) * dist - ANCHOR_Y;
 
-        // Hard reject: any part of box outside map bounds or obscuring origin
-        if (!isWithinBounds(boxX, boxY) || boxObscuresOrigin(boxX, boxY)) {
+        // Hard reject: any part of box outside map bounds or obscuring another callout's origin
+        if (!isWithinBounds(boxX, boxY) || boxObscuresOrigin(boxX, boxY, nodeIndex)) {
           continue;
         }
 
@@ -193,12 +197,12 @@ export function calculateOffsets(
     // Penalty: connector i passes through box j
     if (lineIntersectsBox({ x: ni.subjectX, y: ni.subjectY }, ci,
                           { x: pj.boxX, y: pj.boxY })) {
-      penalty += 80;
+      penalty += 300;
     }
     // Penalty: connector j passes through box i
     if (lineIntersectsBox({ x: nj.subjectX, y: nj.subjectY }, cj,
                           { x: pi.boxX, y: pi.boxY })) {
-      penalty += 80;
+      penalty += 300;
     }
 
     return penalty;
