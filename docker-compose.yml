@@ -12,7 +12,11 @@ services:
     image: prom/prometheus:v2.45.3
     profiles: ["monitoring"]
     ports:
-      - "9090:9090"
+      - "9091:9091"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.listen-address=:9091'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
