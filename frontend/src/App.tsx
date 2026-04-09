@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import MapChart, { ProjectionType, PROJECTION_OPTIONS, FetchStatus } from './MapChart';
+import DateTimeline, { todayIso } from './DateTimeline';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI';
@@ -15,6 +16,9 @@ function App(): React.ReactElement {
   const [projectionType, setProjectionType] = useState<ProjectionType>(
     () => (localStorage.getItem('projectionType') as ProjectionType | null) ?? 'geoMercator'
   );
+  // @author Claude Sonnet 4.6 Anthropic
+  const [selectedDate, setSelectedDate] = useState<string>(todayIso);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
   // @author Claude Sonnet 4.6 Anthropic
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   // @author Claude Sonnet 4.6 Anthropic
@@ -32,6 +36,21 @@ function App(): React.ReactElement {
     setFetchStatus(status);
     if (status === 'loading') setErrorDismissed(false);
   }, []);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`/api/news/availableDays?source=${source}`, { signal: controller.signal })
+      .then(r => r.json())
+      .then((dates: string[]) => {
+        const sorted = [...dates].sort();
+        setAvailableDates(sorted);
+        // If the currently selected date isn't in the new source's list, snap to most recent
+        setSelectedDate(prev => sorted.includes(prev) ? prev : (sorted[sorted.length - 1] ?? todayIso()));
+      })
+      .catch(err => { if (err.name !== 'AbortError') console.error('Failed to fetch available dates', err); });
+    return () => controller.abort();
+  }, [source]);
 
   const showError = fetchStatus === 'error' && !errorDismissed;
   const isLoading = fetchStatus === 'loading';
@@ -174,7 +193,23 @@ function App(): React.ReactElement {
           </button>
         </div>
 
-        <MapChart source={source} projectionType={projectionType} onFetchStatus={handleFetchStatus}/>
+        {/* Desktop date timeline – @author Claude Sonnet 4.6 Anthropic */}
+        <div className="date-timeline-overlay">
+          <DateTimeline
+            availableDates={availableDates}
+            selectedDate={selectedDate}
+            onChange={setSelectedDate}
+            disabled={isLoading}
+          />
+        </div>
+
+        <MapChart
+          source={source}
+          projectionType={projectionType}
+          onFetchStatus={handleFetchStatus}
+          date={selectedDate}
+          bottomReservedPx={availableDates.length > 1 ? 90 : 0}
+        />
         <div className="map-footer-overlay">
           <a
             href="https://github.com/rssrn/newschart"

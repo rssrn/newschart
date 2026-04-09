@@ -7,6 +7,7 @@ import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./
 interface StoryCalloutListProps {
   readonly projection: MapProjection;
   readonly callouts: StoryCallout[];
+  readonly bottomReservedPx?: number;
 }
 
 function getShowBoundingBox(): boolean {
@@ -113,7 +114,7 @@ function StoryDetailModal({ callout, onClose }: StoryDetailModalProps): React.Re
   );
 }
 
-function StoryCalloutList({ projection, callouts }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, bottomReservedPx = 0 }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -158,8 +159,9 @@ const boundingBox = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
     if (callouts.length === 0 || !projection) return [];
 
-    return calculateOffsets(callouts, projection, visibleSvgHeight);
-  }, [callouts, projection, visibleSvgHeight]);
+    const bottomPaddingSvg = bottomReservedPx * (SVG_WIDTH / viewportSize.w);
+    return calculateOffsets(callouts, projection, visibleSvgHeight, bottomPaddingSvg);
+  }, [callouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w]);
 
   return (
   <>

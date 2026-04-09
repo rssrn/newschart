@@ -36,13 +36,15 @@ interface MapChartProps {
   readonly source: string;
   readonly projectionType: ProjectionType;
   readonly onFetchStatus?: (status: FetchStatus) => void;
+  readonly date: string;
+  readonly bottomReservedPx?: number;
 }
 
 // @author Claude Sonnet 4.6 Anthropic
 const calloutsCache = new Map<string, StoryCallout[]>();
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0 }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
 
@@ -72,7 +74,7 @@ const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): Rea
     const testCase = params.get('testCase');
 
     const url = testCase === null
-      ? `/api/news/calloutsForDay/${new Date().toISOString().split('T')[0]}?source=${source}`
+      ? `/api/news/calloutsForDay/${date}?source=${source}`
       : `/api/news/sampleCallouts?testCase=${testCase}`;
 
     const cached = calloutsCache.get(url);
@@ -102,7 +104,7 @@ const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): Rea
       });
 
     return () => controller.abort();
-  }, [source]);
+  }, [source, date]);
 
   // Build set of ISO numeric codes (as numbers) for active callouts
   const activeIsoNumerics: Set<number> = useMemo(() => {
@@ -147,7 +149,7 @@ const MapChart = ({ source, projectionType, onFetchStatus }: MapChartProps): Rea
         }
       </Geographies>
       {/* Annotations handled by StoryCalloutList */}
-      <StoryCalloutList projection={projection} callouts={callouts}/>
+      <StoryCalloutList projection={projection} callouts={callouts} bottomReservedPx={bottomReservedPx}/>
     </ComposableMap>
   );
 };

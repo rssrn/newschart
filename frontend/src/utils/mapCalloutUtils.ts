@@ -45,7 +45,8 @@ interface Point {
 export function calculateOffsets(
   callouts: StoryCallout[],
   projection: MapProjection,
-  visibleSvgHeight: number = 600
+  visibleSvgHeight: number = 600,
+  bottomPadding: number = 0
 ): PositionedCallout[] {
   if (!Array.isArray(callouts) || !projection) return [];
   if (callouts.length === 0) return [];
@@ -105,7 +106,7 @@ export function calculateOffsets(
   const boundsMinX = EDGE_PADDING;
   const boundsMaxX = SVG_WIDTH - BOX_WIDTH - EDGE_PADDING;
   const boundsMinY = EDGE_PADDING;
-  const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT;
+  const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT - bottomPadding;
 
   // --- Step 2: Generate candidate positions per callout ---
   const DIRECTIONS: { angle: number }[] = [

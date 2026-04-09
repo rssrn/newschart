@@ -649,3 +649,158 @@ svg {
   .story-detail-meta-label  { font-size: 9px; }
   .story-detail-meta-value  { font-size: 12px; }
 }
+
+/* ── Date timeline (desktop) ────────────────────────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+
+/* Overlay wrapper: positioned above the footer */
+.date-timeline-overlay {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  /* Empty when DateTimeline returns null (0 or 1 dates) */
+}
+
+.date-timeline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  padding: 6px 10px;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.10);
+  max-width: 92vw;
+  user-select: none;
+}
+
+.date-timeline--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ‹ / › arrow buttons */
+.date-timeline-arrow {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+  color: #2563eb;
+  font-size: 18px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.date-timeline-arrow:disabled {
+  color: #bfdbfe;
+  border-color: #eff6ff;
+  background: #f8faff;
+  cursor: default;
+}
+
+.date-timeline-arrow:not(:disabled):hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+/* Track area with floating label above */
+.date-timeline-track-wrapper {
+  position: relative;
+  flex: 1;
+  padding-top: 18px; /* space for the floating label */
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.date-timeline-label {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  pointer-events: none;
+  letter-spacing: 0.02em;
+}
+
+/* The clickable/draggable track area */
+.date-timeline-track {
+  position: relative;
+  height: 20px;
+  cursor: pointer;
+  outline: none;
+}
+
+.date-timeline-track:focus-visible {
+  outline: 2px solid #93c5fd;
+  border-radius: 4px;
+}
+
+/* Solid line segments — only drawn between consecutive dates */
+.date-timeline-segment {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: #93c5fd;
+  border-radius: 1px;
+  z-index: 1;
+}
+
+/* Tick mark for each available date */
+.date-timeline-tick {
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #bfdbfe;
+  border: 1px solid #93c5fd;
+  z-index: 2;
+}
+
+/* "Today" tick is the primary blue accent */
+.date-timeline-tick--today {
+  background: #2563eb;
+  border-color: #1d4ed8;
+}
+
+/* Draggable thumb */
+.date-timeline-thumb {
+  position: absolute;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #2563eb;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.35);
+  z-index: 3;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  pointer-events: none; /* track div handles the events */
+}
+
+.date-timeline-track:active .date-timeline-thumb {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+}
+
+/* Hide on mobile — Phase 2 will add mobile controls */
+@media (max-width: 480px) {
+  .date-timeline-overlay {
+    display: none;
+  }
+}
