@@ -29,12 +29,9 @@ Items are grouped into three tiers:
 ### Database — MongoDB Atlas
 
 - [x] **Provision Atlas cluster** — free/shared tier is fine for MVP
-- [ ] **Configure connection string** — externalise via environment variable (`MONGODB_URI`)
+- [x] **Configure connection string** — externalise via environment variable (`MONGODB_URI`)
 - [x] **Set up Atlas IP allowlist** — restrict to Oracle Cloud egress IP(s)
 - [x] **Create Atlas DB user** — least-privilege read/write role scoped to the newschart DB
-- [ ] **Data indexes** — ensure indexes exist for date-based callout queries
-- [ ] **Atlas backup policy** — confirm automated backups are enabled
-- [ ] **Connection pool tuning** — review default Spring Data Mongo pool settings for a small OCI instance with limited RAM; size down if needed
 
 ### Hosting — Oracle Cloud (OCI)
 
@@ -58,10 +55,10 @@ Items are grouped into three tiers:
 
 ### CI/CD — GitHub Actions
 
-- [ ] **Backend CI workflow** — on push/PR: `./mvnw test` (Testcontainers, needs Docker in runner)
-- [ ] **Frontend CI workflow** — on push/PR: `npm install && CI=true npm test`
-- [ ] **Build & artifact workflow** — produce a fat JAR and a React `build/` on tagged releases
-- [ ] **Deploy workflow** — SSH to OCI instance, swap JAR + static files, restart systemd service
+- [x] **Backend CI workflow** — on push/PR: `./mvnw test` (Testcontainers, needs Docker in runner)
+- [x] **Frontend CI workflow** — on push/PR: `npm install && CI=true npm test`
+- [x] **Build & artifact workflow** — produce a fat JAR and a React `build/` on tagged releases
+- [x] **Deploy workflow** — SSH to OCI instance, swap JAR + static files, restart systemd service
 - [ ] **Post-deploy smoke test** — curl the health endpoint and/or `/api/news` after deploy; fail the workflow if unhealthy
 - [ ] **Secrets in GitHub** — `MONGODB_URI`, `GEMINI_API_KEY`, OCI SSH key stored as Actions secrets
 
@@ -76,9 +73,9 @@ Items are grouped into three tiers:
 
 ### Frontend — Production Readiness
 
-- [ ] **Production build tested** — `npm run build` output served correctly via Nginx
+- [x] **Production build tested** — `npm run build` output served correctly via Nginx
 - [ ] **Environment config** — API base URL driven by env var, not hardcoded `localhost`
-- [ ] **Error states** — loading/error UI when API is unreachable
+- [x] **Error states** — loading/error UI when API is unreachable
 - [ ] **Favicon and `<title>`** — set appropriate page title and icon
 
 ### Frontend — Supporting Pages
@@ -144,6 +141,9 @@ Items are grouped into three tiers:
 - [ ] **Umami analytics** — embed cookieless tracking snippet, verify data flowing, acknowledge in credits
 - [ ] **Separate GCP API keys per environment** — create a dedicated `GOOGLE_API_KEY` for prod (separate key or separate GCP project) for cost isolation, quota separation, and independent key rotation
 - [ ] **Dedicated MongoDB Atlas app user** — replace `rossarn_db_user` with an app-specific Atlas user scoped to newschart DB only; retire the personal user
+- [ ] **Data indexes** — check query performance, consider adding indexes
+- [ ] **Atlas backup policy** — consider implementing backups as we build up valuable data
+
 
 ---
 
