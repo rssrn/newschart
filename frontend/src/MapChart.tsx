@@ -24,7 +24,7 @@ export const PROJECTION_OPTIONS: ProjectionOption[] = [
   { value: 'geoMercator',       label: 'Mercator',       d3Constructor: geoMercator,       config: { center: [0, -25], scale: 90  } },
   { value: 'geoNaturalEarth1',  label: 'Natural Earth',  d3Constructor: geoNaturalEarth1,  config: { center: [0, -28], scale: 153 } },
   { value: 'geoEqualEarth',     label: 'Equal Earth',    d3Constructor: geoEqualEarth,     config: { center: [0, -28], scale: 153 } },
-  { value: 'geoEquirectangular',label: 'Equirectangular',d3Constructor: geoEquirectangular,config: { center: [0, -20], scale: 125 } },
+];
 ];
 
 const ACTIVE_COUNTRY_FILL   = "#FDE68A"; // amber-200
