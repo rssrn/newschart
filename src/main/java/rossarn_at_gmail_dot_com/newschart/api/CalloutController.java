@@ -38,6 +38,14 @@ public class CalloutController {
         return calloutService.calloutsForDay(date, source);
     }
 
+    @GetMapping("availableDays")
+    public List<LocalDate> availableDays (
+            @RequestParam(required = true) CalloutSource source) {
+        log.info("availableDays {}", source);
+
+        return calloutService.availableDays(source);
+    }
+
     /**
      * Return predefined static examples - mainly used for testing layout algorithms.
      *

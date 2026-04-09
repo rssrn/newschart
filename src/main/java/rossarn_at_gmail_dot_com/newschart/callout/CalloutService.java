@@ -72,4 +72,11 @@ public class CalloutService implements PipelineStep {
 
         return calloutRepository.findByGeneratedAtBetweenAndSource(startDate, endDate, source);
     }
+
+    public List<LocalDate> availableDays(CalloutSource source) {
+      return calloutRepository.findDistinctDaysBySource(source)
+          .stream()
+          .map(LocalDate::parse)
+          .toList();
+    }
 }
