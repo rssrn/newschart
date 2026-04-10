@@ -26,8 +26,11 @@ export const PROJECTION_OPTIONS: ProjectionOption[] = [
   { value: 'geoEqualEarth',     label: 'Equal Earth',    d3Constructor: geoEqualEarth,     config: { center: [0, -28], scale: 153 } },
 ];
 
-const ACTIVE_COUNTRY_FILL   = "#FDE68A"; // amber-200
-const ACTIVE_COUNTRY_STROKE = "#D97706"; // amber-600
+// @author Claude Opus 4.6 Anthropic
+const ACTIVE_COUNTRY_FILL_CURRENT    = "#BFDBFE"; // blue-200
+const ACTIVE_COUNTRY_STROKE_CURRENT  = "#2563EB"; // blue-600
+const ACTIVE_COUNTRY_FILL_HISTORICAL = "#FDE68A"; // amber-200
+const ACTIVE_COUNTRY_STROKE_HISTORICAL = "#D97706"; // amber-600
 const DEFAULT_FILL          = "#D6D6DA";
 const DEFAULT_STROKE        = "#FFFFFF";
 
@@ -37,13 +40,14 @@ interface MapChartProps {
   readonly onFetchStatus?: (status: FetchStatus) => void;
   readonly date: string;
   readonly bottomReservedPx?: number;
+  readonly isHistorical?: boolean;
 }
 
 // @author Claude Sonnet 4.6 Anthropic
 const calloutsCache = new Map<string, StoryCallout[]>();
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0 }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
 
@@ -135,12 +139,14 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
             .filter((geo) => geo.properties.name !== "Antarctica")
             .map((geo) => {
               const isActive = activeIsoNumerics.has(Number(geo.id));
+              const activeFill = isHistorical ? ACTIVE_COUNTRY_FILL_HISTORICAL : ACTIVE_COUNTRY_FILL_CURRENT;
+              const activeStroke = isHistorical ? ACTIVE_COUNTRY_STROKE_HISTORICAL : ACTIVE_COUNTRY_STROKE_CURRENT;
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={isActive ? ACTIVE_COUNTRY_FILL : DEFAULT_FILL}
-                  stroke={isActive ? ACTIVE_COUNTRY_STROKE : DEFAULT_STROKE}
+                  fill={isActive ? activeFill : DEFAULT_FILL}
+                  stroke={isActive ? activeStroke : DEFAULT_STROKE}
                   strokeWidth={isActive ? 0.8 : 0.5}
                 />
               );
@@ -148,7 +154,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         }
       </Geographies>
       {/* Annotations handled by StoryCalloutList */}
-      <StoryCalloutList projection={projection} callouts={callouts} bottomReservedPx={bottomReservedPx}/>
+      <StoryCalloutList projection={projection} callouts={callouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical}/>
     </ComposableMap>
   );
 };

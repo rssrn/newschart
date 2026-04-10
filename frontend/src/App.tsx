@@ -209,6 +209,7 @@ function App(): React.ReactElement {
           onFetchStatus={handleFetchStatus}
           date={selectedDate}
           bottomReservedPx={availableDates.length > 1 ? 90 : 0}
+          isHistorical={selectedDate !== todayIso()}
         />
         <div className="map-footer-overlay">
           <a

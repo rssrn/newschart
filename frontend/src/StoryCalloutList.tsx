@@ -8,6 +8,7 @@ interface StoryCalloutListProps {
   readonly projection: MapProjection;
   readonly callouts: StoryCallout[];
   readonly bottomReservedPx?: number;
+  readonly isHistorical?: boolean;
 }
 
 function getShowBoundingBox(): boolean {
@@ -42,10 +43,12 @@ function formatDatelinePart(isoString: string): string {
 interface StoryDetailModalProps {
   callout: StoryCallout;
   onClose: () => void;
+  isHistorical?: boolean;
 }
 
 // @author Claude Sonnet 4.6 Anthropic
-function StoryDetailModal({ callout, onClose }: StoryDetailModalProps): React.ReactElement {
+// @author Claude Opus 4.6 Anthropic
+function StoryDetailModal({ callout, onClose, isHistorical = false }: StoryDetailModalProps): React.ReactElement {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKeyDown);
@@ -68,7 +71,7 @@ function StoryDetailModal({ callout, onClose }: StoryDetailModalProps): React.Re
       aria-modal="true"
       aria-label={callout.headline}
     >
-      <article className="story-detail-card" onClick={e => e.stopPropagation()}>
+      <article className={`story-detail-card${isHistorical ? ' story-detail-card--historical' : ''}`} onClick={e => e.stopPropagation()}>
         <header className="story-detail-header">
           <div className="story-detail-location">
             <span className="story-detail-flag">{flag}</span>
@@ -114,7 +117,7 @@ function StoryDetailModal({ callout, onClose }: StoryDetailModalProps): React.Re
   );
 }
 
-function StoryCalloutList({ projection, callouts, bottomReservedPx = 0 }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, bottomReservedPx = 0, isHistorical = false }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -180,7 +183,7 @@ const boundingBox = useMemo(() => {
           dx={callout.dx}
           dy={callout.dy}
           connectorProps={{
-            stroke: "#2563EB",
+            stroke: isHistorical ? "#b45309" : "#2563EB",
             strokeWidth: 1.5,
             strokeLinecap: "round",
           }}
@@ -193,7 +196,7 @@ const boundingBox = useMemo(() => {
           height="100"
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
 
-            <div className="map-annotation-box">
+            <div className={`map-annotation-box${isHistorical ? ' map-annotation-box--historical' : ''}`}>
               <div className="map-annotation-header map-annotation-header--clickable" onClick={() => handleMoreDetails(callout)}>
                 <div className="map-annotation-location">
                   <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
@@ -213,7 +216,7 @@ const boundingBox = useMemo(() => {
         </Annotation>
   ))}
   {selectedCallout && (
-    <StoryDetailModal callout={selectedCallout} onClose={handleCloseModal} />
+    <StoryDetailModal callout={selectedCallout} onClose={handleCloseModal} isHistorical={isHistorical} />
   )}
   </>
   );

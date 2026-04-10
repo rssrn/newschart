@@ -56,7 +56,7 @@ svg {
 }
 
 .source-radio-label input[type="radio"] {
-  accent-color: #2563eb;
+  accent-color: #8b5cf6;
   cursor: pointer;
 }
 
@@ -146,6 +146,32 @@ svg {
   line-height: 1;
 }
 
+
+/* ── Historical / archive callout styling ─────────────────────────────────── */
+/* @author Claude Opus 4.6 Anthropic */
+.map-annotation-box--historical {
+  border-color: #b45309;                          /* amber-700 */
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.12);
+}
+.map-annotation-box--historical .map-annotation-header {
+  background-color: #fef3c7;                      /* amber-100 */
+  border-bottom-color: #fde68a;                   /* amber-200 */
+}
+.map-annotation-box--historical .map-annotation-header--clickable:hover {
+  background-color: #fde68a;                      /* amber-200 */
+}
+.map-annotation-box--historical .map-annotation-expand {
+  color: #d97706;                                 /* amber-600 */
+}
+.map-annotation-box--historical .map-annotation-header--clickable:hover .map-annotation-expand {
+  color: #92400e;                                 /* amber-800 */
+}
+.map-annotation-box--historical .map-annotation-title {
+  color: #92400e;                                 /* amber-800 */
+}
+.map-annotation-box--historical .map-annotation-text {
+  color: #78716c;                                 /* warm gray (stone-500) */
+}
 
 /* ── Controls loading state ──────────────────────────────────────────────── */
 /* @author Claude Sonnet 4.6 Anthropic */
@@ -401,7 +427,7 @@ svg {
   }
 
   .mobile-sheet-radio-label input[type="radio"] {
-    accent-color: #2563eb;
+    accent-color: #8b5cf6;
     width: 18px;
     height: 18px;
     cursor: pointer;
@@ -420,7 +446,7 @@ svg {
     width: calc(100% - 40px);
     margin: 14px 20px 16px;
     padding: 13px;
-    background: #2563eb;
+    background: #8b5cf6;
     color: white;
     border: none;
     border-radius: 10px;
@@ -433,7 +459,7 @@ svg {
   }
 
   .mobile-sheet-done:active {
-    background: #1d4ed8;
+    background: #7c3aed;
   }
 }
 
@@ -618,6 +644,24 @@ svg {
   line-height: 1.4;
 }
 
+/* ── Historical modal styling ──────────────────────────────────────────────── */
+/* @author Claude Opus 4.6 Anthropic */
+.story-detail-card--historical {
+  border-color: #b45309;
+  box-shadow: 0 4px 20px rgba(180, 83, 9, 0.18), 0 2px 8px rgba(180, 83, 9, 0.10);
+}
+.story-detail-card--historical .story-detail-header {
+  background-color: #fef3c7;
+  border-bottom-color: #fde68a;
+}
+.story-detail-card--historical .story-detail-headline {
+  color: #92400e;
+}
+.story-detail-card--historical .story-detail-close:hover {
+  background: #fde68a;
+  color: #92400e;
+}
+
 /* Mobile: bottom sheet — switch back to fixed px since vw is tiny on narrow screens */
 @media (max-width: 640px) {
   @keyframes storyCardUpMobile {
@@ -668,10 +712,10 @@ svg {
   align-items: center;
   gap: 6px;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid #dbeafe;
+  border: 1px solid #ede9fe;
   border-radius: 6px;
   padding: 6px 10px;
-  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 1px 4px rgba(139, 92, 246, 0.10);
   max-width: 92vw;
   user-select: none;
 }
@@ -683,10 +727,10 @@ svg {
 
 /* ‹ / › arrow buttons */
 .date-timeline-arrow {
-  background: #eff6ff;
-  border: 1px solid #dbeafe;
+  background: #f5f3ff;
+  border: 1px solid #ede9fe;
   border-radius: 6px;
-  color: #2563eb;
+  color: #8b5cf6;
   font-size: 18px;
   line-height: 1;
   width: 28px;
@@ -701,16 +745,16 @@ svg {
 }
 
 .date-timeline-arrow:disabled {
-  color: #bfdbfe;
-  border-color: #eff6ff;
-  background: #f8faff;
+  color: #ddd6fe;
+  border-color: #f5f3ff;
+  background: #faf5ff;
   cursor: default;
 }
 
 .date-timeline-arrow:not(:disabled):hover {
-  background: #dbeafe;
-  border-color: #93c5fd;
-  color: #1d4ed8;
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #6d28d9;
 }
 
 /* Track area with floating label above */
@@ -743,7 +787,7 @@ svg {
 }
 
 .date-timeline-track:focus-visible {
-  outline: 2px solid #93c5fd;
+  outline: 2px solid #c4b5fd;
   border-radius: 4px;
 }
 
@@ -753,7 +797,7 @@ svg {
   top: 50%;
   height: 2px;
   transform: translateY(-50%);
-  background: #93c5fd;
+  background: #c4b5fd;
   border-radius: 1px;
   z-index: 1;
 }
@@ -766,15 +810,15 @@ svg {
   height: 5px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: #bfdbfe;
-  border: 1px solid #93c5fd;
+  background: #ddd6fe;
+  border: 1px solid #c4b5fd;
   z-index: 2;
 }
 
 /* "Today" tick is the primary blue accent */
 .date-timeline-tick--today {
-  background: #2563eb;
-  border-color: #1d4ed8;
+  background: #6d28d9;
+  border-color: #5b21b6;
 }
 
 /* Draggable thumb */
@@ -785,9 +829,9 @@ svg {
   height: 13px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: #2563eb;
+  background: #8b5cf6;
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 1px 4px rgba(139, 92, 246, 0.35);
   z-index: 3;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
   pointer-events: none; /* track div handles the events */
@@ -795,7 +839,7 @@ svg {
 
 .date-timeline-track:active .date-timeline-thumb {
   transform: translate(-50%, -50%) scale(1.2);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.45);
 }
 
 /* Hide on mobile — Phase 2 will add mobile controls */
