@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import MapChart, { ProjectionType, PROJECTION_OPTIONS, FetchStatus } from './MapChart';
-import DateTimeline, { todayIso } from './DateTimeline';
+import DateTimeline, { todayIso, isToday, formatShortDate } from './DateTimeline';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI';
@@ -138,7 +138,7 @@ function App(): React.ReactElement {
             <circle cx="8" cy="12" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
             <circle cx="16" cy="18" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
           </svg>
-          <span>{sourceShortLabel} · {projectionLabel}</span>
+          <span>{sourceShortLabel}{!isToday(selectedDate) ? ` · ${formatShortDate(selectedDate)}` : ''} · {projectionLabel}</span>
         </button>
 
         {/* Mobile backdrop – @author Claude Sonnet 4.6 Anthropic */}
@@ -224,6 +224,24 @@ function App(): React.ReactElement {
           <a href="/credits">Credits</a>
         </div>
       </div>
+      {/* Mobile date chip strip (outside map-container to avoid overflow clip) – @author Claude Opus 4.6 Anthropic */}
+      {availableDates.length > 1 && (
+        <div className={`mobile-date-strip-wrapper${isLoading ? ' controls-loading' : ''}`}>
+          <div className="mobile-date-strip-overlay">
+            {availableDates.map(d => (
+              <button
+                key={d}
+                className={`mobile-date-chip${d === selectedDate ? ' active' : ''}`}
+                ref={d === selectedDate ? (el) => { el?.scrollIntoView({ inline: 'center', block: 'nearest' }); } : undefined}
+                onClick={() => setSelectedDate(d)}
+                disabled={isLoading}
+              >
+                {isToday(d) ? 'Today' : formatShortDate(d)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

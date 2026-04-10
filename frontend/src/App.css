@@ -296,6 +296,12 @@ svg {
   display: none;
 }
 
+/* Hidden on desktop — the DateTimeline slider handles it there */
+/* @author Claude Opus 4.6 Anthropic */
+.mobile-date-strip-wrapper {
+  display: none;
+}
+
 @media (max-width: 640px) {
   /* Hide the desktop overlay */
   .source-selector-overlay {
@@ -460,6 +466,48 @@ svg {
 
   .mobile-sheet-done:active {
     background: #7c3aed;
+  }
+
+  /* Always-visible date chip strip — sits below the map container */
+  .mobile-date-strip-wrapper {
+    display: block;
+    position: relative;
+    background: #f5f5f5;
+  }
+
+  /* Edge fade gradients — hint that content continues off-screen */
+  .mobile-date-strip-wrapper::before,
+  .mobile-date-strip-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 28px;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .mobile-date-strip-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, #f5f5f5 0%, transparent 100%);
+  }
+
+  .mobile-date-strip-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, #f5f5f5 0%, transparent 100%);
+  }
+
+  .mobile-date-strip-overlay {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: center;
+    padding: 8px 16px;
+  }
+
+  .mobile-date-strip-overlay::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -842,9 +890,33 @@ svg {
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.45);
 }
 
-/* Hide on mobile — Phase 2 will add mobile controls */
-@media (max-width: 480px) {
+/* Hide desktop timeline on mobile — mobile uses chip strip in bottom sheet */
+@media (max-width: 640px) {
   .date-timeline-overlay {
     display: none;
   }
+}
+
+.mobile-date-chip {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border-radius: 16px;
+  border: 1px solid #dbeafe;
+  background: white;
+  font-size: 13px;
+  font-family: inherit;
+  color: #374151;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.mobile-date-chip:active {
+  background: #eff6ff;
+}
+
+.mobile-date-chip.active {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
 }
