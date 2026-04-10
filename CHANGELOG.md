@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-04-10
+
+Time travel feature and UI refresh — users can now browse historical news days via a date slider (desktop) or chip strip (mobile), with a restyled map interface.
+
+### Added
+- Time travel date slider to browse historical news days (desktop + mobile)
+- Available days API endpoint (`/api/news/availableDays`)
+- NewsChart Key Metrics Grafana dashboard
+- Frontend API response caching for faster source switching
+
+### Changed
+- UI restyled: sepia-toned callouts for historical dates, violet controls, blue map country highlights
+- Removed equirectangular projection option (layout compatibility issues)
+- Prometheus container moved to port 9091 to avoid default port conflict in Docker
+- Datasource UIDs stripped from Grafana dashboards for prod portability
+
+### Fixed
+- Callout layout for tightly-clustered projections
+
 ## [0.3.0] - 2026-04-08
 
 Observability and monitoring infrastructure added to the production stack.
