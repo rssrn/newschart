@@ -6,26 +6,26 @@ import rossarn_at_gmail_dot_com.newschart.callout.CalloutService;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsHighlightsService;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.CalloutBuilderService;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.TopCountryHighlighter;
-import rossarn_at_gmail_dot_com.newschart.news.source.NewYorkTimesRssIngestionService;
-import rossarn_at_gmail_dot_com.newschart.news.source.NewYorkTimesRssParserService;
+import rossarn_at_gmail_dot_com.newschart.news.source.NytRssIngestionService;
+import rossarn_at_gmail_dot_com.newschart.news.source.NytRssParserService;
 
 @Service
-public class NYTPipelineOrchestrator extends BasePipelineOrchestrator {
+public class NytPipelineOrchestrator extends BasePipelineOrchestrator {
 
-    private final NewYorkTimesRssIngestionService ingestionService;
-    private final NewYorkTimesRssParserService parserService;
+    private final NytRssIngestionService ingestionService;
+    private final NytRssParserService parserService;
     private final TopCountryHighlighter highlighter;
     private final NewsHighlightsService highlightsService;
     private final CalloutBuilderService transformService;
     private final CalloutService calloutService;
 
-    public NYTPipelineOrchestrator(
-            NewYorkTimesRssIngestionService newYorkTimesRssIngestionService,
-            NewYorkTimesRssParserService parserService,
+    public NytPipelineOrchestrator(
+            NytRssIngestionService nytRssIngestionService,
+            NytRssParserService parserService,
             TopCountryHighlighter highlighter,
             NewsHighlightsService newsHighlightsService,
             CalloutBuilderService transformService, CalloutService calloutService) {
-        this.ingestionService = newYorkTimesRssIngestionService;
+        this.ingestionService = nytRssIngestionService;
         this.parserService = parserService;
         this.highlighter = highlighter;
         this.highlightsService = newsHighlightsService;

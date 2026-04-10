@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-public class NewYorkTimesRssParserService implements PipelineStep {
+public class NytRssParserService implements PipelineStep {
 
-    private static final Logger log = LogManager.getLogger(NewYorkTimesRssParserService.class);
+    private static final Logger log = LogManager.getLogger(NytRssParserService.class);
 
     private final DocumentBuilder builder; // not thread-safe, but not expecting concurrent use
     private final XPath xpath;
@@ -41,7 +41,7 @@ public class NewYorkTimesRssParserService implements PipelineStep {
     private final CountryFactory countryFactory;
 
     @Autowired
-    public NewYorkTimesRssParserService(CountryFactory countryFactory) throws RuntimeException {
+    public NytRssParserService(CountryFactory countryFactory) throws IllegalStateException {
         this.countryFactory = countryFactory;
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -49,7 +49,7 @@ public class NewYorkTimesRssParserService implements PipelineStep {
         try {
             builder = factory.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to initialise XML DocumentBuilder",e);
         }
 
         XPathFactory xPathFactory = XPathFactory.newInstance();
@@ -57,7 +57,7 @@ public class NewYorkTimesRssParserService implements PipelineStep {
         try {
             expr = xpath.compile("/rss/channel/item");
         } catch (XPathExpressionException e) {
-            throw new RuntimeException();
+            throw new IllegalStateException("Invalid xpath expression", e);
         }
     }
 

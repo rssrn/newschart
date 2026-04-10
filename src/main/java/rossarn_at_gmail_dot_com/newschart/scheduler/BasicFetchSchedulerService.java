@@ -8,7 +8,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiPipelineOrchestrator;
-import rossarn_at_gmail_dot_com.newschart.news.pipeline.NYTPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.NytPipelineOrchestrator;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +25,7 @@ public class BasicFetchSchedulerService extends BaseScheduler {
     private final ScheduledThreadPoolExecutor executorService = new ScheduledThreadPoolExecutor(1);
     private final BasicFetchSchedulerConfig config;
 
-    public BasicFetchSchedulerService(NYTPipelineOrchestrator nytPipelineOrchestrator,
+    public BasicFetchSchedulerService(NytPipelineOrchestrator nytPipelineOrchestrator,
                                       GeminiPipelineOrchestrator geminiNewsPipelineOrchestrator,
                                       BasicFetchSchedulerConfig config) {
         super(nytPipelineOrchestrator, geminiNewsPipelineOrchestrator);
