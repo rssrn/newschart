@@ -62,6 +62,7 @@ function App(): React.ReactElement {
       const tag = (e.target as HTMLElement).tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       if (availableDates.length < 2 || isLoading) return;
+      if (document.querySelector('.story-detail-backdrop')) return;
       e.preventDefault();
       setSelectedDate(prev => {
         const idx = availableDates.indexOf(prev);
