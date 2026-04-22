@@ -57,6 +57,26 @@ function App(): React.ReactElement {
 
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (availableDates.length < 2 || isLoading) return;
+      e.preventDefault();
+      setSelectedDate(prev => {
+        const idx = availableDates.indexOf(prev);
+        const effective = idx >= 0 ? idx : availableDates.length - 1;
+        if (e.key === 'ArrowLeft' && effective > 0) return availableDates[effective - 1];
+        if (e.key === 'ArrowRight' && effective < availableDates.length - 1) return availableDates[effective + 1];
+        return prev;
+      });
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [availableDates, isLoading]);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  useEffect(() => {
     if (mobileSheetOpen) {
       document.body.classList.add('sheet-open');
     } else {
