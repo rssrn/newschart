@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import MapChart, { ProjectionType, PROJECTION_OPTIONS, FetchStatus } from './MapChart';
 import DateTimeline, { todayIso, isToday, formatShortDate } from './DateTimeline';
@@ -86,6 +86,12 @@ function App(): React.ReactElement {
     return () => document.body.classList.remove('sheet-open');
   }, [mobileSheetOpen]);
 
+  const mobileSheetRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // React 18 types don't expose `inert` as a DOM property; set it imperatively
+    if (mobileSheetRef.current) (mobileSheetRef.current as any).inert = !mobileSheetOpen;
+  }, [mobileSheetOpen]);
+
   const sourceShortLabel = source === 'NEW_YORK_TIMES' ? 'NYT' : 'Gemini';
   const projectionLabel = PROJECTION_OPTIONS.find(p => p.value === projectionType)?.label ?? '';
 
@@ -136,6 +142,7 @@ function App(): React.ReactElement {
             className="fetch-error-dismiss"
             onClick={() => setErrorDismissed(true)}
             aria-label="Dismiss error"
+            tabIndex={showError ? 0 : -1}
           >
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/>
@@ -150,6 +157,7 @@ function App(): React.ReactElement {
           onClick={() => setMobileSheetOpen(true)}
           aria-label="Open map settings"
           aria-expanded={mobileSheetOpen}
+          tabIndex={-1}
         >
           <svg className="mobile-controls-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <line x1="4" y1="6" x2="20" y2="6"/>
@@ -171,6 +179,7 @@ function App(): React.ReactElement {
 
         {/* Mobile bottom sheet – @author Claude Sonnet 4.6 Anthropic */}
         <div
+          ref={mobileSheetRef}
           className={`mobile-controls-sheet${mobileSheetOpen ? ' open' : ''}`}
           role="dialog"
           aria-label="Map settings"
@@ -214,6 +223,15 @@ function App(): React.ReactElement {
           </button>
         </div>
 
+        <MapChart
+          source={source}
+          projectionType={projectionType}
+          onFetchStatus={handleFetchStatus}
+          date={selectedDate}
+          bottomReservedPx={availableDates.length > 1 ? 90 : 0}
+          isHistorical={selectedDate !== todayIso()}
+        />
+
         {/* Desktop date timeline – @author Claude Sonnet 4.6 Anthropic */}
         <div className="date-timeline-overlay">
           <DateTimeline
@@ -223,15 +241,6 @@ function App(): React.ReactElement {
             disabled={isLoading}
           />
         </div>
-
-        <MapChart
-          source={source}
-          projectionType={projectionType}
-          onFetchStatus={handleFetchStatus}
-          date={selectedDate}
-          bottomReservedPx={availableDates.length > 1 ? 90 : 0}
-          isHistorical={selectedDate !== todayIso()}
-        />
         <div className="map-footer-overlay">
           <a
             href="https://github.com/rssrn/newschart"

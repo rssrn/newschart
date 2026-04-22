@@ -148,6 +148,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
                   fill={isActive ? activeFill : DEFAULT_FILL}
                   stroke={isActive ? activeStroke : DEFAULT_STROKE}
                   strokeWidth={isActive ? 0.8 : 0.5}
+                  tabIndex={-1}
                 />
               );
             })

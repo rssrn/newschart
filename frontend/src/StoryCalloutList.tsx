@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import { Annotation } from "react-simple-maps";
 import { calculateOffsets } from "./utils/mapCalloutUtils";
@@ -47,10 +47,28 @@ interface StoryDetailModalProps {
 }
 
 // @author Claude Sonnet 4.6 Anthropic
-// @author Claude Opus 4.6 Anthropic
 function StoryDetailModal({ callout, onClose, isHistorical = false }: StoryDetailModalProps): React.ReactElement {
+  const cardRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => { closeButtonRef.current?.focus(); }, []);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'Tab' && cardRef.current) {
+        const focusable = Array.from(
+          cardRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusable.length === 0) { e.preventDefault(); return; }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
@@ -71,14 +89,14 @@ function StoryDetailModal({ callout, onClose, isHistorical = false }: StoryDetai
       aria-modal="true"
       aria-label={callout.headline}
     >
-      <article className={`story-detail-card${isHistorical ? ' story-detail-card--historical' : ''}`} onClick={e => e.stopPropagation()}>
+      <article ref={cardRef} className={`story-detail-card${isHistorical ? ' story-detail-card--historical' : ''}`} onClick={e => e.stopPropagation()}>
         <header className="story-detail-header">
           <div className="story-detail-location">
             <span className="story-detail-flag">{flag}</span>
             <span className="story-detail-country">{callout.country.name}</span>
             {headerMeta && <span className="story-detail-header-meta">· {headerMeta}</span>}
           </div>
-          <button className="story-detail-close" onClick={onClose} aria-label="Close">
+          <button ref={closeButtonRef} className="story-detail-close" onClick={onClose} aria-label="Close">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/>
               <line x1="6" y1="6" x2="18" y2="18"/>
@@ -123,15 +141,18 @@ const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.inner
 const showBoundingBox = getShowBoundingBox();
 // @author Claude Sonnet 4.6 Anthropic
 const [selectedCallout, setSelectedCallout] = useState<StoryCallout | null>(null);
+const modalTriggerRef = useRef<HTMLElement | null>(null);
 
 // @author Claude Sonnet 4.6 Anthropic
 const handleMoreDetails = useCallback((callout: StoryCallout) => {
+  modalTriggerRef.current = document.activeElement as HTMLElement;
   setSelectedCallout(callout);
 }, []);
 
 // @author Claude Sonnet 4.6 Anthropic
 const handleCloseModal = useCallback(() => {
   setSelectedCallout(null);
+  setTimeout(() => modalTriggerRef.current?.focus(), 0);
 }, []);
 
 // Track viewport size for visible SVG height calculation
@@ -197,7 +218,14 @@ const boundingBox = useMemo(() => {
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
 
             <div className={`map-annotation-box${isHistorical ? ' map-annotation-box--historical' : ''}`}>
-              <div className="map-annotation-header map-annotation-header--clickable" onClick={() => handleMoreDetails(callout)}>
+              <div
+                className="map-annotation-header map-annotation-header--clickable"
+                onClick={() => handleMoreDetails(callout)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
+              >
                 <div className="map-annotation-location">
                   <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
                   <span>{callout.country.name}</span>

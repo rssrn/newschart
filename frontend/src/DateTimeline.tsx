@@ -128,8 +128,8 @@ const DateTimeline = ({ availableDates, selectedDate, onChange, disabled = false
           }}
           onTouchEnd={() => { dragging.current = false; }}
           onKeyDown={(e) => {
-            if (e.key === 'ArrowLeft' && idx > 0) { e.preventDefault(); onChange(availableDates[idx - 1]); }
-            if (e.key === 'ArrowRight' && idx < availableDates.length - 1) { e.preventDefault(); onChange(availableDates[idx + 1]); }
+            if (e.key === 'ArrowLeft' && idx > 0) { e.preventDefault(); e.stopPropagation(); onChange(availableDates[idx - 1]); }
+            if (e.key === 'ArrowRight' && idx < availableDates.length - 1) { e.preventDefault(); e.stopPropagation(); onChange(availableDates[idx + 1]); }
           }}
           role="slider"
           aria-valuemin={0}
