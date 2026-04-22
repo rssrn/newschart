@@ -204,7 +204,7 @@ const boundingBox = useMemo(() => {
           dx={callout.dx}
           dy={callout.dy}
           connectorProps={{
-            stroke: isHistorical ? "#b45309" : "#2563EB",
+            stroke: isHistorical ? "#fbbf24" : "#60a5fa",
             strokeWidth: 1.5,
             strokeLinecap: "round",
           }}

@@ -27,12 +27,12 @@ export const PROJECTION_OPTIONS: ProjectionOption[] = [
 ];
 
 // @author Claude Opus 4.6 Anthropic
-const ACTIVE_COUNTRY_FILL_CURRENT    = "#BFDBFE"; // blue-200
-const ACTIVE_COUNTRY_STROKE_CURRENT  = "#2563EB"; // blue-600
-const ACTIVE_COUNTRY_FILL_HISTORICAL = "#FDE68A"; // amber-200
-const ACTIVE_COUNTRY_STROKE_HISTORICAL = "#D97706"; // amber-600
-const DEFAULT_FILL          = "#D6D6DA";
-const DEFAULT_STROKE        = "#FFFFFF";
+const ACTIVE_COUNTRY_FILL_CURRENT      = "#1d4ed8"; // blue-700 — visible on dark map
+const ACTIVE_COUNTRY_STROKE_CURRENT    = "#60a5fa"; // blue-400 — bright on dark
+const ACTIVE_COUNTRY_FILL_HISTORICAL   = "#854d0e"; // amber-800 — warm on dark
+const ACTIVE_COUNTRY_STROKE_HISTORICAL = "#fbbf24"; // amber-400 — bright on dark
+const DEFAULT_FILL                     = "#1e2d3d"; // dark blue-grey land
+const DEFAULT_STROKE                   = "#2d4257"; // subtle border
 
 interface MapChartProps {
   readonly source: string;
@@ -130,7 +130,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
     >
       <Geographies
         geography="https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
-        stroke="#FFFFFF"
+        stroke="#2d4257"
         strokeWidth={0.5}
         style={{ pointerEvents: "none" }}
       >
