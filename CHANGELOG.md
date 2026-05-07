@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-05-07
+
+### Fixed
+- **Backend**: LLM response parsing hardened by introducing a minimal `LlmCallout` DTO containing only the fields the model should populate. This prevents OpenRouter-backed models from setting fields outside their remit; also applied to the Gemini path as a precaution.
+
 ## [0.5.0] - 2026-05-07
 
 Multiple new news sources, dark map theme, keyboard navigation, and layout improvements.
