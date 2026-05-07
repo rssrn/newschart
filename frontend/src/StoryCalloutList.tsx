@@ -178,7 +178,6 @@ const boundingBox = useMemo(() => {
 
   // Valid zone for box top-left corners
   const tlMinX = EDGE_PADDING;
-  const tlMinY = TOP_PADDING;
   const tlMaxX = SVG_WIDTH - BOX_WIDTH - EDGE_PADDING;  // 625
   const tlMaxY = visibleSvgHeight - RENDERED_HEIGHT - bottomPaddingSvg;
 
