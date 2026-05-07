@@ -40,7 +40,7 @@ public class CalloutService implements PipelineStep {
         }
         CalloutSource source = context.getCalloutSource();
 
-        // force callout source to the actual source in case the model showed too much initiative
+        // set callout source here, it's not populated by the model
         callouts.forEach(c -> c.setSource(source));
 
         // ideally this check is not necessary, but useful for local testing purposes
