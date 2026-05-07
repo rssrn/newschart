@@ -69,7 +69,7 @@ export function calculateOffsets(
   // The foreignObject is BOX_WIDTH x BOX_HEIGHT (135x100) but has overflow:visible,
   // so the rendered box is taller than declared. Use RENDERED_HEIGHT for collision
   // detection, and ANCHOR_Y for the annotation point offset from box top.
-  const RENDERED_HEIGHT = 150; // measured: 133-144 SVG units (varies with text length)
+  const RENDERED_HEIGHT = 140; // measured: 133-144 SVG units (varies with text length)
   const ANCHOR_Y = 50; // foreignObject y=-50: annotation point is 50px below box top
 
   // --- Geometry helpers ---
@@ -103,9 +103,10 @@ export function calculateOffsets(
   }
 
   // --- Step 1: Viewport bounds for candidate filtering ---
+  const TOP_PADDING = 20; // smaller than EDGE_PADDING: top of map is open ocean, less risk of clipping
   const boundsMinX = EDGE_PADDING;
   const boundsMaxX = SVG_WIDTH - BOX_WIDTH - EDGE_PADDING;
-  const boundsMinY = EDGE_PADDING;
+  const boundsMinY = TOP_PADDING;
   const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT - bottomPadding;
 
   // --- Step 2: Generate candidate positions per callout ---
@@ -192,7 +193,7 @@ export function calculateOffsets(
     // Penalty: connector i crosses connector j
     if (segmentsIntersect({ x: ni.subjectX, y: ni.subjectY }, ci,
                           { x: nj.subjectX, y: nj.subjectY }, cj)) {
-      penalty += 100;
+      penalty += 600;
     }
 
     // Penalty: connector i passes through box j
@@ -204,6 +205,15 @@ export function calculateOffsets(
     if (lineIntersectsBox({ x: nj.subjectX, y: nj.subjectY }, cj,
                           { x: pi.boxX, y: pi.boxY })) {
       penalty += 300;
+    }
+
+    // Penalty: similar connector directions (prefer angular spread between callouts).
+    // Penalises pairs whose angles are within 90° of each other — tapers from 120 at 0° to 0 at 90°.
+    // NW+SW = 90° apart → 0 penalty; W+W = 0° apart → 120 penalty.
+    const rawDiff = Math.abs(pi.angle - pj.angle);
+    const angleDiff = Math.min(rawDiff % (2 * Math.PI), (2 * Math.PI) - (rawDiff % (2 * Math.PI)));
+    if (angleDiff < Math.PI / 2) {
+      penalty += (1 - angleDiff / (Math.PI / 2)) * 120;
     }
 
     return penalty;

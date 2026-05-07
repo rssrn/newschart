@@ -166,18 +166,30 @@ useEffect(() => {
 const SVG_WIDTH = 800;
 const visibleSvgHeight = Math.min(600, SVG_WIDTH * (viewportSize.h / viewportSize.w));
 
-// Compute bounding box coordinates for debug overlay
-// Shows the full area where any part of a box can appear
+// Compute bounding box coordinates for debug overlay.
+// Must mirror the exact constants used in mapCalloutUtils.ts.
 const boundingBox = useMemo(() => {
   if (!showBoundingBox) return null;
   const EDGE_PADDING = 40;
+  const TOP_PADDING = 20;
+  const BOX_WIDTH = 135;
+  const RENDERED_HEIGHT = 140;
+  const bottomPaddingSvg = bottomReservedPx * (SVG_WIDTH / viewportSize.w);
 
-  const x = EDGE_PADDING;
-  const y = EDGE_PADDING;
-  const w = SVG_WIDTH - EDGE_PADDING * 2;
-  const h = visibleSvgHeight - EDGE_PADDING * 2;
-  return { x, y, w, h };
-}, [showBoundingBox, visibleSvgHeight]);
+  // Valid zone for box top-left corners
+  const tlMinX = EDGE_PADDING;
+  const tlMinY = TOP_PADDING;
+  const tlMaxX = SVG_WIDTH - BOX_WIDTH - EDGE_PADDING;  // 625
+  const tlMaxY = visibleSvgHeight - RENDERED_HEIGHT - bottomPaddingSvg;
+
+  // Full visual extent: where any pixel of a box can appear
+  const visualLeft   = tlMinX;
+  const visualTop    = TOP_PADDING;
+  const visualRight  = tlMaxX + BOX_WIDTH;  // 760
+  const visualBottom = tlMaxY + RENDERED_HEIGHT;  // = visibleSvgHeight - bottomPaddingSvg
+
+  return { visualLeft, visualTop, visualRight, visualBottom, tlMaxY };
+}, [showBoundingBox, visibleSvgHeight, bottomReservedPx, viewportSize.w]);
 
   const processedCallouts: PositionedCallout[] = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
@@ -189,14 +201,27 @@ const boundingBox = useMemo(() => {
 
   return (
   <>
-  {boundingBox && (
+  {boundingBox && (<>
+    {/* Outer dashed rectangle: full visual area where any part of a box can appear */}
     <rect
-      x={boundingBox.x} y={boundingBox.y}
-      width={boundingBox.w} height={boundingBox.h}
+      x={boundingBox.visualLeft} y={boundingBox.visualTop}
+      width={boundingBox.visualRight - boundingBox.visualLeft}
+      height={boundingBox.visualBottom - boundingBox.visualTop}
       fill="none" stroke="red" strokeWidth={1} strokeDasharray="6 3"
       style={{ pointerEvents: "none" }}
     />
-  )}
+    {/* Horizontal line at boundsMaxY: box top-left corners must stay above this line */}
+    <line
+      x1={boundingBox.visualLeft} y1={boundingBox.tlMaxY}
+      x2={boundingBox.visualRight} y2={boundingBox.tlMaxY}
+      stroke="orange" strokeWidth={1} strokeDasharray="3 3"
+      style={{ pointerEvents: "none" }}
+    />
+    <text x={boundingBox.visualLeft + 4} y={boundingBox.tlMaxY - 4}
+      fill="orange" fontSize={9} style={{ pointerEvents: "none" }}>
+      boundsMaxY (box top-left limit)
+    </text>
+  </>)}
   {processedCallouts.map((callout) => (
         <Annotation
           key={`${callout.country.name}-${callout.headline}`}
