@@ -135,6 +135,18 @@ const Credits = (): React.ReactElement => (
             <td>Commercial Service</td>
           </tr>
           <tr>
+            <td className="icon-col"><FaviconImg domain="perplexity.ai" alt="" /></td>
+            <td><a href="https://www.perplexity.ai/" target="_blank" rel="noopener noreferrer">Perplexity Sonar</a></td>
+            <td>AI search model with real-time web access used to source and summarise current news stories</td>
+            <td>Commercial Service</td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="openai.com" alt="" /></td>
+            <td><a href="https://openai.com/chatgpt" target="_blank" rel="noopener noreferrer">OpenAI ChatGPT</a></td>
+            <td>AI language model with real-time web access used to source and summarise current news stories</td>
+            <td>Commercial Service</td>
+          </tr>
+          <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener noreferrer">world-atlas</a></td>
             <td>Pre-built TopoJSON world map geometry used for country rendering</td>

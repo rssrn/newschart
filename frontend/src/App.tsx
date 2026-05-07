@@ -4,11 +4,13 @@ import MapChart, { ProjectionType, PROJECTION_OPTIONS, FetchStatus } from './Map
 import DateTimeline, { todayIso, isToday, formatShortDate } from './DateTimeline';
 
 // @author Claude Sonnet 4.6 Anthropic
-type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI';
+type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
 
-const NEWS_SOURCES: { value: NewsSource; label: string }[] = [
-  { value: 'NEW_YORK_TIMES', label: 'New York Times' },
-  { value: 'GOOGLE_GEMINI', label: 'Google Gemini' },
+const NEWS_SOURCES: { value: NewsSource; label: string; shortLabel: string }[] = [
+  { value: 'NEW_YORK_TIMES', label: 'New York Times', shortLabel: 'NYT' },
+  { value: 'GOOGLE_GEMINI', label: 'Google Gemini', shortLabel: 'Gemini' },
+  { value: 'PERPLEXITY', label: 'Perplexity Sonar', shortLabel: 'Perplexity' },
+  { value: 'OPENAI', label: 'OpenAI ChatGPT', shortLabel: 'ChatGPT' },
 ];
 
 function App(): React.ReactElement {
@@ -92,7 +94,7 @@ function App(): React.ReactElement {
     if (mobileSheetRef.current) (mobileSheetRef.current as any).inert = !mobileSheetOpen;
   }, [mobileSheetOpen]);
 
-  const sourceShortLabel = source === 'NEW_YORK_TIMES' ? 'NYT' : 'Gemini';
+  const sourceShortLabel = NEWS_SOURCES.find(s => s.value === source)?.shortLabel ?? source;
   const projectionLabel = PROJECTION_OPTIONS.find(p => p.value === projectionType)?.label ?? '';
 
   return (
