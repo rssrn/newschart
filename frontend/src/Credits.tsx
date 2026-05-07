@@ -170,7 +170,7 @@ const Credits = (): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="d3js.org" alt="" /></td>
             <td><a href="https://github.com/d3/d3-geo" target="_blank" rel="noopener noreferrer">d3-geo</a></td>
-            <td>Geographic projections (Mercator, Natural Earth, Equal Earth, Equirectangular)</td>
+            <td>Geographic projections (Mercator, Natural Earth, Equirectangular)</td>
             <td><a href="https://opensource.org/licenses/ISC" target="_blank" rel="noopener noreferrer">ISC</a></td>
           </tr>
           <tr>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { geoMercator, geoNaturalEarth1, geoEqualEarth, GeoProjection } from "d3-geo";
+import { geoMercator, geoNaturalEarth1, GeoProjection } from "d3-geo";
 import StoryCalloutList from './StoryCalloutList';
 import { StoryCallout } from './types/news';
 import {
@@ -9,7 +9,7 @@ import {
 } from "react-simple-maps";
 
 // @author Claude Sonnet 4.6 Anthropic
-export type ProjectionType = 'geoMercator' | 'geoNaturalEarth1' | 'geoEqualEarth';
+export type ProjectionType = 'geoMercator' | 'geoNaturalEarth1';
 // @author Claude Sonnet 4.6 Anthropic
 export type FetchStatus = 'loading' | 'error' | 'success';
 
@@ -23,7 +23,6 @@ export interface ProjectionOption {
 export const PROJECTION_OPTIONS: ProjectionOption[] = [
   { value: 'geoMercator',       label: 'Mercator',       d3Constructor: geoMercator,       config: { center: [0, -25], scale: 90  } },
   { value: 'geoNaturalEarth1',  label: 'Natural Earth',  d3Constructor: geoNaturalEarth1,  config: { center: [0, -28], scale: 153 } },
-  { value: 'geoEqualEarth',     label: 'Equal Earth',    d3Constructor: geoEqualEarth,     config: { center: [0, -28], scale: 153 } },
 ];
 
 // @author Claude Opus 4.6 Anthropic
