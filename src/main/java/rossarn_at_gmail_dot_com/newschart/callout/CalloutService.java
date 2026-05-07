@@ -39,11 +39,16 @@ public class CalloutService implements PipelineStep {
             return context;
         }
         CalloutSource source = context.getCalloutSource();
+
+        // force callout source to the actual source in case the model showed too much initiative
+        callouts.forEach(c -> c.setSource(source));
+
         // ideally this check is not necessary, but useful for local testing purposes
         if (haveCalloutForToday(source)) {
             log.warn("Already have at least one callout for source {} so ignoring new callouts", source);
         } else {
             calloutRepository.saveAll(callouts);
+            log.info("Saved {} callouts for source {}", callouts.size(), source);
         }
         return context;
     }

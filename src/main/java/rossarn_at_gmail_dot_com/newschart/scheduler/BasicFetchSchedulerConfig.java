@@ -2,34 +2,34 @@ package rossarn_at_gmail_dot_com.newschart.scheduler;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
 
-@ConfigurationProperties(prefix = "newschart.dev")
+import java.util.List;
+
+@ConfigurationProperties(prefix = "newschart")
 @Configuration
 public class BasicFetchSchedulerConfig {
     private SourceConfig nyt = new SourceConfig(true, 5);
     private SourceConfig gemini = new SourceConfig(true, 10);
+    private List<OpenRouterConfig> openRouterConfigs;
 
     public SourceConfig getNyt() { return nyt; }
     public void setNyt(SourceConfig nyt) { this.nyt = nyt; }
 
     public SourceConfig getGemini() { return gemini; }
-    public void setGemini(SourceConfig bbc) { this.gemini = bbc; }
+    public void setGemini(SourceConfig gemini) { this.gemini = gemini; }
 
-    public static class SourceConfig {
-        private boolean enabled;
-        private int fetchDelaySeconds;
+    public List<OpenRouterConfig> getOpenRouterConfigs() {
+        return openRouterConfigs;
+    }
 
-        public SourceConfig(boolean enabled, int fetchDelaySeconds) {
-            this.enabled = enabled;
-            this.fetchDelaySeconds = fetchDelaySeconds;
-        }
+    public void setOpenRouterConfigs(List<OpenRouterConfig> openRouterConfigs) {
+        this.openRouterConfigs = openRouterConfigs;
+    }
 
-        public boolean isEnabled() { return enabled; }
-        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public record SourceConfig (boolean enabled, int fetchDelaySeconds){
+    }
 
-        public int getFetchDelaySeconds() { return fetchDelaySeconds; }
-        public void setFetchDelaySeconds(int fetchDelaySeconds) {
-            this.fetchDelaySeconds = fetchDelaySeconds;
-        }
+    public record OpenRouterConfig (CalloutSource source, String model, boolean enabled, int fetchDelaySeconds){
     }
 }

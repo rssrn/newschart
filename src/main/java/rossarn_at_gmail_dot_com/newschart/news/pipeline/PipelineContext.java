@@ -17,6 +17,7 @@ public class PipelineContext {
     private NewsHighlights newsHighlights;
     private List<Callout> callouts;
     private CalloutSource calloutSource;
+    private String model;
 
     public NewsEntry getNewsEntry() {
         return newsRss;
@@ -64,5 +65,13 @@ public class PipelineContext {
 
     public void setCalloutSource(CalloutSource calloutSource) {
         this.calloutSource = calloutSource;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
     }
 }

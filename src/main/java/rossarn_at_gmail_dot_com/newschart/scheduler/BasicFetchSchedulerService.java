@@ -9,7 +9,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.GeminiPipelineOrchestrator;
 import rossarn_at_gmail_dot_com.newschart.news.pipeline.NytPipelineOrchestrator;
+import rossarn_at_gmail_dot_com.newschart.news.pipeline.OpenRouterPipelineOrchestrator;
 
+import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -27,8 +29,9 @@ public class BasicFetchSchedulerService extends BaseScheduler {
 
     public BasicFetchSchedulerService(NytPipelineOrchestrator nytPipelineOrchestrator,
                                       GeminiPipelineOrchestrator geminiNewsPipelineOrchestrator,
+                                      OpenRouterPipelineOrchestrator openRouterPipelineOrchestrator,
                                       BasicFetchSchedulerConfig config) {
-        super(nytPipelineOrchestrator, geminiNewsPipelineOrchestrator);
+        super(nytPipelineOrchestrator, geminiNewsPipelineOrchestrator, openRouterPipelineOrchestrator);
         this.config = config;
     }
 
@@ -65,36 +68,53 @@ public class BasicFetchSchedulerService extends BaseScheduler {
         }
         scheduleNYT();
         scheduleGemini();
+        scheduleAllOpenRouter();
     }
 
     private void scheduleNYT() {
-        if(config.getNyt().isEnabled()) {
+        if(config.getNyt().enabled()) {
             executorService.schedule(() -> {
                 try {
                     fetchNewYorkTimes();
                 } catch (Exception e) {
                     log.error("NYT pipeline failed", e);
                 }
-            }, config.getNyt().getFetchDelaySeconds(), TimeUnit.SECONDS);
-            log.info("Scheduled NYT pipeline for {} seconds in the future", config.getNyt().getFetchDelaySeconds());
+            }, config.getNyt().fetchDelaySeconds(), TimeUnit.SECONDS);
+            log.info("Scheduled NYT pipeline for {} seconds in the future", config.getNyt().fetchDelaySeconds());
         } else {
             log.info("NYT fetch is disabled in config, skipping");
         }
     }
 
     private void scheduleGemini() {
-        if(config.getGemini().isEnabled()) {
+        if(config.getGemini().enabled()) {
             executorService.schedule(() -> {
                 try {
                     fetchGemini();
                 } catch (Exception e) {
                     log.error("Gemini pipeline failed", e);
                 }
-            }, config.getGemini().getFetchDelaySeconds(), TimeUnit.SECONDS);
-            log.info("Scheduled Gemini pipeline for {} seconds in the future", config.getGemini().getFetchDelaySeconds());
+            }, config.getGemini().fetchDelaySeconds(), TimeUnit.SECONDS);
+            log.info("Scheduled Gemini pipeline for {} seconds in the future", config.getGemini().fetchDelaySeconds());
         } else {
             log.info("Gemini fetch is disabled in config, skipping");
         }
+    }
+
+    private void scheduleAllOpenRouter() {
+        List<BasicFetchSchedulerConfig.OpenRouterConfig> openRouterConfigs = config.getOpenRouterConfigs();
+
+        openRouterConfigs.stream().filter(BasicFetchSchedulerConfig.OpenRouterConfig::enabled).forEach(cfg -> {
+            executorService.schedule(() -> {
+                try {
+                    fetchOpenRouter(cfg);
+                } catch (Exception e) {
+                    log.error("OpenRouter pipeline failed", e);
+                }
+            }, cfg.fetchDelaySeconds(), TimeUnit.SECONDS);
+            log.info("Scheduled OpenRouter pipeline {} {} for {} seconds in the future",
+                    cfg.source(), cfg.model(), cfg.fetchDelaySeconds());
+        });
     }
 
 }
