@@ -7,14 +7,14 @@ import DateTimeline, { todayIso, isToday, formatShortDate } from './DateTimeline
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
 
 const NEWS_SOURCES: { value: NewsSource; label: string; shortLabel: string }[] = [
-  { value: 'NEW_YORK_TIMES', label: 'New York Times', shortLabel: 'NYT' },
   { value: 'GOOGLE_GEMINI', label: 'Google Gemini', shortLabel: 'Gemini' },
   { value: 'PERPLEXITY', label: 'Perplexity Sonar', shortLabel: 'Perplexity' },
   { value: 'OPENAI', label: 'OpenAI ChatGPT', shortLabel: 'ChatGPT' },
+  { value: 'NEW_YORK_TIMES', label: 'New York Times', shortLabel: 'NYT' },
 ];
 
 function App(): React.ReactElement {
-  const [source, setSource] = useState<NewsSource>('NEW_YORK_TIMES');
+  const [source, setSource] = useState<NewsSource>('GOOGLE_GEMINI');
   const [projectionType, setProjectionType] = useState<ProjectionType>(
     () => (localStorage.getItem('projectionType') as ProjectionType | null) ?? 'geoMercator'
   );
