@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-05-07
+
+Multiple new news sources, dark map theme, keyboard navigation, and layout improvements.
+
+### Added
+- Perplexity and OpenAI (via OpenRouter) as selectable news sources — both support native search, no RSS feed required
+- Selected news source persisted across sessions via localStorage
+- Keyboard navigation for timeline (left/right arrow keys); disabled when story detail overlay is open
+
+### Changed
+- News source order: Gemini → Perplexity → ChatGPT → NYT, with Gemini as default
+- Removed Equal Earth projection, leaving only Mercator and Natural Earth
+- Map restyled with dark theme and frosted-glass callout boxes
+- Callout layout algorithm improved: fewer connector crossings, better angular spread
+- NYT RSS service classes renamed for consistent prefix (backend)
+- NYT RSS ingestion adds retries with backoff on failure (backend)
+- Backend migrated to Spring Boot 4 `HttpExchange` API
+
 ## [0.4.0] - 2026-04-10
 
 Time travel feature and UI refresh — users can now browse historical news days via a date slider (desktop) or chip strip (mobile), with a restyled map interface.
