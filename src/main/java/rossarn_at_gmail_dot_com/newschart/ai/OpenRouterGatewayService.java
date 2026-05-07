@@ -8,8 +8,11 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.stereotype.Service;
 import rossarn_at_gmail_dot_com.newschart.callout.Callout;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutType;
+import rossarn_at_gmail_dot_com.newschart.callout.LlmCallout;
 
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +27,7 @@ public class OpenRouterGatewayService {
     }
 
     // workaround so the required return format is unambiguous - bare list can confuse the LLM
-    public record CalloutList(List<Callout> items) {}
+    public record LlmCalloutList(List<LlmCallout> items) {}
 
     /**
      * Use LLM to generate top news stories for today.
@@ -37,7 +40,7 @@ public class OpenRouterGatewayService {
         // we need to manually parse the result rather than relying on spring entity mapping
         // because sometimes the llm adds additional text outside the json
         // and spring doesn't strip it automatically
-        var converter = new BeanOutputConverter<>(CalloutList.class);
+        var converter = new BeanOutputConverter<>(LlmCalloutList.class);
 
         String raw = chatClient.prompt()
                 .user(AiPrompts.FIND_NEWS_PROMPT + "\n" + converter.getFormat())
@@ -50,7 +53,7 @@ public class OpenRouterGatewayService {
             return Optional.empty();
         }
 
-        CalloutList result;
+        LlmCalloutList result;
         try {
             result = converter.convert(extractJson(raw));
         } catch (Exception e) {
@@ -60,7 +63,17 @@ public class OpenRouterGatewayService {
 
         log.info("Called model {} and received {} callouts", model, result.items().size());
 
-        return Optional.of(result.items());
+        // The model returns the minimal object LlmCallout so it can't try to invent enums.
+        // Now map it back to a canonical Callout object.
+        return Optional.of(result.items().stream()
+                .map(llm -> new Callout.Builder(Instant.now())
+                        .country(llm.country())
+                        .headline(llm.headline())
+                        .detail(llm.detail())
+                        .extendedDetail(llm.extendedDetail())
+                        .type(CalloutType.NEWS)
+                        .build())
+                .toList());
     }
 
     private String extractJson(String raw) {

@@ -9,9 +9,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import rossarn_at_gmail_dot_com.newschart.callout.Callout;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutSource;
+import rossarn_at_gmail_dot_com.newschart.callout.CalloutType;
+import rossarn_at_gmail_dot_com.newschart.callout.LlmCallout;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.CountryNews;
 import rossarn_at_gmail_dot_com.newschart.news.highlights.NewsItem;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +29,7 @@ public class GeminiGatewayService {
     }
 
     // workaround so the required return format is unambiguous - bare list can confuse the LLM
-    public record CalloutList(List<Callout> items) {}
+    public record LlmCalloutList(List<LlmCallout> items) {}
 
     static final String MAIN_SUMMARY_PROMPT = """
             Given the following list of news stories, return a summary consisting of one summarised header and
@@ -78,14 +82,28 @@ public class GeminiGatewayService {
      * @return list of story callouts suggested by the LLM
      */
     public Optional<List<Callout>> getCallouts() {
-        CalloutList result = chatClient.prompt()
+        LlmCalloutList result = chatClient.prompt()
                 .user(AiPrompts.FIND_NEWS_GEMINI)
                 .options(GoogleGenAiChatOptions.builder()
                         .model(FIND_NEWS_MODEL)
                         .googleSearchRetrieval(true) // Ground the response with search
                         .temperature(1.0))           // Recommended for search tasks
                 .call()
-                .entity(CalloutList.class);
-        return Optional.ofNullable(result).map(CalloutList::items);
+                .entity(LlmCalloutList.class);
+
+        // The model returns the minimal object LlmCallout so it can't try to invent enums.
+        // Now map it back to a canonical Callout object.
+        return Optional.ofNullable(result)
+                .map(LlmCalloutList::items)
+                .map(items -> items.stream()
+                        .map(llm -> new Callout.Builder(Instant.now())
+                                .country(llm.country())
+                                .headline(llm.headline())
+                                .detail(llm.detail())
+                                .extendedDetail(llm.extendedDetail())
+                                .type(CalloutType.NEWS)
+                                .source(CalloutSource.GOOGLE_GEMINI)
+                                .build())
+                        .toList());
     }
 }
