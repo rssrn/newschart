@@ -14,7 +14,9 @@ const NEWS_SOURCES: { value: NewsSource; label: string; shortLabel: string }[] =
 ];
 
 function App(): React.ReactElement {
-  const [source, setSource] = useState<NewsSource>('GOOGLE_GEMINI');
+  const [source, setSource] = useState<NewsSource>(
+    () => (localStorage.getItem('newsSource') as NewsSource | null) ?? 'GOOGLE_GEMINI'
+  );
   const [projectionType, setProjectionType] = useState<ProjectionType>(
     () => (localStorage.getItem('projectionType') as ProjectionType | null) ?? 'geoMercator'
   );
@@ -28,6 +30,11 @@ function App(): React.ReactElement {
   const [errorDismissed, setErrorDismissed] = useState(false);
 
   // @author Claude Sonnet 4.6 Anthropic
+  const handleSourceChange = (value: NewsSource) => {
+    setSource(value);
+    localStorage.setItem('newsSource', value);
+  };
+
   const handleProjectionChange = (value: ProjectionType) => {
     setProjectionType(value);
     localStorage.setItem('projectionType', value);
@@ -110,7 +117,7 @@ function App(): React.ReactElement {
                 name="news-source"
                 value={value}
                 checked={source === value}
-                onChange={() => setSource(value)}
+                onChange={() => handleSourceChange(value)}
                 disabled={isLoading}
               />
               {label}
@@ -196,7 +203,7 @@ function App(): React.ReactElement {
                 name="news-source-mobile"
                 value={value}
                 checked={source === value}
-                onChange={() => setSource(value)}
+                onChange={() => handleSourceChange(value)}
                 disabled={isLoading}
               />
               {label}
