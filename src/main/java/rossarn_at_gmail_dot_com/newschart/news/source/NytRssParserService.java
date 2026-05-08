@@ -87,7 +87,7 @@ public class NytRssParserService implements PipelineStep {
                 for (int j = 0; j < geoNodes.getLength(); j++) {
                     Element geoEl = (Element) geoNodes.item(j);
                     String countryName = geoEl.getTextContent().trim();
-                    log.info(" --> geo country: {}", countryName);
+                    log.debug(" --> geo country: {}", countryName);
                     if (countryFactory.isValidCountry(countryName)) {
                         countries.add(countryFactory.getCountry(countryName));
                     }
@@ -96,6 +96,7 @@ public class NytRssParserService implements PipelineStep {
                 NewsItem newsItem = new NewsItem(source, title, link, text, countries);
                 result.add(newsItem);
             }
+            log.info("Parsed document OK");
         } catch (IOException e) {
             log.error("IO error parsing blob: {}", e.getMessage());
             return result;
@@ -104,8 +105,6 @@ public class NytRssParserService implements PipelineStep {
         } catch (XPathExpressionException e) {
             log.error("XPath expression error: {}", e.getMessage());
         }
-
-        log.info("Parsed document OK");
 
         return result;
     }
@@ -120,7 +119,12 @@ public class NytRssParserService implements PipelineStep {
         }
 
         List<NewsItem> newsItems = getNewsItems(newsRss.getSource(), newsRss.getBlob());
-        context.setNewsItems(newsItems);
+        if (newsItems.isEmpty()) {
+            log.error("Empty list of news items from parser");
+            context.setFailed(true);
+        } else {
+            context.setNewsItems(newsItems);
+        }
 
         return context;
     }
