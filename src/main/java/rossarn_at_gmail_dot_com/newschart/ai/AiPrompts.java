@@ -5,7 +5,8 @@ public class AiPrompts {
 
     static final String FIND_NEWS_PROMPT = """
             Find today's top 3 international news stories.  Do not include sport.
-            Prioritise stories by their global significance and consequences, not by the prominence of the affected country in Western media.
+            Prioritise stories by their global significance and consequences, and
+            actively counter regional or media bias.
             Use search results as the source of new stories, not your training data.
             Apply your own judgment for editorial decisions such as global significance,
             prioritisation, and summarising the story.
@@ -16,6 +17,6 @@ public class AiPrompts {
             Return a list of exactly 3 items.
             """;
 
-    // Ensure Gemini uses the search tool
+    // Ensure Gemini uses its search tool
     static final String FIND_NEWS_GEMINI = "Use the Google Search tool.  " + FIND_NEWS_PROMPT;
 }
