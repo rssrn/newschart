@@ -37,15 +37,15 @@ Items are grouped into three tiers:
 - [x] **Install JDK 21 on instance**
 - [x] **Install Node.js on instance** (or serve frontend as static build via Nginx)
 - [x] **Install nginx**
-- [ ] **Harden and Performance-optimise nginx**
+- [x] **Harden and Performance-optimise nginx**
 - [x] **Nginx reverse proxy config** — proxy `/api` to Spring Boot (`:8080`), serve React build from root
-- [ ] **TLS / HTTPS** — Let's Encrypt cert via Certbot
-- [ ] **Domain name** — register or point existing DNS to OCI instance IP.  Options: 4ny51d or any2ld
-- [ ] **Firewall rules** — OCI security list: allow 80/443 inbound, block direct :8080
-- [ ] **Systemd service** — Spring Boot runs as a systemd unit, restarts on failure
+- [x] **TLS / HTTPS** — Manage via cloudflare
+- [x] **Domain name** — register or point existing DNS to OCI instance IP.  https://newschart.rossarnold.uk
+- [x] **Firewall rules** — OCI security list: allow 80/443 inbound, block direct :8080
+- [x] **Systemd service** — Spring Boot runs as a systemd unit, restarts on failure
 - [x] **Environment variable management on host** — `.env` file loaded via systemd `EnvironmentFile`, not in repo
-- [ ] **Rollback plan** — keep previous JAR on deploy; if the new one fails to start, systemd can fall back or you can swap manually
-- [ ] **Log rotation** — configure `journald` max size or `logrotate` for application logs to prevent disk fill on a small instance
+- [x] **Rollback plan** — keep previous JAR on deploy; if the new one fails to start, systemd can fall back or you can swap manually
+- [x] **Log rotation** — configure `journald` max size or `logrotate` for application logs to prevent disk fill on a small instance
 
 ### CI/CD — GitHub Actions
 
@@ -53,7 +53,7 @@ Items are grouped into three tiers:
 - [x] **Frontend CI workflow** — on push/PR: `npm install && CI=true npm test`
 - [x] **Build & artifact workflow** — produce a fat JAR and a React `build/` on tagged releases
 - [x] **Deploy workflow** — SSH to OCI instance, swap JAR + static files, restart systemd service
-- [ ] **Post-deploy smoke test** — curl the health endpoint and/or `/api/news` after deploy; fail the workflow if unhealthy
+- [x] **Post-deploy smoke test** — curl the health endpoint and/or `/api/news` after deploy; fail the workflow if unhealthy
 
 ### Security
 

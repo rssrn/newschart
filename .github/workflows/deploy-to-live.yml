@@ -48,6 +48,12 @@ jobs:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           args: --advertise-tags=tag:github-runner
 
+      - name: Back up current jar
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            newschart@100.103.218.16 \
+            "cp -f /opt/newschart/newschart.jar /opt/newschart/newschart.jar.prev 2>/dev/null || true"
+
       - name: Deploy jar and frontend
         run: |
           # Deploy fat jar (renamed to fixed filename)
@@ -65,3 +71,27 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             newschart@100.103.218.16 \
             "sudo systemctl restart newschart && sudo systemctl status newschart --no-pager"
+
+      - name: Smoke test
+        run: |
+          echo "Waiting for service to be ready..."
+          for i in $(seq 1 12); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://newschart.rossarnold.uk/api/news)
+            if [ "$STATUS" = "200" ]; then
+              echo "Smoke test passed (HTTP $STATUS)"
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $STATUS — retrying in 10s"
+            sleep 10
+          done
+          echo "Smoke test failed: /api/news did not return 200 after 2 minutes"
+          exit 1
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "Smoke test failed — rolling back to previous jar"
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            newschart@100.103.218.16 \
+            "cp -f /opt/newschart/newschart.jar.prev /opt/newschart/newschart.jar && sudo systemctl restart newschart"
+          echo "Rollback complete"

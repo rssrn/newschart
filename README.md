@@ -2,6 +2,8 @@
 
 > Top world news stories on an interactive world map — automatically ingested, AI-summarised, geo-tagged, and displayed as positioned callouts
 
+**Live: [newschart.rossarnold.uk](https://newschart.rossarnold.uk/)**
+
 [![Backend CI](https://github.com/rssrn/newschart/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/rssrn/newschart/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/rssrn/newschart/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/rssrn/newschart/actions/workflows/frontend-ci.yml)
 ![Java 21](https://img.shields.io/badge/java-21-blue.svg)
