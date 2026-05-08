@@ -61,7 +61,7 @@ Items are grouped into three tiers:
 - [ ] **NVD API key secret** — `NVD_API_KEY` stored in GitHub secrets for the workflow
 - [ ] **npm audit workflow** — run `npm audit --audit-level=high` in frontend CI
 - [ ] **Review `SUPPRESS.md` / `owasp-suppressions.xml`** — ensure all suppressions are still justified before go-live
-- [ ] **Dependabot** — enable for Maven, npm, and GitHub Actions in `.github/dependabot.yml`
+- [x] **Dependabot** — enable for Maven, npm, and GitHub Actions in `.github/dependabot.yml`
 - [ ] **CORS configuration** — lock down `@CrossOrigin` to the production domain only
 
 ### Frontend — Production Readiness
