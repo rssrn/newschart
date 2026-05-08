@@ -253,7 +253,7 @@
         "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"google_genai\"}[$__range]))",
         "refId": "A"
       }],
-      "title": "AI calls ($__range)",
+      "title": "AI calls",
       "type": "stat"
     },
     {
@@ -281,7 +281,7 @@
         "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"google_genai\", gen_ai_token_type=\"total\"}[$__range]))",
         "refId": "A"
       }],
-      "title": "AI tokens ($__range)",
+      "title": "AI tokens",
       "type": "stat"
     },
     {
@@ -353,7 +353,7 @@
         "instant": true,
         "refId": "A"
       }],
-      "title": "AI max latency ($__range)",
+      "title": "AI max latency",
       "type": "stat"
     },
 
@@ -390,7 +390,7 @@
         "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"openai/.*\"}[$__range]))",
         "refId": "A"
       }],
-      "title": "AI calls ($__range)",
+      "title": "AI calls",
       "type": "stat"
     },
     {
@@ -418,7 +418,7 @@
         "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"openai/.*\", gen_ai_token_type=\"total\"}[$__range]))",
         "refId": "A"
       }],
-      "title": "AI tokens ($__range)",
+      "title": "AI tokens",
       "type": "stat"
     },
     {
@@ -490,7 +490,7 @@
         "instant": true,
         "refId": "A"
       }],
-      "title": "AI max latency ($__range)",
+      "title": "AI max latency",
       "type": "stat"
     },
 
@@ -527,7 +527,7 @@
         "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"perplexity/.*\"}[$__range]))",
         "refId": "A"
       }],
-      "title": "AI calls ($__range)",
+      "title": "AI calls",
       "type": "stat"
     },
     {
@@ -555,7 +555,7 @@
         "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"perplexity/.*\", gen_ai_token_type=\"total\"}[$__range]))",
         "refId": "A"
       }],
-      "title": "AI tokens ($__range)",
+      "title": "AI tokens",
       "type": "stat"
     },
     {
@@ -627,7 +627,7 @@
         "instant": true,
         "refId": "A"
       }],
-      "title": "AI max latency ($__range)",
+      "title": "AI max latency",
       "type": "stat"
     },
 
@@ -734,7 +734,7 @@
         "expr": "max(max_over_time(mongodb_driver_commands_seconds_max{application=\"$application\", instance=\"$instance\"}[$__range]))",
         "refId": "A"
       }],
-      "title": "MongoDB max latency ($__range)",
+      "title": "MongoDB max latency",
       "type": "stat"
     },
     {
@@ -923,6 +923,6 @@
   "timezone": "browser",
   "title": "NewsChart — Key Metrics",
   "uid": "newschart-key",
-  "version": 6,
+  "version": 7,
   "weekStart": ""
 }
