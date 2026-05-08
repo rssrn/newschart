@@ -13,4 +13,13 @@
         <vulnerabilityName regex="true">^CVE-.*$</vulnerabilityName>
         <cpe>cpe:/a:mongodb:mongodb</cpe>
     </suppress>
+    <!--
+        False positive: CVE-2020-29582 affects Kotlin before 1.4.21 (incorrect default permissions in temp files).
+        We use Kotlin 2.2.21 (via jackson-module-kotlin) which is well past the fix.
+    -->
+    <suppress>
+        <notes>Fixed in Kotlin 1.4.21; we use 2.2.21 via jackson-module-kotlin.</notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.module/jackson-module-kotlin@.*$</packageUrl>
+        <cve>CVE-2020-29582</cve>
+    </suppress>
 </suppressions>
