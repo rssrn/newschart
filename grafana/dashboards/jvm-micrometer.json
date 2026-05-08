@@ -16,7 +16,7 @@
       },
       {
         "datasource": {
-          "uid": "PBFA97CFB590B2093"
+          "uid": "cfhzotpx2uio0f"
         },
         "enable": true,
         "expr": "resets(process_uptime_seconds{application=\"$application\", instance=\"$instance\"}[1m]) > 0",
@@ -35,14 +35,14 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 4701,
   "graphTooltip": 1,
-  "id": 1683355915644928,
+  "id": 3551454357069824,
   "links": [],
   "panels": [
     {
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 3,
@@ -56,7 +56,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -74,7 +74,7 @@
         "rgba(50, 172, 45, 0.97)"
       ],
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "decimals": 1,
       "editable": true,
@@ -129,7 +129,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_uptime_seconds{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -163,7 +163,7 @@
         "rgba(50, 172, 45, 0.97)"
       ],
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -217,7 +217,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_start_time_seconds{application=\"$application\", instance=\"$instance\"}*1000",
           "format": "time_series",
@@ -251,7 +251,7 @@
         "rgba(245, 54, 54, 0.9)"
       ],
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "decimals": 2,
       "editable": true,
@@ -305,7 +305,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"heap\"})*100/sum(jvm_memory_max_bytes{application=\"$application\",instance=\"$instance\", area=\"heap\"})",
           "format": "time_series",
@@ -338,7 +338,7 @@
         "rgba(245, 54, 54, 0.9)"
       ],
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "decimals": 2,
       "editable": true,
@@ -397,7 +397,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"})*100/sum(jvm_memory_max_bytes{application=\"$application\",instance=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
@@ -429,7 +429,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -443,7 +443,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -458,7 +458,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -491,7 +491,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\"}[1m]))",
           "format": "time_series",
@@ -537,7 +537,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -570,7 +570,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\", status=~\"5..\"}[1m]))",
           "format": "time_series",
@@ -613,7 +613,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -646,7 +646,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(rate(http_server_requests_seconds_sum{application=\"$application\", instance=\"$instance\", status!~\"5..\"}[1m]))/sum(rate(http_server_requests_seconds_count{application=\"$application\", instance=\"$instance\", status!~\"5..\"}[1m]))",
           "format": "time_series",
@@ -657,7 +657,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "max(http_server_requests_seconds_max{application=\"$application\", instance=\"$instance\", status!~\"5..\"})",
           "format": "time_series",
@@ -701,7 +701,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "description": "",
       "fill": 1,
@@ -736,7 +736,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "tomcat_threads_busy_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -747,7 +747,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "tomcat_threads_current_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -758,7 +758,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "tomcat_threads_config_max_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -769,7 +769,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jetty_threads_busy{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -780,7 +780,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jetty_threads_current{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -791,7 +791,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jetty_threads_config_max{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -832,7 +832,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -846,7 +846,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -861,7 +861,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -900,7 +900,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"heap\"})",
           "format": "time_series",
@@ -912,7 +912,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_committed_bytes{application=\"$application\", instance=\"$instance\", area=\"heap\"})",
           "format": "time_series",
@@ -923,7 +923,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\", area=\"heap\"})",
           "format": "time_series",
@@ -974,7 +974,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -1013,7 +1013,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
@@ -1026,7 +1026,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_committed_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
@@ -1037,7 +1037,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\", area=\"nonheap\"})",
           "format": "time_series",
@@ -1088,7 +1088,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -1128,7 +1128,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\"})",
           "format": "time_series",
@@ -1140,7 +1140,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_committed_bytes{application=\"$application\", instance=\"$instance\"})",
           "format": "time_series",
@@ -1151,7 +1151,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\"})",
           "format": "time_series",
@@ -1203,7 +1203,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -1242,7 +1242,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_memory_vss_bytes{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1255,7 +1255,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_memory_rss_bytes{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1265,7 +1265,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_memory_swap_bytes{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1275,7 +1275,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_memory_rss_bytes{application=\"$application\", instance=\"$instance\"} + process_memory_swap_bytes{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1323,7 +1323,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -1337,7 +1337,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -1352,7 +1352,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -1391,7 +1391,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "system_cpu_usage{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1404,7 +1404,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_cpu_usage{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1415,7 +1415,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "avg_over_time(process_cpu_usage{application=\"$application\", instance=\"$instance\"}[15m])",
           "format": "time_series",
@@ -1469,7 +1469,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -1508,7 +1508,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "system_load_average_1m{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1520,7 +1520,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "system_cpu_count{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1572,7 +1572,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -1611,7 +1611,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_threads_live_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1623,7 +1623,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_threads_daemon_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1635,7 +1635,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_threads_peak_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1646,7 +1646,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1706,7 +1706,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -1741,7 +1741,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_threads_states_threads{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -1783,7 +1783,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "description": "The percent of time spent on Garbage Collection over all CPUs assigned to the JVM process.",
       "fill": 1,
@@ -1817,7 +1817,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "sum(rate(jvm_gc_pause_seconds_sum{application=\"$application\", instance=\"$instance\"}[1m])) by (application, instance) / on(application, instance) system_cpu_count",
           "format": "time_series",
@@ -1868,7 +1868,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -1921,7 +1921,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "increase(logback_events_total{application=\"$application\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -1975,7 +1975,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -2014,7 +2014,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_files_open_files{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2027,7 +2027,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "process_files_max_files{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2078,7 +2078,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -2093,7 +2093,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -2108,7 +2108,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -2151,7 +2151,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
@@ -2165,7 +2165,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_memory_committed_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
@@ -2179,7 +2179,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_memory_pool_heap\"}",
           "format": "time_series",
@@ -2230,7 +2230,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -2244,7 +2244,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -2259,7 +2259,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -2302,7 +2302,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_memory_used_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
@@ -2316,7 +2316,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_memory_committed_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
@@ -2330,7 +2330,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_memory_max_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_memory_pool_nonheap\"}",
           "format": "time_series",
@@ -2381,7 +2381,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -2395,7 +2395,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -2410,7 +2410,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -2443,7 +2443,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "rate(jvm_gc_pause_seconds_count{application=\"$application\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -2488,7 +2488,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -2521,7 +2521,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "rate(jvm_gc_pause_seconds_sum{application=\"$application\", instance=\"$instance\"}[1m])/rate(jvm_gc_pause_seconds_count{application=\"$application\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -2533,7 +2533,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_gc_pause_seconds_max{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2579,7 +2579,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -2612,7 +2612,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "rate(jvm_gc_memory_allocated_bytes_total{application=\"$application\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -2623,7 +2623,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "rate(jvm_gc_memory_promoted_bytes_total{application=\"$application\", instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -2664,7 +2664,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -2678,7 +2678,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -2693,7 +2693,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -2732,7 +2732,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_classes_loaded_classes{application=\"$application\", instance=\"$instance\"}",
           "format": "time_series",
@@ -2784,7 +2784,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "editable": true,
       "error": false,
@@ -2823,7 +2823,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "delta(jvm_classes_loaded_classes{application=\"$application\",instance=\"$instance\"}[1m])",
           "format": "time_series",
@@ -2874,7 +2874,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "gridPos": {
         "h": 7,
@@ -2888,7 +2888,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "refId": "A"
         }
@@ -2903,7 +2903,7 @@
       "dashLength": 10,
       "dashes": false,
       "datasource": {
-        "uid": "PBFA97CFB590B2093"
+        "uid": "cfhzotpx2uio0f"
       },
       "fill": 1,
       "gridPos": {
@@ -2947,7 +2947,7 @@
       "targets": [
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_buffer_memory_used_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_buffer_pool\"}",
           "format": "time_series",
@@ -2957,7 +2957,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_buffer_total_capacity_bytes{application=\"$application\", instance=\"$instance\", id=~\"$jvm_buffer_pool\"}",
           "format": "time_series",
@@ -2967,7 +2967,7 @@
         },
         {
           "datasource": {
-            "uid": "PBFA97CFB590B2093"
+            "uid": "cfhzotpx2uio0f"
           },
           "expr": "jvm_buffer_count_buffers{application=\"$application\", instance=\"$instance\", id=~\"$jvm_buffer_pool\"}",
           "format": "time_series",
@@ -3017,7 +3017,7 @@
     "list": [
       {
         "current": {},
-        "datasource": "PBFA97CFB590B2093",
+        "datasource": "cfhzotpx2uio0f",
         "hide": 0,
         "includeAll": false,
         "label": "Application",
@@ -3036,7 +3036,7 @@
       {
         "allFormat": "glob",
         "current": {},
-        "datasource": "PBFA97CFB590B2093",
+        "datasource": "cfhzotpx2uio0f",
         "hide": 0,
         "includeAll": false,
         "label": "Instance",
@@ -3056,7 +3056,7 @@
       {
         "allFormat": "glob",
         "current": {},
-        "datasource": "PBFA97CFB590B2093",
+        "datasource": "cfhzotpx2uio0f",
         "hide": 2,
         "includeAll": true,
         "label": "JVM Memory Pools Heap",
@@ -3076,7 +3076,7 @@
       {
         "allFormat": "glob",
         "current": {},
-        "datasource": "PBFA97CFB590B2093",
+        "datasource": "cfhzotpx2uio0f",
         "hide": 2,
         "includeAll": true,
         "label": "JVM Memory Pools Non-Heap",
@@ -3096,7 +3096,7 @@
       {
         "allFormat": "glob",
         "current": {},
-        "datasource": "PBFA97CFB590B2093",
+        "datasource": "cfhzotpx2uio0f",
         "hide": 2,
         "includeAll": true,
         "label": "JVM Buffer Pools",
@@ -3137,6 +3137,6 @@
   "timezone": "browser",
   "title": "JVM (Micrometer)",
   "uid": "adjnkmw",
-  "version": 4,
+  "version": 2,
   "weekStart": ""
 }
