@@ -59,7 +59,7 @@ Items are grouped into three tiers:
 
 - [ ] **Scheduled OWASP dependency-check workflow** — run `./mvnw org.owasp:dependency-check-maven:check` weekly
 - [ ] **NVD API key secret** — `NVD_API_KEY` stored in GitHub secrets for the workflow
-- [ ] **npm audit workflow** — run `npm audit --audit-level=high` in frontend CI
+- [x] **npm audit workflow** — run `npm audit --audit-level=high` in frontend CI
 - [ ] **Review `SUPPRESS.md` / `owasp-suppressions.xml`** — ensure all suppressions are still justified before go-live
 - [x] **Dependabot** — enable for Maven, npm, and GitHub Actions in `.github/dependabot.yml`
 - [ ] **CORS configuration** — lock down `@CrossOrigin` to the production domain only
@@ -109,13 +109,13 @@ Items are grouped into three tiers:
 
 ### Migrate from Create React App to Vite
 
-- [ ] **Replace `react-scripts` with Vite** — CRA is unmaintained since 2022; TS5 peer dep conflict is an early symptom
-- [ ] **Add `vite.config.ts`** — configure `@vitejs/plugin-react` and proxy `/api` to `:8080`
-- [ ] **Update `index.html`** — move to project root, add `<script type="module" src="/src/index.tsx">`
-- [ ] **Swap test runner to Vitest** — near-identical API to Jest, replaces `react-scripts test`
-- [ ] **Remove `react-app-env.d.ts`** — replace with `vite/client` types in tsconfig
-- [ ] **Update CI workflow** — no changes expected; `npm test` still works via Vitest
-- [ ] **Remove `frontend/.npmrc` legacy-peer-deps workaround** — no longer needed after migration
+- [x] **Replace `react-scripts` with Vite** — CRA is unmaintained since 2022; TS5 peer dep conflict is an early symptom
+- [x] **Add `vite.config.ts`** — configure `@vitejs/plugin-react` and proxy `/api` to `:8080`
+- [x] **Update `index.html`** — move to project root, add `<script type="module" src="/src/index.tsx">`
+- [x] **Swap test runner to Vitest** — near-identical API to Jest, replaces `react-scripts test`
+- [x] **Remove `react-app-env.d.ts`** — replace with `vite/client` types in tsconfig
+- [x] **Update CI workflow** — no changes expected; `npm test` still works via Vitest
+- [x] **Remove `frontend/.npmrc` legacy-peer-deps workaround** — no longer needed after migration
 
 ### Frontend — Polish
 

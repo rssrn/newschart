@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-05-08
+
+Build tooling modernised, test coverage expanded, and monitoring improved.
+
+### Added
+- Dependabot configured for Maven, npm, and GitHub Actions dependency updates
+- Apple touch icon and corrected PWA manifest icons
+- Integration tests: CalloutService (Testcontainers), NytRssParserService, TopCountryHighlighter
+
+### Changed
+- Frontend build migrated from Create React App to Vite; test runner migrated from react-scripts to Vitest
+- AI prompt updated to apply editorial judgment and actively counter regional or media bias
+- Grafana dashboard: split AI metrics section by provider; fix avg/max latency display; add time-range labels to panel titles
+- README fully rewritten with accurate architecture overview and tech stack
+- Backend logging improved in NytRssParserService (no functional change)
+
+### Fixed
+- d3-color ReDoS vulnerability (CVE) resolved via dependency override
+- Several low/moderate npm audit advisories resolved
+
 ## [0.5.1] - 2026-05-07
 
 ### Fixed
