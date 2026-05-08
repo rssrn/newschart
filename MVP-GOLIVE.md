@@ -67,9 +67,8 @@ Items are grouped into three tiers:
 ### Frontend — Production Readiness
 
 - [x] **Production build tested** — `npm run build` output served correctly via Nginx
-- [ ] **Environment config** — API base URL driven by env var, not hardcoded `localhost`
 - [x] **Error states** — loading/error UI when API is unreachable
-- [ ] **Favicon and `<title>`** — set appropriate page title and icon
+- [x] **Favicon and `<title>`** — set appropriate page title and icon
 
 ### Frontend — Supporting Pages
 
