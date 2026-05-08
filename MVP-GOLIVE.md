@@ -13,17 +13,11 @@ Items are grouped into three tiers:
 
 ### Backend — Testing & Code Quality
 
-- [ ] **Unit tests for pipeline steps** — each `PipelineStep` implementation tested in isolation (mock dependencies)
-- [ ] **Unit tests for `HighlightsTransformerService`** — core business logic, no DB needed
-- [ ] **Unit tests for `MostCommonCountryHighlighter`**
-- [ ] **Unit tests for `NewYorkTimesRssParserService`** — RSS parsing logic
-- [ ] **Unit tests for `CountryFactory` / `Country`** — geo lookup correctness
-- [ ] **Integration test for `CalloutController`** — REST endpoint contract (with MockMvc or WebTestClient)
-- [ ] **Integration test for `GeminiGatewayService`** — mock the Gemini HTTP call, test parsing/error handling
-- [ ] **Review `BasePipelineOrchestrator`** — assess whether prototype code needs refactoring before go-live
-- [ ] **Review error handling** — ensure pipeline failures don't silently swallow errors in production
-- [ ] **Logging review** — appropriate log levels, no secrets or PII in logs
-- [ ] **API key / secrets management** — move all secrets to environment variables or a secrets store, none in `application.properties` committed to git
+- [x] **Unit tests for main business logic classes in backend*
+- [x] **Review `BasePipelineOrchestrator`** — assess whether prototype code needs refactoring before go-live
+- [x] **Review error handling** — ensure pipeline failures don't silently swallow errors in production
+- [x] **Logging review** — appropriate log levels, no secrets or PII in logs
+- [x] **API key / secrets management** — move all secrets to environment variables or a secrets store, none in `application.properties` committed to git
 - [x] **Production scheduler** — implement scheduled pipeline runs (currently only runs on startup; needs new cron/scheduling code, e.g. `@Scheduled`) with a sensible interval for prod
 
 ### Database — MongoDB Atlas
@@ -60,7 +54,6 @@ Items are grouped into three tiers:
 - [x] **Build & artifact workflow** — produce a fat JAR and a React `build/` on tagged releases
 - [x] **Deploy workflow** — SSH to OCI instance, swap JAR + static files, restart systemd service
 - [ ] **Post-deploy smoke test** — curl the health endpoint and/or `/api/news` after deploy; fail the workflow if unhealthy
-- [ ] **Secrets in GitHub** — `MONGODB_URI`, `GEMINI_API_KEY`, OCI SSH key stored as Actions secrets
 
 ### Security
 
@@ -95,7 +88,7 @@ Items are grouped into three tiers:
 
 - [ ] **README updated** — architecture overview, screenshots, live URL
 - [ ] **Live URL working** — smoke test all key user flows after deploy
-- [ ] **GitHub repo tidy** — description, topics, social preview image set
+- [ ] **GitHub repo tidy** — description, topics, social preview image set, badges
 
 ---
 
