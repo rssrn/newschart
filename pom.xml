@@ -89,6 +89,17 @@
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-google-genai</artifactId>
         </dependency>
+        <!-- OWASP version patch - spring-ai-starter-model-google-genai includes grpc 1.70.0 which has CVE-2026-33186 -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-api</artifactId>
+            <version>1.81.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-context</artifactId>
+            <version>1.81.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.ai</groupId>
