@@ -57,10 +57,10 @@ Items are grouped into three tiers:
 
 ### Security
 
-- [ ] **Scheduled OWASP dependency-check workflow** — run `./mvnw org.owasp:dependency-check-maven:check` weekly
-- [ ] **NVD API key secret** — `NVD_API_KEY` stored in GitHub secrets for the workflow
+- [x] **Scheduled OWASP dependency-check workflow** — run `./mvnw org.owasp:dependency-check-maven:check` weekly
+- [x] **NVD API key secret** — `NVD_API_KEY` stored in GitHub secrets for the workflow
 - [x] **npm audit workflow** — run `npm audit --audit-level=high` in frontend CI
-- [ ] **Review `SUPPRESS.md` / `owasp-suppressions.xml`** — ensure all suppressions are still justified before go-live
+- [x] **Review `SUPPRESS.md` / `owasp-suppressions.xml`** — ensure all suppressions are still justified before go-live
 - [x] **Dependabot** — enable for Maven, npm, and GitHub Actions in `.github/dependabot.yml`
 - [ ] **CORS configuration** — lock down `@CrossOrigin` to the production domain only
 
@@ -73,8 +73,8 @@ Items are grouped into three tiers:
 ### Frontend — Supporting Pages
 
 - [x] **`credits.html`** — acknowledge all open-source libraries, services, and data sources (cover React libs, react-simple-maps, Spring Boot, MongoDB, Gemini API, map data sources, etc.)
-- [ ] **`credits.html`** — second pass, final check to add credit for any additional components added during the golive push
-- [ ] **`credits.html`** - final check to confirm we are compliant with all licenses
+- [x] **`credits.html`** — second pass, final check to add credit for any additional components added during the golive push
+- [x] **`credits.html`** - final check to confirm we are compliant with all licenses
 
 ### Observability
 

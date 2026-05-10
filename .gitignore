@@ -35,6 +35,7 @@ build/
 ### Tools ###
 tools/node_modules/
 tools/screenshots/
+*.png
 
 ### MCP ###
 .mcp.json
