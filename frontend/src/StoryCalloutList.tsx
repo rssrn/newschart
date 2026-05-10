@@ -241,15 +241,15 @@ const boundingBox = useMemo(() => {
           height="100"
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
 
-            <div className={`map-annotation-box${isHistorical ? ' map-annotation-box--historical' : ''}`}>
-              <div
-                className="map-annotation-header map-annotation-header--clickable"
-                onClick={() => handleMoreDetails(callout)}
-                role="button"
-                tabIndex={0}
-                aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
-              >
+            <div
+              className={`map-annotation-box map-annotation-box--clickable${isHistorical ? ' map-annotation-box--historical' : ''}`}
+              onClick={() => handleMoreDetails(callout)}
+              role="button"
+              tabIndex={0}
+              aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
+            >
+              <div className="map-annotation-header">
                 <div className="map-annotation-location">
                   <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
                   <span>{callout.country.name}</span>

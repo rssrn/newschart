@@ -93,16 +93,17 @@ svg {
   gap: 4px;
 }
 
-.map-annotation-header--clickable {
+.map-annotation-box--clickable {
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.map-annotation-header--clickable:hover {
-  background: rgba(29, 78, 216, 0.45);
+.map-annotation-box--clickable:hover {
+  border-color: rgba(96, 165, 250, 0.75);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2);
 }
 
-.map-annotation-header--clickable:hover .map-annotation-expand {
+.map-annotation-box--clickable:hover .map-annotation-expand {
   color: #93c5fd;
 }
 
@@ -151,6 +152,27 @@ svg {
 }
 
 
+/* ── Mobile callout: headline-only, larger text ──────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+@media (max-width: 600px) {
+  .map-annotation-text {
+    display: none;
+  }
+
+  .map-annotation-title {
+    font-size: 13px;
+    padding: 6px 8px;
+  }
+
+  .map-annotation-location {
+    font-size: 11px;
+  }
+
+  .location-flag {
+    font-size: 15px;
+  }
+}
+
 /* ── Historical / archive callout styling ─────────────────────────────────── */
 /* @author Claude Opus 4.6 Anthropic */
 .map-annotation-box--historical {
@@ -161,13 +183,14 @@ svg {
   background: rgba(146, 64, 14, 0.35);
   border-bottom-color: rgba(251, 191, 36, 0.2);
 }
-.map-annotation-box--historical .map-annotation-header--clickable:hover {
-  background: rgba(146, 64, 14, 0.55);
+.map-annotation-box--historical.map-annotation-box--clickable:hover {
+  border-color: rgba(251, 191, 36, 0.75);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(251, 191, 36, 0.2);
 }
 .map-annotation-box--historical .map-annotation-expand {
   color: #fbbf24;
 }
-.map-annotation-box--historical .map-annotation-header--clickable:hover .map-annotation-expand {
+.map-annotation-box--historical.map-annotation-box--clickable:hover .map-annotation-expand {
   color: #fde68a;
 }
 .map-annotation-box--historical .map-annotation-title {
