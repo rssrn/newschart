@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-05-10
+
+Mobile UX improvements and health monitoring.
+
+### Added
+- GitHub Actions health check workflow running every 4 hours
+
+### Changed
+- Callout boxes are now fully tappable/clickable (previously only the headline header triggered the detail overlay)
+- Mobile layout: callout detail text hidden, headline and country name/flag enlarged for readability on small screens
+- Mobile controls (settings toggle, GitHub/Credits links) relocated below the map into a dedicated bar, preventing overlap with callout boxes
+
 ## [0.7.1] - 2026-05-10
 
 Dependency maintenance and CI hardening.
