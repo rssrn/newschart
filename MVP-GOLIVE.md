@@ -80,13 +80,12 @@ Items are grouped into three tiers:
 
 - [x] **Prometheus** Install, including node exporter
 - [x] **Grafana** Install, add basic node exporter dashboard
-- [ ] **Health check endpoint** — Spring Boot Actuator `/actuator/health` enabled and used by uptime monitor
-- [ ] **Uptime monitoring** — set up a free monitor (e.g. UptimeRobot) pointing at the health endpoint
+- [x] **Health monitoring** — for now, set up a github action every 4 hours to check the backend is up
 
 ### Documentation & Portfolio
 
 - [ ] **README updated** — architecture overview, screenshots, live URL
-- [ ] **Live URL working** — smoke test all key user flows after deploy
+- [x] **Live URL working** — smoke test all key user flows after deploy
 - [ ] **GitHub repo tidy** — description, topics, social preview image set, badges
 
 ---
