@@ -76,7 +76,7 @@ jobs:
         run: |
           echo "Waiting for service to be ready..."
           for i in $(seq 1 12); do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://newschart.rossarnold.uk/api/news)
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://newschart.rossarnold.uk/api/news/availableDays?source=NEW_YORK_TIMES")
             if [ "$STATUS" = "200" ]; then
               echo "Smoke test passed (HTTP $STATUS)"
               exit 0
@@ -84,7 +84,7 @@ jobs:
             echo "Attempt $i: HTTP $STATUS — retrying in 10s"
             sleep 10
           done
-          echo "Smoke test failed: /api/news did not return 200 after 2 minutes"
+          echo "Smoke test failed: /api/news/availableDays did not return 200 after 2 minutes"
           exit 1
 
       - name: Rollback on failure
