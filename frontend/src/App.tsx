@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
-import MapChart, { ProjectionType, PROJECTION_OPTIONS, FetchStatus } from './MapChart';
-import DateTimeline, { todayIso, isToday, formatShortDate } from './DateTimeline';
+import MapChart from './MapChart';
+import DateTimeline from './DateTimeline';
+import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
+import { todayIso, isToday, formatShortDate } from './utils/dateUtils';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
@@ -98,7 +100,7 @@ function App(): React.ReactElement {
   const mobileSheetRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // React 18 types don't expose `inert` as a DOM property; set it imperatively
-    if (mobileSheetRef.current) (mobileSheetRef.current as any).inert = !mobileSheetOpen;
+    if (mobileSheetRef.current) (mobileSheetRef.current as HTMLDivElement & { inert: boolean }).inert = !mobileSheetOpen;
   }, [mobileSheetOpen]);
 
   const sourceShortLabel = NEWS_SOURCES.find(s => s.value === source)?.shortLabel ?? source;

@@ -1,5 +1,6 @@
 // @author Claude Sonnet 4.6 Anthropic
 import React, { useCallback, useEffect, useRef } from 'react';
+import { formatShortDate, isToday } from './utils/dateUtils';
 
 interface DateTimelineProps {
   availableDates: string[];  // sorted ascending ISO date strings
@@ -11,19 +12,6 @@ interface DateTimelineProps {
 /** Calendar days between two ISO date strings (b − a) */
 function daysBetween(a: string, b: string): number {
   return Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
-}
-
-export function formatShortDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-}
-
-export function todayIso(): string {
-  return new Date().toISOString().split('T')[0];
-}
-
-export function isToday(iso: string): boolean {
-  return iso === todayIso();
 }
 
 // @author Claude Sonnet 4.6 Anthropic

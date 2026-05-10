@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { geoMercator, geoNaturalEarth1, GeoProjection } from "d3-geo";
+import { GeoProjection } from "d3-geo";
 import StoryCalloutList from './StoryCalloutList';
 import { StoryCallout } from './types/news';
 import {
@@ -7,23 +7,9 @@ import {
   Geographies,
   Geography,
 } from "react-simple-maps";
+import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 
-// @author Claude Sonnet 4.6 Anthropic
-export type ProjectionType = 'geoMercator' | 'geoNaturalEarth1';
-// @author Claude Sonnet 4.6 Anthropic
-export type FetchStatus = 'loading' | 'error' | 'success';
-
-export interface ProjectionOption {
-  readonly value: ProjectionType;
-  readonly label: string;
-  readonly d3Constructor: () => GeoProjection;
-  readonly config: { center: [number, number]; scale: number };
-}
-
-export const PROJECTION_OPTIONS: ProjectionOption[] = [
-  { value: 'geoMercator',       label: 'Mercator',       d3Constructor: geoMercator,       config: { center: [0, -25], scale: 90  } },
-  { value: 'geoNaturalEarth1',  label: 'Natural Earth',  d3Constructor: geoNaturalEarth1,  config: { center: [0, -28], scale: 153 } },
-];
+export type { ProjectionType, FetchStatus };
 
 // @author Claude Opus 4.6 Anthropic
 const ACTIVE_COUNTRY_FILL_CURRENT      = "#1d4ed8"; // blue-700 — visible on dark map
