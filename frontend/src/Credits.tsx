@@ -1,7 +1,6 @@
 import React from 'react';
 
-// @author Claude Sonnet 4.6 Anthropic
-const Credits = (): React.ReactElement => (
+const Credits =(): React.ReactElement => (
   <>
     <style>{`
       *, *::before, *::after { box-sizing: border-box; }
@@ -100,7 +99,7 @@ const Credits = (): React.ReactElement => (
           </tr>
         </thead>
         <tbody>
-          <tr><td colSpan={4} className="sec-hdr" role="rowheader">NewsChart Codebase</td></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">NewsChart Codebase</th></tr>
           <tr>
             <td className="icon-col"><a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer" aria-label="newschart on GitHub"><FaviconImg domain="github.com" alt="newschart on GitHub" /></a></td>
             <td><a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer">newschart</a></td>
@@ -110,56 +109,56 @@ const Credits = (): React.ReactElement => (
           <tr>
             <td className="icon-col"></td>
             <td><a href="https://www.linkedin.com/in/rarnold/" target="_blank" rel="noopener noreferrer">Ross Arnold</a></td>
-            <td>Project Owner / Lead Developer</td>
+            <td>Project Owner / Lead Developer / Backend Developer</td>
             <td></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="anthropic.com" alt="" /></td>
             <td><a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Anthropic - Claude AI</a></td>
-            <td>AI Coding Assistant — collaborated on majority of the NewsChart codebase</td>
+            <td>AI Coding Assistant / Frontend Developer</td>
             <td>Commercial Service</td>
           </tr>
         </tbody>
         <tbody>
-          <tr><td colSpan={4} className="sec-hdr" role="rowheader">Data Sources</td></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Data Sources</th></tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="gemini.google.com" alt="" /></td>
+            <td><a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer">Google Gemini API</a></td>
+            <td>AI model used to source and summarise news stories, and to summarise NYT stories per country</td>
+            <td>Commercial Service</td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="perplexity.ai" alt="" /></td>
+            <td><a href="https://www.perplexity.ai/" target="_blank" rel="noopener noreferrer">Perplexity Sonar</a></td>
+            <td>AI model used to source and summarise current news stories</td>
+            <td>Commercial Service</td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="openai.com" alt="" /></td>
+            <td><a href="https://openai.com/chatgpt" target="_blank" rel="noopener noreferrer">OpenAI ChatGPT</a></td>
+            <td>AI model used to source and summarise current news stories</td>
+            <td>Commercial Service</td>
+          </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="nytimes.com" alt="" /></td>
             <td><a href="https://rss.nytimes.com/" target="_blank" rel="noopener noreferrer">New York Times RSS</a></td>
             <td>World news headlines feed used as primary news source</td>
             <td><a href="https://thenewyorktimeshelpcenter.helpjuice.com/115002797688-Policies/115014893428-Terms-of-Service/" target="_blank" rel="noopener noreferrer">NYT Terms of Service</a></td>
           </tr>
-          <tr>
-            <td className="icon-col"><FaviconImg domain="gemini.google.com" alt="" /></td>
-            <td><a href="https://ai.google.dev/" target="_blank" rel="noopener noreferrer">Google Gemini API</a></td>
-            <td>AI language model used to summarise news stories and extract geographic context</td>
-            <td>Commercial Service</td>
-          </tr>
-          <tr>
-            <td className="icon-col"><FaviconImg domain="perplexity.ai" alt="" /></td>
-            <td><a href="https://www.perplexity.ai/" target="_blank" rel="noopener noreferrer">Perplexity Sonar</a></td>
-            <td>AI search model with real-time web access used to source and summarise current news stories</td>
-            <td>Commercial Service</td>
-          </tr>
-          <tr>
-            <td className="icon-col"><FaviconImg domain="openai.com" alt="" /></td>
-            <td><a href="https://openai.com/chatgpt" target="_blank" rel="noopener noreferrer">OpenAI ChatGPT</a></td>
-            <td>AI language model with real-time web access used to source and summarise current news stories</td>
-            <td>Commercial Service</td>
-          </tr>
-          <tr>
-            <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
-            <td><a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener noreferrer">world-atlas</a></td>
-            <td>Pre-built TopoJSON world map geometry used for country rendering</td>
-            <td><a href="https://opensource.org/licenses/ISC" target="_blank" rel="noopener noreferrer">ISC</a></td>
-          </tr>
         </tbody>
         <tbody>
-          <tr><td colSpan={4} className="sec-hdr" role="rowheader">Frontend Libraries</td></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Frontend Libraries</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="react.dev" alt="" /></td>
             <td><a href="https://github.com/facebook/react" target="_blank" rel="noopener noreferrer">React 18</a></td>
             <td>UI component library and rendering framework</td>
             <td><a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT</a></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="typescriptlang.org" alt="" /></td>
+            <td><a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">TypeScript</a></td>
+            <td>Typed superset of JavaScript for the frontend codebase</td>
+            <td><a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener noreferrer">Apache 2.0</a></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
@@ -170,22 +169,34 @@ const Credits = (): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="d3js.org" alt="" /></td>
             <td><a href="https://github.com/d3/d3-geo" target="_blank" rel="noopener noreferrer">d3-geo</a></td>
-            <td>Geographic projections (Mercator, Natural Earth, Equirectangular)</td>
+            <td>Geographic projections (Mercator, Natural Earth)</td>
             <td><a href="https://opensource.org/licenses/ISC" target="_blank" rel="noopener noreferrer">ISC</a></td>
           </tr>
           <tr>
-            <td className="icon-col"><FaviconImg domain="typescriptlang.org" alt="" /></td>
-            <td><a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">TypeScript</a></td>
-            <td>Typed superset of JavaScript for the frontend codebase</td>
-            <td><a href="https://opensource.org/licenses/Apache-2.0" target="_blank" rel="noopener noreferrer">Apache 2.0</a></td>
+            <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
+            <td><a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener noreferrer">world-atlas</a></td>
+            <td>Pre-built TopoJSON world map geometry used for country rendering</td>
+            <td><a href="https://opensource.org/licenses/ISC" target="_blank" rel="noopener noreferrer">ISC</a></td>
           </tr>
         </tbody>
         <tbody>
-          <tr><td colSpan={4} className="sec-hdr" role="rowheader">Backend Framework &amp; Libraries</td></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Backend Framework &amp; Libraries</th></tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="openjdk.org" alt="" /></td>
+            <td><a href="https://openjdk.org/projects/jdk/21/" target="_blank" rel="noopener noreferrer">Java 21 (OpenJDK)</a></td>
+            <td>JVM runtime; LTS release with records, pattern matching, and virtual threads</td>
+            <td>GPL v2 + CPE</td>
+          </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="spring.io" alt="" /></td>
             <td><a href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener noreferrer">Spring Boot 4</a></td>
             <td>Java application framework; REST API, scheduling, dependency injection</td>
+            <td><a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache 2.0</a></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="maven.apache.org" alt="" /></td>
+            <td><a href="https://maven.apache.org/" target="_blank" rel="noopener noreferrer">Apache Maven</a></td>
+            <td>Build tool and dependency management for the backend</td>
             <td><a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache 2.0</a></td>
           </tr>
           <tr>
@@ -214,7 +225,7 @@ const Credits = (): React.ReactElement => (
           </tr>
         </tbody>
         <tbody>
-          <tr><td colSpan={4} className="sec-hdr" role="rowheader">Database &amp; Cloud Services</td></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Database &amp; Cloud Services</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="mongodb.com" alt="" /></td>
             <td><a href="https://www.mongodb.com/atlas" target="_blank" rel="noopener noreferrer">MongoDB Atlas</a></td>
@@ -227,9 +238,15 @@ const Credits = (): React.ReactElement => (
             <td>CI/CD platform for automated testing and deployment workflows</td>
             <td>Commercial Service</td>
           </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="tailscale.com" alt="" /></td>
+            <td><a href="https://tailscale.com/" target="_blank" rel="noopener noreferrer">Tailscale</a></td>
+            <td>Zero-config VPN; GitHub Actions deploys to the production server over Tailscale</td>
+            <td>Commercial Service</td>
+          </tr>
         </tbody>
         <tbody>
-          <tr><td colSpan={4} className="sec-hdr" role="rowheader">Academic References</td></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Academic References</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="dl.acm.org" alt="" /></td>
             <td><a href="https://doi.org/10.1145/212332.212334" target="_blank" rel="noopener noreferrer">Christensen, Marks &amp; Shieber (1995)</a></td>
@@ -240,7 +257,13 @@ const Credits = (): React.ReactElement => (
           </tr>
         </tbody>
         <tbody>
-          <tr><td colSpan={4} className="sec-hdr" role="rowheader">Development &amp; Testing</td></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Development &amp; Testing</th></tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="junit.org" alt="" /></td>
+            <td><a href="https://junit.org/junit5/" target="_blank" rel="noopener noreferrer">JUnit 5</a></td>
+            <td>Backend unit and integration test framework</td>
+            <td><a href="https://opensource.org/licenses/EPL-2.0" target="_blank" rel="noopener noreferrer">EPL 2.0</a></td>
+          </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="testcontainers.com" alt="" /></td>
             <td><a href="https://github.com/testcontainers/testcontainers-java" target="_blank" rel="noopener noreferrer">Testcontainers</a></td>
@@ -281,7 +304,6 @@ const Credits = (): React.ReactElement => (
   </>
 );
 
-// @author Claude Sonnet 4.6 Anthropic
 const FaviconImg = ({ domain, alt }: { domain: string; alt: string }): React.ReactElement => (
   <img
     src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`}
