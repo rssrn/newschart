@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2026-05-10
+
+CI hardening and Vite 8 compatibility fix.
+
+### Fixed
+- Pinned Vite back to ^7 — Vite 8 switched to rolldown, causing TS type incompatibility with Vitest 3 and breaking CI builds
+
+### Changed
+- Frontend CI now runs `tsc -b` (via `npm run build`) so type errors are caught before the deploy pipeline
+- Frontend CI switched from `npm install` to `npm ci` to ensure version resolution matches the deploy pipeline exactly
+
 ## [0.8.0] - 2026-05-10
 
 Mobile UX improvements and health monitoring.
