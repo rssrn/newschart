@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-05-10
+
+Dependency maintenance and CI hardening.
+
+### Changed
+- Vite upgraded from 7.3.3 to 8.0.11
+- Spring AI BOM upgraded from 2.0.0-M5 to 2.0.0-M6
+- eslint-plugin-react-hooks upgraded from 5.2.0 to 7.1.1
+- jsdom upgraded from 25.0.1 to 29.1.1
+- @types/node upgraded from 22.x to 25.6.2
+- actions/upload-artifact upgraded from v4 to v7
+
+### Fixed
+- ESLint errors introduced by upgraded lint rules
+
+## [0.7.0] - 2026-05-10
+
+Security hardening, credits page polish, and CI improvements.
+
+### Added
+- Weekly OWASP dependency check CI workflow
+- Post-deploy smoke test verifying DB connectivity; automatic jar rollback on failure
+- Frontend rollback on deploy failure (alongside existing jar rollback)
+
+### Changed
+- Credits page: expanded entries, improved typography, licence badges, back link, accessibility fixes
+
+### Fixed
+- Netty upgraded to 4.2.13.Final to address CVE
+- gRPC version override added for CVE-2026-33186
+
 ## [0.6.0] - 2026-05-08
 
 Build tooling modernised, test coverage expanded, and monitoring improved.
