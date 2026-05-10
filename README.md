@@ -23,7 +23,7 @@ Each major AI model has quietly become a news editor - deciding, from everything
 The result is part news reader, part AI observatory: a way to watch - across different days and different models - whose version of the world you're being shown.
 
 **Features:**
-- Daily news from five sources: Gemini, Perplexity, ChatGPT, Claude, and NYT RSS
+- Daily news from four sources: Gemini, Perplexity, ChatGPT, and NYT RSS
 - AI-powered summarisation and geo-tagging via Google Gemini and OpenRouter models
 - Interactive Mercator / Natural Earth world map with up to 3 story callouts
 - Time travel — browse historical news by date (desktop slider or mobile chip strip)
@@ -31,6 +31,16 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 - Dark map theme with frosted-glass callout boxes
 - Keyboard navigation (left/right arrow keys on timeline)
 - Observability: Prometheus metrics, Grafana dashboards
+
+**[How it works: AI models, prompts, and engineering →](https://newschart.rossarnold.uk/method)**
+
+## Technical highlights
+
+- **Multi-model AI comparison** — three independent LLMs (each with native web search) plus a human-edited NYT baseline, queried daily via the same prompt so differences in coverage are the models' own.
+- **Typed AI output** — Spring AI's structured-output binding maps model responses directly to `NewsHighlight` Java records; no free-form text parsing anywhere in the pipeline.
+- **Full-stack type safety** — Java 21 records on the backend, TypeScript on the frontend, shared schema via REST contract.
+- **Production-grade CI/CD** — split backend/frontend pipelines, Testcontainers integration tests against real MongoDB, OWASP Dependency-Check + Sonatype OSS Index + Dependabot across Maven/npm/Actions, tag-triggered deploys via Tailscale.
+- **PFLP callout layout algorithm** — exhaustive candidate enumeration (8 directions × 5 distances per callout) with penalty scoring for overlaps, connector crossings, and viewport violations. Based on [Christensen, Marks & Shieber (1995)](https://doi.org/10.1145/212332.212334); feasible because N ≤ 3.
 
 ## Quick Start
 
@@ -40,7 +50,7 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 - Node.js 20+ and npm
 - MongoDB (via Docker Compose, or a local install)
 - Google Gemini API key (for AI summarisation)
-- OpenRouter API key (optional, for Perplexity/OpenAI/Anthropic sources)
+- OpenRouter API key (optional, for Perplexity/OpenAI sources)
 
 ### 1. Start MongoDB
 
@@ -52,7 +62,7 @@ docker compose up -d mongodb
 
 ```bash
 export GOOGLE_API_KEY=your_gemini_key
-export OPENROUTER_API_KEY=your_openrouter_key   # optional, for Perplexity/OpenAI/Claude
+export OPENROUTER_API_KEY=your_openrouter_key   # optional, for Perplexity/OpenAI
 ./mvnw spring-boot:run
 ```
 
@@ -103,10 +113,10 @@ Scheduler → Pipeline Orchestrator → News Source
 
 | Source | Model | Notes |
 |---|---|---|
-| Gemini | `gemini-2.5-flash-lite` | Default source, native search |
+| Gemini | `gemini-2.5-flash-lite-preview` (3.1) | Google Search grounding enabled |
 | Perplexity | `perplexity/sonar-pro-search` | Via OpenRouter, native web search |
 | OpenAI | `openai/gpt-4o-search-preview` | Via OpenRouter, native web search |
-| NYT RSS | — | Summarised and geo-tagged by Gemini |
+| NYT RSS | `gemini-2.5-flash-lite` (2.5, geo-tag only) | Human-curated feed; Gemini summarises and geo-tags, search grounding off |
 
 ### Frontend (`frontend/src/`)
 
