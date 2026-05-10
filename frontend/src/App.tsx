@@ -162,78 +162,6 @@ function App(): React.ReactElement {
           </button>
         </div>
 
-        {/* Mobile toggle pill – @author Claude Sonnet 4.6 Anthropic */}
-        <button
-          className="mobile-controls-toggle"
-          onClick={() => setMobileSheetOpen(true)}
-          aria-label="Open map settings"
-          aria-expanded={mobileSheetOpen}
-          tabIndex={-1}
-        >
-          <svg className="mobile-controls-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="4" y1="6" x2="20" y2="6"/>
-            <line x1="4" y1="12" x2="20" y2="12"/>
-            <line x1="4" y1="18" x2="20" y2="18"/>
-            <circle cx="16" cy="6" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
-            <circle cx="8" cy="12" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
-            <circle cx="16" cy="18" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
-          </svg>
-          <span>{sourceShortLabel}{!isToday(selectedDate) ? ` · ${formatShortDate(selectedDate)}` : ''} · {projectionLabel}</span>
-        </button>
-
-        {/* Mobile backdrop – @author Claude Sonnet 4.6 Anthropic */}
-        <div
-          className={`mobile-controls-backdrop${mobileSheetOpen ? ' open' : ''}`}
-          onClick={() => setMobileSheetOpen(false)}
-          aria-hidden="true"
-        />
-
-        {/* Mobile bottom sheet – @author Claude Sonnet 4.6 Anthropic */}
-        <div
-          ref={mobileSheetRef}
-          className={`mobile-controls-sheet${mobileSheetOpen ? ' open' : ''}`}
-          role="dialog"
-          aria-label="Map settings"
-          aria-modal="true"
-        >
-          <div className="mobile-sheet-handle" aria-hidden="true" />
-          <div className="mobile-sheet-section-title">Source</div>
-          {NEWS_SOURCES.map(({ value, label }) => (
-            <label key={value} className="mobile-sheet-radio-label">
-              <input
-                type="radio"
-                name="news-source-mobile"
-                value={value}
-                checked={source === value}
-                onChange={() => handleSourceChange(value)}
-                disabled={isLoading}
-              />
-              {label}
-            </label>
-          ))}
-          <div className="mobile-sheet-divider" />
-          <div className="mobile-sheet-section-title">Projection</div>
-          {PROJECTION_OPTIONS.map(({ value, label }) => (
-            <label key={value} className="mobile-sheet-radio-label">
-              <input
-                type="radio"
-                name="projection-mobile"
-                value={value}
-                checked={projectionType === value}
-                onChange={() => handleProjectionChange(value)}
-                disabled={isLoading}
-              />
-              {label}
-            </label>
-          ))}
-          <button
-            className="mobile-sheet-done"
-            onClick={() => setMobileSheetOpen(false)}
-          >
-            Done
-          </button>
-        </div>
-
         <MapChart
           source={source}
           projectionType={projectionType}
@@ -265,6 +193,92 @@ function App(): React.ReactElement {
           <a href="/credits">Credits</a>
         </div>
       </div>
+
+      {/* Mobile controls bar – below the map to avoid obscuring callouts – @author Claude Sonnet 4.6 Anthropic */}
+      <div className={`mobile-controls-bar${isLoading ? ' controls-loading' : ''}`}>
+        <div className="mobile-footer-links">
+          <a
+            href="https://github.com/rssrn/newschart"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="newschart on GitHub (opens in new tab)"
+          >
+            GitHub
+          </a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
+          <a href="/credits">Credits</a>
+        </div>
+        <button
+          className="mobile-controls-toggle"
+          onClick={() => setMobileSheetOpen(true)}
+          aria-label="Open map settings"
+          aria-expanded={mobileSheetOpen}
+        >
+          <svg className="mobile-controls-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
+            <circle cx="16" cy="6" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
+            <circle cx="8" cy="12" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
+            <circle cx="16" cy="18" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
+          </svg>
+          <span>{sourceShortLabel}{!isToday(selectedDate) ? ` · ${formatShortDate(selectedDate)}` : ''} · {projectionLabel}</span>
+        </button>
+      </div>
+
+      {/* Mobile backdrop – @author Claude Sonnet 4.6 Anthropic */}
+      <div
+        className={`mobile-controls-backdrop${mobileSheetOpen ? ' open' : ''}`}
+        onClick={() => setMobileSheetOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Mobile bottom sheet – @author Claude Sonnet 4.6 Anthropic */}
+      <div
+        ref={mobileSheetRef}
+        className={`mobile-controls-sheet${mobileSheetOpen ? ' open' : ''}`}
+        role="dialog"
+        aria-label="Map settings"
+        aria-modal="true"
+      >
+        <div className="mobile-sheet-handle" aria-hidden="true" />
+        <div className="mobile-sheet-section-title">Source</div>
+        {NEWS_SOURCES.map(({ value, label }) => (
+          <label key={value} className="mobile-sheet-radio-label">
+            <input
+              type="radio"
+              name="news-source-mobile"
+              value={value}
+              checked={source === value}
+              onChange={() => handleSourceChange(value)}
+              disabled={isLoading}
+            />
+            {label}
+          </label>
+        ))}
+        <div className="mobile-sheet-divider" />
+        <div className="mobile-sheet-section-title">Projection</div>
+        {PROJECTION_OPTIONS.map(({ value, label }) => (
+          <label key={value} className="mobile-sheet-radio-label">
+            <input
+              type="radio"
+              name="projection-mobile"
+              value={value}
+              checked={projectionType === value}
+              onChange={() => handleProjectionChange(value)}
+              disabled={isLoading}
+            />
+            {label}
+          </label>
+        ))}
+        <button
+          className="mobile-sheet-done"
+          onClick={() => setMobileSheetOpen(false)}
+        >
+          Done
+        </button>
+      </div>
+
       {/* Mobile date chip strip (outside map-container to avoid overflow clip) – @author Claude Opus 4.6 Anthropic */}
       {availableDates.length > 1 && (
         <div className={`mobile-date-strip-wrapper${isLoading ? ' controls-loading' : ''}`}>

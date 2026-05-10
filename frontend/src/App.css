@@ -316,6 +316,15 @@ svg {
 /* ── Mobile controls (bottom sheet pattern) ──────────────────────────────── */
 /* @author Claude Sonnet 4.6 Anthropic */
 
+/* Controls bar: hidden on desktop — shown below map on mobile */
+.mobile-controls-bar {
+  display: none;
+}
+
+.mobile-footer-links {
+  display: none;
+}
+
 /* Toggle pill: hidden on desktop */
 .mobile-controls-toggle {
   display: none;
@@ -334,16 +343,21 @@ svg {
 }
 
 @media (max-width: 640px) {
+  /* Small breathing room at the top of the page */
+  .App {
+    padding-top: 8px;
+  }
+
   /* Hide the desktop overlay */
   .source-selector-overlay {
     display: none;
   }
 
-  /* Error toast: full-width on mobile, sits below the toggle pill */
+  /* Error toast: full-width on mobile, sits at top of map */
   .fetch-error-toast {
     left: 12px;
     right: 12px;
-    top: 52px;
+    top: 12px;
     transform: translateY(-6px);
     white-space: normal;
   }
@@ -358,15 +372,46 @@ svg {
     overflow: hidden;
   }
 
+  /* Hide the map footer inside the map on mobile — links move to the controls bar */
+  .map-footer-overlay {
+    display: none;
+  }
+
+  /* Controls bar: row below the map holding footer links + toggle pill.
+     Negative top margin pulls it up over the empty southern-ocean portion of the SVG. */
+  .mobile-controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: #0f1923;
+    margin-top: -52px;
+    position: relative; /* keep it above the SVG in paint order */
+    z-index: 5;
+  }
+
+  .mobile-footer-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  .mobile-footer-links a {
+    color: #60a5fa;
+    text-decoration: none;
+  }
+
+  .mobile-footer-links a:hover {
+    color: #93c5fd;
+    text-decoration: underline;
+  }
+
   /* Toggle pill */
   .mobile-controls-toggle {
     display: flex;
     align-items: center;
     gap: 5px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
     background: rgba(10, 20, 35, 0.88);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
