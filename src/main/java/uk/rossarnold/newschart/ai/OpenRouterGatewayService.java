@@ -76,15 +76,17 @@ public class OpenRouterGatewayService {
                 .toList());
     }
 
+    /***
+     * Sometimes the model randomly includes some text preamble before the raw json.  Strip this if present.
+     *
+     * @param raw - raw response from AI model
+     * @return
+     */
     private String extractJson(String raw) {
         String prefix = raw.substring(0, Math.min(raw.length(), 100));
         log.info("Extracting json from: {}", prefix);
-        int start = raw.indexOf("```json");
-        if (start != -1) {
-            raw = raw.substring(start + 7);
-            int end = raw.indexOf("```");
-            if (end != -1) raw = raw.substring(0, end);
-        }
+        int braceStart = raw.indexOf('{');
+        if (braceStart > 0) raw = raw.substring(braceStart);
         return raw.trim();
     }
 }
