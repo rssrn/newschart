@@ -4,6 +4,7 @@ import MapChart from './MapChart';
 import DateTimeline from './DateTimeline';
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 import { todayIso, isToday, formatShortDate } from './utils/dateUtils';
+import { track } from './utils/analytics';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
@@ -35,11 +36,13 @@ function App(): React.ReactElement {
   const handleSourceChange = (value: NewsSource) => {
     setSource(value);
     localStorage.setItem('newsSource', value);
+    track('source_changed', { source: value });
   };
 
   const handleProjectionChange = (value: ProjectionType) => {
     setProjectionType(value);
     localStorage.setItem('projectionType', value);
+    track('projection_changed', { projection: value });
   };
 
   // @author Claude Sonnet 4.6 Anthropic
@@ -75,17 +78,19 @@ function App(): React.ReactElement {
       if (availableDates.length < 2 || isLoading) return;
       if (document.querySelector('.story-detail-backdrop')) return;
       e.preventDefault();
-      setSelectedDate(prev => {
-        const idx = availableDates.indexOf(prev);
-        const effective = idx >= 0 ? idx : availableDates.length - 1;
-        if (e.key === 'ArrowLeft' && effective > 0) return availableDates[effective - 1];
-        if (e.key === 'ArrowRight' && effective < availableDates.length - 1) return availableDates[effective + 1];
-        return prev;
-      });
+      const idx = availableDates.indexOf(selectedDate);
+      const effective = idx >= 0 ? idx : availableDates.length - 1;
+      let newDate: string | null = null;
+      if (e.key === 'ArrowLeft' && effective > 0) newDate = availableDates[effective - 1];
+      if (e.key === 'ArrowRight' && effective < availableDates.length - 1) newDate = availableDates[effective + 1];
+      if (newDate) {
+        setSelectedDate(newDate);
+        track('date_navigated', { method: 'keyboard', date: newDate });
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [availableDates, isLoading]);
+  }, [availableDates, isLoading, selectedDate]);
 
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
@@ -151,7 +156,7 @@ function App(): React.ReactElement {
           <span className="fetch-error-text">News service unavailable · Check your connection</span>
           <button
             className="fetch-error-dismiss"
-            onClick={() => setErrorDismissed(true)}
+            onClick={() => { setErrorDismissed(true); track('error_dismissed'); }}
             aria-label="Dismiss error"
             tabIndex={showError ? 0 : -1}
           >
@@ -186,13 +191,14 @@ function App(): React.ReactElement {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="newschart on GitHub (opens in new tab)"
+            onClick={() => track('nav_link_clicked', { target: 'github' })}
           >
             GitHub
           </a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/method">How it works</a>
+          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/credits">Credits</a>
+          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
         </div>
       </div>
 
@@ -204,13 +210,14 @@ function App(): React.ReactElement {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="newschart on GitHub (opens in new tab)"
+            onClick={() => track('nav_link_clicked', { target: 'github' })}
           >
             GitHub
           </a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/method">How it works</a>
+          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/credits">Credits</a>
+          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
         </div>
         <button
           className="mobile-controls-toggle"
@@ -292,7 +299,7 @@ function App(): React.ReactElement {
                 key={d}
                 className={`mobile-date-chip${d === selectedDate ? ' active' : ''}`}
                 ref={d === selectedDate ? (el) => { el?.scrollIntoView({ inline: 'center', block: 'nearest' }); } : undefined}
-                onClick={() => setSelectedDate(d)}
+                onClick={() => { setSelectedDate(d); track('date_navigated', { method: 'chip', date: d }); }}
                 disabled={isLoading}
               >
                 {isToday(d) ? 'Today' : formatShortDate(d)}

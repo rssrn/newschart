@@ -8,6 +8,7 @@ import {
   Geography,
 } from "react-simple-maps";
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
+import { track } from './utils/analytics';
 
 export type { ProjectionType, FetchStatus };
 
@@ -67,14 +68,22 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
 
     const cached = calloutsCache.get(url);
     if (cached) {
-      setCallouts(cached);
-      onFetchStatusRef.current?.('success');
+      Promise.resolve(cached).then(data => {
+        if (controller.signal.aborted) return;
+        setCallouts(data);
+        onFetchStatusRef.current?.('success');
+        if (testCase === null) track('news_loaded', { source, date, callout_count: data.length, cached: true });
+      });
       return;
     }
 
-    setCallouts([]);
-    onFetchStatusRef.current?.('loading');
+    queueMicrotask(() => {
+      if (controller.signal.aborted) return;
+      setCallouts([]);
+      onFetchStatusRef.current?.('loading');
+    });
 
+    const fetchStart = performance.now();
     fetch(url, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Network response was not ok");
@@ -84,11 +93,13 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         calloutsCache.set(url, data);
         setCallouts(data);
         onFetchStatusRef.current?.('success');
+        if (testCase === null) track('news_loaded', { source, date, callout_count: data.length, duration_ms: Math.round(performance.now() - fetchStart) });
       })
       .catch((error) => {
         if (error.name === 'AbortError') return;
         console.error("Error fetching callouts:", error);
         onFetchStatusRef.current?.('error');
+        if (testCase === null) track('news_load_failed', { source, date });
       });
 
     return () => controller.abort();
