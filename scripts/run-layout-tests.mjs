@@ -51,8 +51,15 @@ const fixtures = allFixtures.filter(f => {
 
 // --- Viewports (mirrors viewports.ts) ---
 const ALL_VIEWPORTS = [
-  { name: 'desktop-fhd-typ', w: 1920, h: 945 },
-  { name: 'phone-large',     w: 414,  h: 715 },
+  { name: 'desktop-fhd-typ',  w: 1920, h: 945  },
+  { name: 'desktop-fhd-bare', w: 1920, h: 1030 },
+  { name: 'laptop-1440-typ',  w: 1440, h: 770  },
+  { name: 'laptop-1366-typ',  w: 1366, h: 625  },
+  { name: 'tablet-landscape', w: 1024, h: 695  },
+  { name: 'tablet-portrait',  w: 768,  h: 955  },
+  { name: 'phone-large',      w: 414,  h: 715  },
+  { name: 'phone-standard',   w: 390,  h: 660  },
+  { name: 'phone-small',      w: 360,  h: 510  },
 ];
 
 const SVG_WIDTH = 800;
@@ -93,63 +100,65 @@ if (runs.length === 0) {
   process.exit(0);
 }
 
-// --- Run algorithm + evaluation via vite-node ---
+// --- Run all cases in a single vite-node subprocess ---
 const viteNode = join(FRONTEND, 'node_modules/.bin/vite-node');
 
-function runViaViteNode(fixture, projection, viewport) {
-  const inlineScript = `
-import { runLayout } from '${join(FRONTEND, 'src/__tests__/layout/runner.ts').replace(/\\/g, '/')}';
-import { PROJECTIONS } from '${join(FRONTEND, 'src/__tests__/layout/projections.ts').replace(/\\/g, '/')}';
-const fixture = ${JSON.stringify(fixture)};
-const viewport = ${JSON.stringify(viewport)};
-const proj = PROJECTIONS.find(p => p.name === ${JSON.stringify(projection.name)});
-const result = runLayout(fixture, viewport, proj);
-process.stdout.write(JSON.stringify(result));
+function runAllViaBatchedViteNode(runs) {
+  const runnerPath   = join(FRONTEND, 'src/__tests__/layout/runner.ts').replace(/\\/g, '/');
+  const projPath     = join(FRONTEND, 'src/__tests__/layout/projections.ts').replace(/\\/g, '/');
+
+  const ts = Date.now();
+  const tmpScript = join(OUTPUT_DIR, `_runner_batch_${ts}.mts`);
+  const tmpOut    = join(OUTPUT_DIR, `_runner_batch_${ts}.json`);
+  mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  const batchScript = `
+// Redirect console.log to stderr so algorithm debug output doesn't pollute results.
+console.log = (...a) => process.stderr.write(a.join(' ') + '\\n');
+import { writeFileSync } from 'node:fs';
+import { runLayout } from '${runnerPath}';
+import { PROJECTIONS } from '${projPath}';
+const runs = ${JSON.stringify(runs.map(r => ({ fixture: r.fixture, projectionName: r.projection.name, viewport: r.viewport })))};
+const results = runs.map(({ fixture, projectionName, viewport }) => {
+  const proj = PROJECTIONS.find(p => p.name === projectionName);
+  return runLayout(fixture, viewport, proj);
+});
+writeFileSync(${JSON.stringify(tmpOut)}, JSON.stringify(results));
 `;
 
-  const tmpFile = join(OUTPUT_DIR, `_runner_tmp_${Date.now()}.mts`);
-  mkdirSync(OUTPUT_DIR, { recursive: true });
-  writeFileSync(tmpFile, inlineScript);
+  writeFileSync(tmpScript, batchScript);
 
   try {
-    const output = execSync(`${viteNode} --project ${join(FRONTEND, 'tsconfig.json')} ${tmpFile}`, {
+    execSync(`${viteNode} --project ${join(FRONTEND, 'tsconfig.json')} ${tmpScript}`, {
       cwd: FRONTEND,
       encoding: 'utf-8',
       env: { ...process.env, FORCE_COLOR: '0' },
     });
-    const jsonStart = output.indexOf('{');
-    if (jsonStart === -1) throw new Error(`No JSON in output: ${output}`);
-    return JSON.parse(output.slice(jsonStart));
-  } catch (err) {
-    console.error(`  ERROR running ${fixture.id} @ ${viewport.name} [${projection.name}]:`, err.message);
-    const vp = deriveParams(viewport, 90);
-    return {
-      fixtureId: fixture.id,
-      group: fixture.group,
-      tags: fixture.tags,
-      projection: projection.name,
-      viewport: { ...vp },
-      pass: false,
-      violations: [{ type: 'runner-error', calloutA: 'runner', detail: err.message }],
-      metrics: {},
-      placements: [],
-      diagnostics: {},
-      screenshot: null,
-    };
+    return JSON.parse(readFileSync(tmpOut, 'utf-8'));
   } finally {
-    try { import('node:fs').then(fs => fs.unlinkSync(tmpFile)); } catch { /* ignore */ }
+    for (const f of [tmpScript, tmpOut]) {
+      try { import('node:fs').then(m => m.unlinkSync(f)); } catch { /* ignore */ }
+    }
   }
+}
+
+let batchResults;
+try {
+  batchResults = runAllViaBatchedViteNode(runs);
+} catch (err) {
+  console.error('  ERROR: batch runner failed:', err.message);
+  process.exit(1);
 }
 
 const results = [];
 let passed = 0, failed = 0;
 
-for (const { fixture, projection, viewport } of runs) {
-  process.stdout.write(`  ${fixture.id} @ ${viewport.name} [${projection.name}] ... `);
-  const result = runViaViteNode(fixture, projection, viewport);
+for (let i = 0; i < runs.length; i++) {
+  const { fixture, projection, viewport } = runs[i];
+  const result = batchResults[i];
   results.push(result);
-  if (result.pass) { passed++; console.log('✓ pass'); }
-  else             { failed++; console.log(`✗ FAIL (${result.violations.length} violation(s))`); }
+  if (result.pass) { passed++; console.log(`  ${fixture.id} @ ${viewport.name} [${projection.name}] ... ✓ pass`); }
+  else             { failed++; console.log(`  ${fixture.id} @ ${viewport.name} [${projection.name}] ... ✗ FAIL (${result.violations.length} violation(s))`); }
 }
 
 // --- Console summary ---

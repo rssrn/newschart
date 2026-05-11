@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-sample-2-us-cluster",
+  "group": "handcrafted",
+  "tags": ["sample", "tight-cluster"],
+  "notes": "Transcription of in-app ?testCase=2. Originally 4 callouts (NYC, Boston, Philadelphia, Washington DC) — trimmed to 3 by dropping Washington DC. Three nearly coincident US city points; hardest possible cluster.",
+  "callouts": [
+    {
+      "headline": "NYC Stock Market Surge",
+      "detail": "Wall Street sees biggest gains in a decade as tech sector leads market rally.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.7128, "longitude": -74.006 }
+    },
+    {
+      "headline": "Boston Tech Breakthrough",
+      "detail": "MIT researchers announce quantum computing breakthrough with potential applications in medicine.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 42.3601, "longitude": -71.0589 }
+    },
+    {
+      "headline": "Philadelphia Sports Victory",
+      "detail": "Philadelphia celebrates championship win as fans flood the streets in jubilation.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 39.9526, "longitude": -75.1652 }
+    }
+  ]
+}

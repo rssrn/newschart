@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-na-vertical-stack",
+  "group": "handcrafted",
+  "tags": ["vertical-stack", "needs-fix"],
+  "notes": "Canada, USA and Mexico share similar longitudes (~95-106°W) but are stacked vertically across a large latitude range. Tests that the algorithm separates callouts vertically without connector crossings. FAIL: connector-cross (Canada/Mexico on desktop-fhd-typ, Canada/US on laptop-1440-typ) — both mercator.",
+  "callouts": [
+    {
+      "headline": "Canada federal election called",
+      "detail": "The Canadian Prime Minister dissolves parliament and announces a general election date.",
+      "country": { "name": "Canada", "iso2": "CA", "latitude": 56.1304, "longitude": -106.3468 }
+    },
+    {
+      "headline": "US Fed cuts interest rates",
+      "detail": "The Federal Reserve lowers its benchmark rate by 25 basis points, citing cooling inflation.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 37.0902, "longitude": -95.7129 }
+    },
+    {
+      "headline": "Mexico City earthquake response",
+      "detail": "Emergency teams deploy across the capital following a 6.2 magnitude earthquake in central Mexico.",
+      "country": { "name": "Mexico", "iso2": "MX", "latitude": 23.6345, "longitude": -102.5528 }
+    }
+  ]
+}

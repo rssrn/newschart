@@ -22,21 +22,59 @@ export function deriveParams(viewport: Viewport, bottomReservedPx: number): View
   return { ...viewport, visibleSvgHeight, bottomPaddingSvg };
 }
 
-// Two representative viewports for milestone 1.
-// Full matrix (9 viewports × 2 strip states) lives in the final plan.
 export const VIEWPORTS: Viewport[] = [
   {
     name: 'desktop-fhd-typ',
     w: 1920,
     h: 945,
-    // 1920×1080 maximised with tab strip + bookmark bar + OS taskbar → innerH ≈ 945
-    // visibleSvgHeight ≈ 394 (tight — exercises the algorithm under vertical pressure)
+    // 1920×1080 maximised, tab strip + bookmark bar + OS taskbar → visibleSvgHeight ≈ 394 (tightest FHD)
+  },
+  {
+    name: 'desktop-fhd-bare',
+    w: 1920,
+    h: 1030,
+    // 1920×1080 maximised, tab strip only (no bookmark bar/taskbar) → visibleSvgHeight ≈ 429
+  },
+  {
+    name: 'laptop-1440-typ',
+    w: 1440,
+    h: 770,
+    // 1440×900 maximised, tab strip + bookmark bar + dock → visibleSvgHeight ≈ 428
+  },
+  {
+    name: 'laptop-1366-typ',
+    w: 1366,
+    h: 625,
+    // 1366×768 maximised, tab strip + bookmark bar + taskbar → visibleSvgHeight ≈ 366 (tightest desktop)
+  },
+  {
+    name: 'tablet-landscape',
+    w: 1024,
+    h: 695,
+    // iPad 1024×768 Safari landscape, toolbar visible → visibleSvgHeight ≈ 543
+  },
+  {
+    name: 'tablet-portrait',
+    w: 768,
+    h: 955,
+    // iPad 768×1024 Safari portrait, toolbar visible → visibleSvgHeight = 600 (capped)
   },
   {
     name: 'phone-large',
     w: 414,
     h: 715,
-    // iPhone XR/11 414×896 Safari with address bar visible → innerH ≈ 715
-    // visibleSvgHeight = 600 (capped — wide open vertically, but narrow horizontally)
+    // iPhone XR/11 414×896 Safari, address bar visible → visibleSvgHeight = 600 (capped)
+  },
+  {
+    name: 'phone-standard',
+    w: 390,
+    h: 660,
+    // iPhone 13/14 390×844 Safari, address bar visible → visibleSvgHeight = 600 (capped)
+  },
+  {
+    name: 'phone-small',
+    w: 360,
+    h: 510,
+    // budget Android 360×640 Chrome, toolbar visible → visibleSvgHeight = 600 (capped)
   },
 ];

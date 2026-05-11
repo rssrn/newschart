@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-sample-0-europe-asia",
+  "group": "handcrafted",
+  "tags": ["sample", "needs-fix"],
+  "notes": "Transcription of in-app ?testCase=0. France, Japan, Vatican — wide geographic spread but France and Vatican are close in Europe. FAIL: laptop-1366-typ mercator — France connector passes through Vatican box.",
+  "callouts": [
+    {
+      "headline": "Louvre Jewel Heist",
+      "detail": "The investigation continues into a major jewel heist at the Louvre Museum in Paris where crown jewels valued at over $100 million were stolen in a daring daylight robbery.",
+      "country": { "name": "France", "iso2": "FR", "latitude": 48.8566, "longitude": 2.3522 }
+    },
+    {
+      "headline": "Japan Elects First Female PM",
+      "detail": "Takaichi was officially confirmed by the parliament, taking on the role of Japan's first woman Prime Minister amidst challenges that include a struggling economy and internal political maneuvering.",
+      "country": { "name": "Japan", "iso2": "JP", "latitude": 36.0, "longitude": 138.0 }
+    },
+    {
+      "headline": "King Charles Meets Pope: History",
+      "detail": "King Charles III began a state visit to the Vatican where he is set to meet Pope Leo XIV and make history by being the first British monarch to pray publicly with the head of the Catholic Church.",
+      "country": { "name": "Vatican City", "iso2": "VA", "latitude": 41.9, "longitude": 12.45 }
+    }
+  ]
+}

@@ -485,18 +485,39 @@ const Method = (): React.ReactElement => (
             responses are typed.
           </li>
           <li>
-            <strong>Visual regression.</strong> The map layout algorithm is tested
-            with{' '}
-            <a href="https://playwright.dev/" target="_blank" rel="noopener noreferrer">Playwright</a>{' '}
-            screenshot tests against fixed scenarios (clustered points, wide spreads,
-            edge cases) so a refactor that subtly breaks placement is caught
-            immediately.
-          </li>
-          <li>
             <strong>Layout algorithm with a real foundation.</strong> The callout
             placement uses exhaustive candidate enumeration with penalty scoring —
-            based on the Point-Feature Label Placement literature (<a href="https://doi.org/10.1145/212332.212334" target="_blank" rel="noopener noreferrer">Christensen, Marks &amp; Shieber, 1995</a>). Feasible because N ≤ 4 stories per day; correct
+            based on the Point-Feature Label Placement literature (<a href="https://doi.org/10.1145/212332.212334" target="_blank" rel="noopener noreferrer">Christensen, Marks &amp; Shieber, 1995</a>). Feasible because N ≤ 3 stories per day; correct
             because the search space is bounded and every candidate is evaluated.
+          </li>
+          <li>
+            <strong>Layout algorithm test harness.</strong> The placement algorithm
+            is tested by a dedicated headless harness (separate from the main test
+            suite) that checks hard geometric constraints independently of the
+            algorithm itself. An <em>independent geometry evaluator</em> — written
+            from scratch, importing nothing from the layout code — re-derives every
+            box rectangle and connector segment and checks five hard rules: no
+            box-overlap (touching counts as a fail), no out-of-bounds, no
+            connector crossing, no connector passing behind another callout's box,
+            and no origin marker obscured by a box. Soft metrics (connector length,
+            box–box gap, angular spread) are recorded for later baseline comparison.
+          </li>
+          <li>
+            <strong>Viewport &amp; projection matrix.</strong> Every test fixture
+            runs across 9 real-browser viewport sizes (from a maximised 1920×1080
+            desktop with chrome subtracted down to a 360×510 budget Android phone)
+            and 2 map projections (Mercator, Natural Earth) — 18 configurations per
+            case. The fixture corpus covers geographic edge cases that are hard to
+            spot visually: origins near the right map edge (New Zealand / Fiji), nearly
+            coincident points (Belgium / Netherlands), high-latitude distortion
+            (Iceland / Norway), vertical stacks along a single meridian (Canada /
+            USA / Mexico), and real production days captured directly from the live
+            API. Known failures are tagged <code>needs-fix</code> and skipped in CI
+            so the build stays green while serving as concrete regression targets for
+            algorithm improvements.{' '}
+            <a href="https://playwright.dev/" target="_blank" rel="noopener noreferrer">Playwright</a>{' '}
+            can be invoked on demand to render each case at the correct viewport size
+            and capture a screenshot for visual review.
           </li>
         </ul>
 

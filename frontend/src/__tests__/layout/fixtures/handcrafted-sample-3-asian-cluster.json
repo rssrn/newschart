@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-sample-3-asian-cluster",
+  "group": "handcrafted",
+  "tags": ["sample", "tight-cluster", "needs-fix"],
+  "notes": "Transcription of in-app ?testCase=3. Originally 4 callouts (JP, KR, CN, IN) — trimmed to 3 by dropping India. Japan, South Korea and China are tightly clustered in East Asia. FAIL: JP box out-of-bounds right edge in natural-earth (desktop/laptop); connector-cross JP/KR on natural-earth mobile; connector-through-box CN/KR on several natural-earth viewports.",
+  "callouts": [
+    {
+      "headline": "Tokyo Olympics Announcement",
+      "detail": "Japan unveils plans for sustainable Olympics with carbon-neutral venues and public transportation.",
+      "country": { "name": "Japan", "iso2": "JP", "latitude": 35.6762, "longitude": 139.6503 }
+    },
+    {
+      "headline": "Seoul Tech Innovation",
+      "detail": "South Korea launches world's first nationwide 6G network trial.",
+      "country": { "name": "South Korea", "iso2": "KR", "latitude": 37.5665, "longitude": 126.978 }
+    },
+    {
+      "headline": "Beijing Space Program",
+      "detail": "China announces ambitious plans for permanent lunar research station by 2030.",
+      "country": { "name": "China", "iso2": "CN", "latitude": 39.9042, "longitude": 116.4074 }
+    }
+  ]
+}

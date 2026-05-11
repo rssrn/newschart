@@ -155,7 +155,63 @@ cd frontend
 CI=true npm test         # unit tests (React Testing Library)
 ```
 
-End-to-end tests use Playwright; no committed suite yet — run interactively during development.
+#### Layout algorithm test suite
+
+The callout layout algorithm has its own headless test harness that runs each fixture across 9 viewports × 2 projections and checks hard geometric constraints (no box overlap, no out-of-bounds, no connector crossings or connector-through-box, no obscured origins).
+
+```bash
+# Run all fixtures, print pass/fail summary, write test-output/layout-report.json
+node scripts/run-layout-tests.mjs
+
+# Filter by fixture id, tag, or group
+node scripts/run-layout-tests.mjs --id handcrafted-wide-aus-bra-can
+node scripts/run-layout-tests.mjs --tag needs-fix
+node scripts/run-layout-tests.mjs --group handcrafted
+
+# Single viewport or projection
+node scripts/run-layout-tests.mjs --viewport laptop-1366-typ --projection mercator
+
+# Capture screenshots (builds frontend, starts vite preview, saves PNGs)
+node scripts/run-layout-tests.mjs --screenshots
+node scripts/run-layout-tests.mjs --tag needs-fix --screenshots
+```
+
+Screenshots land in `frontend/test-output/screenshots/` (gitignored). Filename convention: `{id}__{projection}__{viewport}.png`.
+
+**Fixture corpus** — `frontend/src/__tests__/layout/fixtures/`
+
+- `handcrafted-*.json` — hand-authored cases (committed, run in CI via `npm test`)
+- `live-*.json` — captured from the production API via `scripts/export-callouts.mjs` (committed once they're interesting, then treated identically to handcrafted)
+
+**Tag conventions**
+
+| Tag | Meaning |
+|---|---|
+| `needs-fix` | Known algorithm failure — skipped in CI so the build stays green; kept as a regression target |
+| `sample` | Transcription of an in-app `?testCase=N` scenario |
+| `tight-cluster` | Origins are very close together on the map |
+| `vertical-stack` | Origins share similar longitudes, stacked vertically |
+| `wide-spread` | Origins are widely separated — expected to always pass |
+
+**Adding a live fixture from the API**
+
+```bash
+# Fetch from production (writes live-<date>-<provider>.json if ≥3 callouts)
+node scripts/export-callouts.mjs \
+  --base-url https://newschart.rossarnold.uk \
+  --providers GOOGLE_GEMINI \
+  --date 2026-05-10
+
+# Date range, multiple providers
+node scripts/export-callouts.mjs \
+  --base-url https://newschart.rossarnold.uk \
+  --providers NEW_YORK_TIMES,GOOGLE_GEMINI \
+  --from 2026-05-01 --to 2026-05-10
+
+# --force overwrites an existing fixture (use carefully — preserves no hand-edits)
+```
+
+Eyeball the result, add tags/notes in the JSON, then commit. Re-running without `--force` will never clobber a committed fixture.
 
 ### Build
 

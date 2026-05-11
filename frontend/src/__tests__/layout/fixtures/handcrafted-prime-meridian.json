@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-prime-meridian",
+  "group": "handcrafted",
+  "tags": ["needs-fix"],
+  "notes": "UK, France and Ghana straddle the prime meridian (0° longitude). Tests that connector geometry doesn't break when origins span the meridian at different latitudes. FAIL: laptop-1366-typ mercator — UK connector passes through France box.",
+  "callouts": [
+    {
+      "headline": "UK Parliament passes budget",
+      "detail": "The House of Commons approves the annual budget amid debate over spending priorities.",
+      "country": { "name": "United Kingdom", "iso2": "GB", "latitude": 51.5074, "longitude": -0.1278 }
+    },
+    {
+      "headline": "France hosts EU summit",
+      "detail": "Paris welcomes European leaders for talks on trade and energy policy.",
+      "country": { "name": "France", "iso2": "FR", "latitude": 48.8566, "longitude": 2.3522 }
+    },
+    {
+      "headline": "Ghana economy grows strongly",
+      "detail": "Ghana reports higher-than-expected GDP growth driven by oil exports and agricultural output.",
+      "country": { "name": "Ghana", "iso2": "GH", "latitude": 7.9465, "longitude": -1.0232 }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-right-edge-nz",
+  "group": "handcrafted",
+  "tags": ["needs-fix"],
+  "notes": "New Zealand, Fiji and Papua New Guinea are all near the right edge of the map (longitude ~140-178°). Tests that callout boxes don't overflow the right viewport boundary. FAIL: NZ box goes out-of-bounds right edge in natural-earth across all desktop/phone viewports; connector-cross NZ/Fiji on several mercator viewports.",
+  "callouts": [
+    {
+      "headline": "New Zealand election results",
+      "detail": "Wellington counts votes following a closely contested general election with record turnout.",
+      "country": { "name": "New Zealand", "iso2": "NZ", "latitude": -41.2865, "longitude": 174.7762 }
+    },
+    {
+      "headline": "Fiji cyclone emergency",
+      "detail": "A category 4 cyclone makes landfall in Fiji, prompting evacuations across low-lying islands.",
+      "country": { "name": "Fiji", "iso2": "FJ", "latitude": -17.7134, "longitude": 178.065 }
+    },
+    {
+      "headline": "Papua New Guinea mining dispute",
+      "detail": "Communities near the Ok Tedi mine call for renegotiation of environmental agreements.",
+      "country": { "name": "Papua New Guinea", "iso2": "PG", "latitude": -6.315, "longitude": 143.9555 }
+    }
+  ]
+}

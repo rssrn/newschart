@@ -1,0 +1,43 @@
+{
+  "id": "live-2026-05-06-gemini",
+  "group": "live",
+  "tags": ["needs-fix"],
+  "notes": "Iran/China/S.Korea tight East Asia cluster. connector-through-box on desktop-fhd-typ+laptop-1366-typ mercator (Iran→S.Korea) and laptop-1366-typ natural-earth (Iran→China).",
+  "source": {
+    "baseUrl": "https://newschart.rossarnold.uk",
+    "date": "2026-05-06",
+    "provider": "GOOGLE_GEMINI"
+  },
+  "callouts": [
+    {
+      "headline": "Iran Enforces New Strait of Hormuz Rules",
+      "detail": "Iran has implemented new maritime transit regulations requiring vessels to obtain permits before navigating the Strait.",
+      "country": {
+        "name": "Iran",
+        "iso2": "IR",
+        "latitude": 32.4279,
+        "longitude": 53.688
+      }
+    },
+    {
+      "headline": "Iran Holds Diplomatic Talks in Beijing",
+      "detail": "Iranian and Chinese foreign ministers held talks in Beijing to discuss regional tensions and diplomacy.",
+      "country": {
+        "name": "China",
+        "iso2": "CN",
+        "latitude": 39.9042,
+        "longitude": 116.4074
+      }
+    },
+    {
+      "headline": "South Korea Market Hits Record High",
+      "detail": "South Korea's stock market hit a record high driven by artificial intelligence and ceasefire optimism.",
+      "country": {
+        "name": "South Korea",
+        "iso2": "KR",
+        "latitude": 37.5665,
+        "longitude": 126.978
+      }
+    }
+  ]
+}

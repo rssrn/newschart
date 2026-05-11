@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-highlat-iceland",
+  "group": "handcrafted",
+  "tags": [],
+  "notes": "Iceland (64.9°N), Norway (60.5°N), Finland (61.9°N) — high-latitude northern Europe. In Mercator these points are near the top of the visible SVG band, leaving little room for callouts above. Tests top-edge pressure.",
+  "callouts": [
+    {
+      "headline": "Iceland volcanic eruption",
+      "detail": "A fissure eruption on the Reykjanes peninsula forces evacuation of nearby geothermal infrastructure.",
+      "country": { "name": "Iceland", "iso2": "IS", "latitude": 64.9631, "longitude": -19.0208 }
+    },
+    {
+      "headline": "Norway sovereign wealth fund record",
+      "detail": "Norway's Government Pension Fund Global hits a new all-time high in assets under management.",
+      "country": { "name": "Norway", "iso2": "NO", "latitude": 60.472, "longitude": 8.4689 }
+    },
+    {
+      "headline": "Finland NATO exercise begins",
+      "detail": "Finland hosts its first major NATO joint exercise since joining the alliance.",
+      "country": { "name": "Finland", "iso2": "FI", "latitude": 61.9241, "longitude": 25.7482 }
+    }
+  ]
+}

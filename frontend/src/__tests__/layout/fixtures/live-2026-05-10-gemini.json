@@ -1,0 +1,43 @@
+{
+  "id": "live-2026-05-10-gemini",
+  "group": "live",
+  "tags": ["needs-fix"],
+  "notes": "laptop-1366-typ mercator: Israel connector passes through Ukraine box. Tightest desktop viewport (visibleSvgHeight≈366) with UA+IL close vertically.",
+  "source": {
+    "baseUrl": "https://newschart.rossarnold.uk",
+    "date": "2026-05-10",
+    "provider": "GOOGLE_GEMINI"
+  },
+  "callouts": [
+    {
+      "headline": "Intense Fighting Continues Across Eastern Ukraine Front",
+      "detail": "Ukrainian and Russian forces engage in heavy combat operations, escalating regional instability and impacting global security dynamics.",
+      "country": {
+        "name": "Ukraine",
+        "iso2": "UA",
+        "latitude": 49,
+        "longitude": 32
+      }
+    },
+    {
+      "headline": "Tensions Escalate Further in Middle East Conflict",
+      "detail": "Regional diplomatic efforts struggle to manage ongoing military operations, impacting stability throughout the broader Middle East region.",
+      "country": {
+        "name": "Israel",
+        "iso2": "IL",
+        "latitude": 31,
+        "longitude": 35
+      }
+    },
+    {
+      "headline": "China Addresses Slowing Economic Growth Concerns",
+      "detail": "The Chinese government implements new measures to stimulate domestic economy amidst ongoing challenges in global trade.",
+      "country": {
+        "name": "China",
+        "iso2": "CN",
+        "latitude": 35,
+        "longitude": 105
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-sample-4-southern-hem",
+  "group": "handcrafted",
+  "tags": ["sample"],
+  "notes": "Transcription of in-app ?testCase=4. South Africa, Argentina, New Zealand — all southern hemisphere, widely spread, near bottom of viewport.",
+  "callouts": [
+    {
+      "headline": "Cape Town Water Innovation",
+      "detail": "South Africa pioneers desalination technology to address water scarcity issues.",
+      "country": { "name": "South Africa", "iso2": "ZA", "latitude": -33.9249, "longitude": 18.4241 }
+    },
+    {
+      "headline": "Buenos Aires Cultural Festival",
+      "detail": "Argentina hosts largest tango festival in history with performers from 50 countries.",
+      "country": { "name": "Argentina", "iso2": "AR", "latitude": -34.6037, "longitude": -58.3816 }
+    },
+    {
+      "headline": "Wellington Climate Leadership",
+      "detail": "New Zealand becomes first carbon-negative developed nation, setting global example.",
+      "country": { "name": "New Zealand", "iso2": "NZ", "latitude": -41.2865, "longitude": 174.7762 }
+    }
+  ]
+}

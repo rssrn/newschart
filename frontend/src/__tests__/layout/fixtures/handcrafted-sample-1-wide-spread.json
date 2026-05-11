@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-sample-1-wide-spread",
+  "group": "handcrafted",
+  "tags": ["sample", "wide-spread"],
+  "notes": "Transcription of in-app ?testCase=1. Originally 4 callouts (AU, BR, EG, CA) — trimmed to 3 by dropping Canada. Three well-separated origins across multiple hemispheres.",
+  "callouts": [
+    {
+      "headline": "Sydney Opera House Renovation",
+      "detail": "A major renovation project begins at the iconic Sydney Opera House, including modernization of acoustics and accessibility features.",
+      "country": { "name": "Australia", "iso2": "AU", "latitude": -33.8568, "longitude": 151.2153 }
+    },
+    {
+      "headline": "Amazon Rainforest Conservation",
+      "detail": "Brazil announces new protected zones in the Amazon rainforest as part of international climate commitments.",
+      "country": { "name": "Brazil", "iso2": "BR", "latitude": -3.4653, "longitude": -62.2159 }
+    },
+    {
+      "headline": "Cairo Museum Discovery",
+      "detail": "Archaeologists unveil newly discovered artifacts from an unopened tomb near the pyramids of Giza.",
+      "country": { "name": "Egypt", "iso2": "EG", "latitude": 30.0444, "longitude": 31.2357 }
+    }
+  ]
+}

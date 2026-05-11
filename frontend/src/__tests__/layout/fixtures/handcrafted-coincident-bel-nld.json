@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-coincident-bel-nld",
+  "group": "handcrafted",
+  "tags": ["tight-cluster", "needs-fix"],
+  "notes": "Belgium (50.8°N 4.5°E) and Netherlands (52.4°N 4.9°E) are nearly coincident on the map. Germany provides a nearby third point. Tests the algorithm when two origin markers are only a few pixels apart. FAIL: laptop-1366-typ mercator — Belgium connector passes through Germany box.",
+  "callouts": [
+    {
+      "headline": "Belgium coalition government formed",
+      "detail": "After months of negotiations, Belgian political parties agree on a new coalition programme.",
+      "country": { "name": "Belgium", "iso2": "BE", "latitude": 50.8503, "longitude": 4.3517 }
+    },
+    {
+      "headline": "Netherlands floods defence review",
+      "detail": "Dutch authorities announce a review of sea defences following unusual North Sea storm surges.",
+      "country": { "name": "Netherlands", "iso2": "NL", "latitude": 52.3676, "longitude": 4.9041 }
+    },
+    {
+      "headline": "Germany energy transition milestone",
+      "detail": "Germany reaches 80% renewable electricity generation for the first time on record.",
+      "country": { "name": "Germany", "iso2": "DE", "latitude": 51.1657, "longitude": 10.4515 }
+    }
+  ]
+}
