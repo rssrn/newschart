@@ -190,6 +190,8 @@ function App(): React.ReactElement {
             GitHub
           </a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
+          <a href="/method">How it works</a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
           <a href="/credits">Credits</a>
         </div>
       </div>
@@ -205,6 +207,8 @@ function App(): React.ReactElement {
           >
             GitHub
           </a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
+          <a href="/method">How it works</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
           <a href="/credits">Credits</a>
         </div>

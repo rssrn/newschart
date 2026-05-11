@@ -68,3 +68,4 @@ Scheduler → pipeline orchestrator → news source (NYT RSS or Gemini AI) → p
 - For the frontend it's likely Claude will be producing/updating code
 - For the backend, Claude is likely to be giving review/advice only, so don't offer to make edits
 - When completing work that satisfies an item in `MVP-GOLIVE.md`, proactively confirm with user if OK to check it off - and check it off (change `- [ ]` to `- [x]`) after user's testing/confirmation
+- **Release commits**: When committing a CHANGELOG entry for a version release, use a descriptive message in the form `Release vX.Y.Z: <summary line from changelog>` (e.g. `Release v0.8.0: Mobile UX improvements and health monitoring`), not a generic `chore:` prefix

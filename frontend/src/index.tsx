@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import Credits from './Credits';
+import Method from './Method';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -10,11 +11,16 @@ if (!rootElement) {
 }
 
 // @author Claude Sonnet 4.6 Anthropic
-const isCreditsPage = ['/credits', '/credits.html'].includes(window.location.pathname);
+const path = window.location.pathname;
+const page: React.ReactElement = ['/credits', '/credits.html'].includes(path)
+  ? <Credits />
+  : ['/method', '/method.html', '/how-it-works'].includes(path)
+    ? <Method />
+    : <App />;
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    {isCreditsPage ? <Credits /> : <App />}
+    {page}
   </React.StrictMode>
 );
