@@ -93,7 +93,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         calloutsCache.set(url, data);
         setCallouts(data);
         onFetchStatusRef.current?.('success');
-        if (testCase === null) track('news_loaded', { source, date, callout_count: data.length, duration_ms: Math.round(performance.now() - fetchStart) });
+        if (testCase === null) track('news_loaded', { source, date, callout_count: data.length, cached: false, duration_ms: Math.round(performance.now() - fetchStart) });
       })
       .catch((error) => {
         if (error.name === 'AbortError') return;
