@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-05-11
+
+Analytics and layout algorithm test harness.
+
+### Added
+- Umami analytics tracking across the frontend: source/projection changes, date navigation
+  (keyboard, slider, arrow, chip), callout clicks, modal close, nav link clicks,
+  API load success/failure with duration, and error dismissal
+- Umami credited in Credits page
+- Automated test harness for the callout layout algorithm:
+  - Vitest unit tests with an independent geometry evaluator (checks overlap, out-of-bounds,
+    connector-cross, connector-through-box, origin-obscured)
+  - 13 fixtures: 11 handcrafted (including edge cases) + 2 live captures from production
+  - 9 viewport presets (desktop FHD, laptop, tablet, phone variants)
+  - `scripts/run-layout-tests.mjs` CLI with filtering, JSON report, and Playwright screenshots
+  - `scripts/export-callouts.mjs` helper to seed live fixtures from the API
+  - `npm run test:layout` alias
+- Layout test suite documented in README and Method page
+
 ## [0.9.0] - 2026-05-11
 
 Method page and infrastructure hardening.
