@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-05-11
+
+Method page and infrastructure hardening.
+
+### Added
+- "How it works" Method page explaining the NewsChart pipeline (AI, RSS, geo-tagging, layout algorithm)
+- Footer link to the Method page
+- CORS policy as a defence-in-depth layer
+
+### Changed
+- Java package renamed to `uk.rossarnold.newschart` now that the project has its own domain ([newschart.rossarnold.uk](https://newschart.rossarnold.uk))
+- Deploy host moved to a GitHub Actions secret
+- Simplified JSON extraction from Gemini model responses
+
+### Fixed
+- Prometheus self-scrape port corrected to 9091
+
 ## [0.8.1] - 2026-05-10
 
 CI hardening and Vite 8 compatibility fix.
