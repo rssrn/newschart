@@ -462,6 +462,11 @@ const Method = (): React.ReactElement => (
             control at the network level — SSH is not reachable from the public
             internet at all.
           </li>
+          <li>
+            <strong>CORS policy.</strong> The API only accepts cross-origin requests
+            from the NewsChart origin. Even if a browser-side vulnerability existed,
+            a third-party page couldn't silently call the API on a user's behalf.
+          </li>
         </ul>
 
         <h3>Deployment</h3>
