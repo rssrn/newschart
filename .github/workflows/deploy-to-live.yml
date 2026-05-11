@@ -51,7 +51,7 @@ jobs:
       - name: Back up current jar
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            newschart@100.103.218.16 \
+            ${{ secrets.DEPLOY_HOST }} \
             "cp -f /opt/newschart/newschart.jar /opt/newschart/newschart.jar.prev 2>/dev/null || true; \
              rm -rf /opt/newschart/frontend.prev && cp -r /opt/newschart/frontend /opt/newschart/frontend.prev 2>/dev/null || true"
 
@@ -60,17 +60,17 @@ jobs:
           # Deploy fat jar (renamed to fixed filename)
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             target/newschart-*.jar \
-            newschart@100.103.218.16:/opt/newschart/newschart.jar
+            ${{ secrets.DEPLOY_HOST }}:/opt/newschart/newschart.jar
 
           # Deploy frontend build
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             frontend/build/ \
-            newschart@100.103.218.16:/opt/newschart/frontend/
+            ${{ secrets.DEPLOY_HOST }}:/opt/newschart/frontend/
 
       - name: Restart service
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            newschart@100.103.218.16 \
+            ${{ secrets.DEPLOY_HOST }} \
             "sudo systemctl restart newschart && sudo systemctl status newschart --no-pager"
 
       - name: Smoke test
@@ -93,7 +93,7 @@ jobs:
         run: |
           echo "Deployment failed — rolling back jar and frontend"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            newschart@100.103.218.16 \
+            ${{ secrets.DEPLOY_HOST }} \
             "cp -f /opt/newschart/newschart.jar.prev /opt/newschart/newschart.jar && \
              rm -rf /opt/newschart/frontend && cp -r /opt/newschart/frontend.prev /opt/newschart/frontend && \
              sudo systemctl restart newschart"

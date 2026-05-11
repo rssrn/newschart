@@ -30,7 +30,7 @@ Items are grouped into three tiers:
 ### Hosting — Oracle Cloud (OCI)
 
 - [x] **Register for OCI Account**
-- [x] **Provision OCI compute instance** — ARM-based Ampere A1 (free tier eligible) - instance IP is 132.145.37.108
+- [x] **Provision OCI compute instance** — ARM-based Ampere A1 (free tier eligible)
 - [x] **Set up unattended-upgrades on instance**
 - [x] **Harden SSH** - disable root login, disable password login, install fail2ban
 - [x] **Install basic sysadmin tools** - htop, iotop, nethogs
