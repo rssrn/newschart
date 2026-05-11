@@ -454,18 +454,13 @@ const Method = (): React.ReactElement => (
             service runs against the repo as a backstop.
           </li>
           <li>
-            <strong>SSH hardening on the production host.</strong> The only
-            internet-facing services are HTTPS (port 443) and SSH (port 22), and
-            SSH itself is locked down: password and keyboard-interactive
-            authentication are disabled (public-key only), root login is refused,
-            and all legacy auth paths (host-based, Kerberos, GSSAPI) are turned
-            off. The crypto suite is restricted to modern primitives —
-            ChaCha20-Poly1305 and AES-GCM ciphers, ETM-mode MACs, and a key
-            exchange list led by the post-quantum hybrid{' '}
-            <code>sntrup761x25519-sha512</code>. Reverse DNS lookups on incoming
-            connections are disabled to remove a common stall and footgun.
-            Deploys from GitHub Actions still come in over Tailscale rather than
-            the public SSH port.
+            <strong>No public SSH.</strong> The server accepts HTTP on port 80;
+            TLS is terminated by Cloudflare, which proxies traffic to the origin.
+            All shell access and deployments go exclusively over{' '}
+            <a href="https://tailscale.com/" target="_blank" rel="noopener noreferrer">Tailscale</a>,
+            a WireGuard-based overlay network that enforces identity-based access
+            control at the network level — SSH is not reachable from the public
+            internet at all.
           </li>
         </ul>
 
