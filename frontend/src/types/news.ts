@@ -71,3 +71,50 @@ export interface ViewportSize {
  * Returns null if the point cannot be projected (e.g., outside projection bounds).
  */
 export type MapProjection = (point: [number, number]) => [number, number] | null;
+
+/**
+ * A layout candidate annotated with a rejection reason (if it was filtered out).
+ * Used in layout diagnostics to show why candidates were discarded.
+ *
+ * @author Claude Sonnet 4.6 Anthropic
+ */
+export interface CandidateDiag extends LayoutCandidate {
+  rejectedReason?: 'out-of-bounds' | 'obscures-origin';
+}
+
+/**
+ * Per-penalty-term score totals for the winning layout combination.
+ *
+ * @author Claude Sonnet 4.6 Anthropic
+ */
+export interface ScoreBreakdown {
+  connectorLength: number;
+  crossing: number;
+  throughBox: number;
+  originProximity: number;
+  angularSpread: number;
+  diagonalBias: number;
+  verticalClustering: number;
+}
+
+/**
+ * Diagnostics for a single callout node in the winning layout.
+ *
+ * @author Claude Sonnet 4.6 Anthropic
+ */
+export interface NodeDiagnostics {
+  allCandidates: CandidateDiag[];
+  chosenCandidate: LayoutCandidate;
+  scoreContribution: ScoreBreakdown;
+}
+
+/**
+ * Full diagnostics returned by calculateOffsetsWithDiagnostics.
+ *
+ * @author Claude Sonnet 4.6 Anthropic
+ */
+export interface LayoutDiagnostics {
+  nodes: NodeDiagnostics[];
+  bestScore: number;
+  combinationsEvaluated: number;
+}

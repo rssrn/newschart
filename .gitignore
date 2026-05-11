@@ -37,6 +37,9 @@ tools/node_modules/
 tools/screenshots/
 *.png
 
+### Layout test output ###
+frontend/test-output/
+
 ### MCP ###
 .mcp.json
 .playwright-mcp/

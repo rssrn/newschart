@@ -19,7 +19,7 @@
 // @author Claude Opus 4.6 Anthropic
 // @author Claude Sonnet 4.5 Anthropic (TypeScript migration)
 
-import { StoryCallout, PositionedCallout, LayoutNode, LayoutCandidate, MapProjection } from '../types/news';
+import { StoryCallout, PositionedCallout, LayoutNode, LayoutCandidate, MapProjection, LayoutDiagnostics, CandidateDiag, NodeDiagnostics, ScoreBreakdown } from '../types/news';
 
 const BOX_WIDTH = 135;
 const EDGE_PADDING = 40;
@@ -30,17 +30,10 @@ interface Point {
 }
 
 /**
- * Exhaustive candidate enumeration layout - generates candidate positions for each
- * callout, evaluates every combination, and picks the one with the lowest penalty score.
+ * calculateOffsets delegates to calculateOffsetsWithDiagnostics and drops the diagnostics.
+ * All existing call sites continue to use this function unchanged.
  *
- * Based on the Point-Feature Label Placement (PFLP) literature.
- *
- * @param callouts - Array of callout objects with country data
- * @param projection - Map projection function
- * @param visibleSvgHeight - Visible SVG height in SVG coordinates (accounts for viewport clipping)
- * @returns Array of callouts with dx/dy offsets for positioning
- *
- * @author Claude Sonnet 4.5 Anthropic
+ * @author Claude Sonnet 4.6 Anthropic
  */
 export function calculateOffsets(
   callouts: StoryCallout[],
@@ -48,8 +41,40 @@ export function calculateOffsets(
   visibleSvgHeight: number = 600,
   bottomPadding: number = 0
 ): PositionedCallout[] {
-  if (!Array.isArray(callouts) || !projection) return [];
-  if (callouts.length === 0) return [];
+  return calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPadding).positioned;
+}
+
+/**
+ * Exhaustive candidate enumeration layout with full diagnostics output.
+ * Records per-node candidate lists, the chosen candidate, and winning combination
+ * score breakdown. No behaviour difference from calculateOffsets.
+ *
+ * @author Claude Sonnet 4.6 Anthropic
+ */
+export function calculateOffsetsWithDiagnostics(
+  callouts: StoryCallout[],
+  projection: MapProjection,
+  visibleSvgHeight: number = 600,
+  bottomPadding: number = 0
+): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
+  const empty = (): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } => ({
+    positioned: [],
+    diagnostics: { nodes: [], bestScore: 0, combinationsEvaluated: 0 },
+  });
+  if (!Array.isArray(callouts) || !projection) return empty();
+  if (callouts.length === 0) return empty();
+
+  const _inner = _calculateOffsets(callouts, projection, visibleSvgHeight, bottomPadding);
+  return _inner;
+}
+
+// @author Claude Sonnet 4.6 Anthropic
+function _calculateOffsets(
+  callouts: StoryCallout[],
+  projection: MapProjection,
+  visibleSvgHeight: number,
+  bottomPadding: number
+): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
 
   // --- Coordinate setup ---
   // Use SVG viewport bounds (react-simple-maps defaults: 800 wide)
@@ -144,24 +169,31 @@ export function calculateOffsets(
            boxY >= boundsMinY && boxY <= boundsMaxY;
   }
 
+  // allCandidatesPerNode includes rejected candidates with rejectedReason set (for diagnostics).
+  // candidatesPerNode contains only accepted candidates used for enumeration.
+  const allCandidatesPerNode: CandidateDiag[][] = [];
   const candidatesPerNode: LayoutCandidate[][] = nodes.map((node, nodeIndex) => {
-    const candidates: LayoutCandidate[] = [];
+    const accepted: LayoutCandidate[] = [];
+    const all: CandidateDiag[] = [];
     for (const dir of DIRECTIONS) {
       for (const dist of DISTANCES) {
-        // Box top-left: annotation point at (subjectX + cos*dist, subjectY + sin*dist),
-        // box top is ANCHOR_Y above that point (matching foreignObject y=-50)
         const boxX = node.subjectX + Math.cos(dir.angle) * dist - BOX_WIDTH / 2;
         const boxY = node.subjectY + Math.sin(dir.angle) * dist - ANCHOR_Y;
 
-        // Hard reject: any part of box outside map bounds or obscuring another callout's origin
-        if (!isWithinBounds(boxX, boxY) || boxObscuresOrigin(boxX, boxY, nodeIndex)) {
+        if (!isWithinBounds(boxX, boxY)) {
+          all.push({ boxX, boxY, dist, angle: dir.angle, rejectedReason: 'out-of-bounds' });
           continue;
         }
-
-        candidates.push({ boxX, boxY, dist, angle: dir.angle });
+        if (boxObscuresOrigin(boxX, boxY, nodeIndex)) {
+          all.push({ boxX, boxY, dist, angle: dir.angle, rejectedReason: 'obscures-origin' });
+          continue;
+        }
+        all.push({ boxX, boxY, dist, angle: dir.angle });
+        accepted.push({ boxX, boxY, dist, angle: dir.angle });
       }
     }
-    return candidates;
+    allCandidatesPerNode.push(all);
+    return accepted;
   });
 
   // --- Step 3: Enumerate all combinations and score ---
@@ -282,9 +314,11 @@ export function calculateOffsets(
   // Recursive enumeration of cartesian product of candidates
   let bestScore: number = Infinity;
   let bestPlacements: LayoutCandidate[] | null = null;
+  let combinationsEvaluated = 0;
 
   function enumerate(nodeIndex: number, currentPlacements: LayoutCandidate[]): void {
     if (nodeIndex === nodes.length) {
+      combinationsEvaluated++;
       const score = scoreCombination(currentPlacements);
       if (score < bestScore) {
         bestScore = score;
@@ -317,14 +351,74 @@ export function calculateOffsets(
   // --- Step 4: Convert to dx/dy offsets ---
   if (!bestPlacements) {
     console.warn(`[exhaustive] No valid combination found (${nodes.length} nodes, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}). Using zero offsets.`);
-    return callouts.map((original) => ({ ...original, dx: 0, dy: -80 }));
+    const fallback = callouts.map((original) => ({ ...original, dx: 0, dy: -80 }));
+    return {
+      positioned: fallback,
+      diagnostics: { nodes: [], bestScore: Infinity, combinationsEvaluated },
+    };
   }
 
   // TypeScript needs this reassignment to understand bestPlacements is non-null here
   const finalPlacements: LayoutCandidate[] = bestPlacements;
   console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}, svgH=${visibleSvgHeight}`);
 
-  return callouts.map((original, index) => {
+  // Build per-node diagnostics for the winning combination
+  const nodeDiagnostics: NodeDiagnostics[] = finalPlacements.map((chosen, i) => {
+    const ni = nodes[i];
+    const ci: Point = { x: chosen.boxX + BOX_WIDTH / 2, y: chosen.boxY + ANCHOR_Y };
+
+    const diagonalBias = 1 - Math.abs(Math.sin(2 * chosen.angle));
+    const proximityPenalty = scoreOriginProximity(chosen);
+
+    let crossing = 0;
+    let throughBox = 0;
+    let angularSpread = 0;
+    let verticalClustering = 0;
+
+    for (let j = 0; j < finalPlacements.length; j++) {
+      if (j === i) continue;
+      const pj = finalPlacements[j];
+      const nj = nodes[j];
+      const cj: Point = { x: pj.boxX + BOX_WIDTH / 2, y: pj.boxY + ANCHOR_Y };
+
+      if (segmentsIntersect({ x: ni.subjectX, y: ni.subjectY }, ci,
+                            { x: nj.subjectX, y: nj.subjectY }, cj)) {
+        crossing += 300; // half of the 600 pair penalty attributed to each side
+      }
+      if (lineIntersectsBox({ x: ni.subjectX, y: ni.subjectY }, ci, { x: pj.boxX, y: pj.boxY })) {
+        throughBox += 300;
+      }
+      const rawDiff = Math.abs(chosen.angle - pj.angle);
+      const angleDiff = Math.min(rawDiff % (2 * Math.PI), (2 * Math.PI) - (rawDiff % (2 * Math.PI)));
+      if (angleDiff < Math.PI / 2) {
+        angularSpread += (1 - angleDiff / (Math.PI / 2)) * 60; // half of the 120 pair penalty
+      }
+      const ciCenterY = chosen.boxY + RENDERED_HEIGHT / 2;
+      const cjCenterY = pj.boxY + RENDERED_HEIGHT / 2;
+      const vertSep = Math.abs(ciCenterY - cjCenterY);
+      if (vertSep < 100) {
+        verticalClustering += (100 - vertSep) * 0.25; // half of the 0.5 pair penalty
+      }
+    }
+
+    const breakdown: ScoreBreakdown = {
+      connectorLength: chosen.dist,
+      crossing,
+      throughBox,
+      originProximity: proximityPenalty === Infinity ? 0 : proximityPenalty,
+      angularSpread,
+      diagonalBias: diagonalBias * 60,
+      verticalClustering,
+    };
+
+    return {
+      allCandidates: allCandidatesPerNode[i],
+      chosenCandidate: chosen,
+      scoreContribution: breakdown,
+    };
+  });
+
+  const positioned = callouts.map((original, index) => {
     const p: LayoutCandidate = finalPlacements[index];
     return {
       ...original,
@@ -332,4 +426,9 @@ export function calculateOffsets(
       dy: p.boxY + ANCHOR_Y - nodes[index].subjectY,
     };
   });
+
+  return {
+    positioned,
+    diagnostics: { nodes: nodeDiagnostics, bestScore, combinationsEvaluated },
+  };
 }

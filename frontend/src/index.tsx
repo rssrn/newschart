@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import Credits from './Credits';
 import Method from './Method';
+import TestMapPage from './TestMapPage';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -16,7 +17,9 @@ const page: React.ReactElement = ['/credits', '/credits.html'].includes(path)
   ? <Credits />
   : ['/method', '/method.html', '/how-it-works'].includes(path)
     ? <Method />
-    : <App />;
+    : path === '/__layout-test'
+      ? <TestMapPage />
+      : <App />;
 
 const root = ReactDOM.createRoot(rootElement);
 root.render(

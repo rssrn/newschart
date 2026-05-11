@@ -1,0 +1,23 @@
+{
+  "id": "handcrafted-wide-aus-bra-can",
+  "group": "handcrafted",
+  "tags": ["wide-spread"],
+  "notes": "Three well-separated origins across three hemispheres. Australia SE, Brazil S-America, Canada N-America. Should always find a clean layout at any standard viewport.",
+  "callouts": [
+    {
+      "headline": "Australia leads Pacific trade talks",
+      "detail": "Canberra hosts multilateral negotiations on a new Indo-Pacific trade framework.",
+      "country": { "name": "Australia", "iso2": "AU", "latitude": -25.274, "longitude": 133.775 }
+    },
+    {
+      "headline": "Brazil floods displace thousands",
+      "detail": "Heavy rains in southern Brazil trigger river flooding, with rescue teams deployed across affected states.",
+      "country": { "name": "Brazil", "iso2": "BR", "latitude": -14.235, "longitude": -51.925 }
+    },
+    {
+      "headline": "Canada raises interest rates again",
+      "detail": "The Bank of Canada lifts its benchmark rate in an effort to bring down persistent inflation.",
+      "country": { "name": "Canada", "iso2": "CA", "latitude": 56.130, "longitude": -106.347 }
+    }
+  ]
+}
