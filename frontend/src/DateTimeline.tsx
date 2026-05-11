@@ -1,6 +1,7 @@
 // @author Claude Sonnet 4.6 Anthropic
 import React, { useCallback, useEffect, useRef } from 'react';
 import { formatShortDate, isToday } from './utils/dateUtils';
+import { track } from './utils/analytics';
 
 interface DateTimelineProps {
   availableDates: string[];  // sorted ascending ISO date strings
@@ -18,6 +19,7 @@ function daysBetween(a: string, b: string): number {
 const DateTimeline = ({ availableDates, selectedDate, onChange, disabled = false }: DateTimelineProps) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const lastDragDate = useRef<string | null>(null);
 
   // Derived values — computed unconditionally so hooks below are always called
   const hasMultipleDates = availableDates.length > 1;
@@ -39,12 +41,19 @@ const DateTimeline = ({ availableDates, selectedDate, onChange, disabled = false
       if (dist < minDist) { minDist = dist; nearest = date; }
     }
     onChange(nearest);
+    lastDragDate.current = nearest;
   }, [availableDates, totalDays, minDate, onChange]);
 
   useEffect(() => {
     if (!hasMultipleDates) return;
     const onMove = (e: MouseEvent) => { if (dragging.current) snapToX(e.clientX); };
-    const onUp = () => { dragging.current = false; };
+    const onUp = () => {
+      if (dragging.current && lastDragDate.current) {
+        track('date_navigated', { method: 'slider', date: lastDragDate.current });
+        lastDragDate.current = null;
+      }
+      dragging.current = false;
+    };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     return () => {
@@ -88,7 +97,7 @@ const DateTimeline = ({ availableDates, selectedDate, onChange, disabled = false
     <div className={`date-timeline${disabled ? ' date-timeline--disabled' : ''}`} style={{ width: `${widthVw}vw` }}>
       <button
         className="date-timeline-arrow"
-        onClick={() => idx > 0 && onChange(availableDates[idx - 1])}
+        onClick={() => { if (idx > 0) { const d = availableDates[idx - 1]; onChange(d); track('date_navigated', { method: 'arrow', date: d }); } }}
         disabled={disabled || idx === 0}
         aria-label="Previous date"
       >‹</button>
@@ -114,10 +123,26 @@ const DateTimeline = ({ availableDates, selectedDate, onChange, disabled = false
           onTouchMove={(e) => {
             if (dragging.current) { snapToX(e.touches[0].clientX); e.preventDefault(); }
           }}
-          onTouchEnd={() => { dragging.current = false; }}
+          onTouchEnd={() => {
+            if (dragging.current && lastDragDate.current) {
+              track('date_navigated', { method: 'slider', date: lastDragDate.current });
+              lastDragDate.current = null;
+            }
+            dragging.current = false;
+          }}
           onKeyDown={(e) => {
-            if (e.key === 'ArrowLeft' && idx > 0) { e.preventDefault(); e.stopPropagation(); onChange(availableDates[idx - 1]); }
-            if (e.key === 'ArrowRight' && idx < availableDates.length - 1) { e.preventDefault(); e.stopPropagation(); onChange(availableDates[idx + 1]); }
+            if (e.key === 'ArrowLeft' && idx > 0) {
+              e.preventDefault(); e.stopPropagation();
+              const d = availableDates[idx - 1];
+              onChange(d);
+              track('date_navigated', { method: 'keyboard', date: d });
+            }
+            if (e.key === 'ArrowRight' && idx < availableDates.length - 1) {
+              e.preventDefault(); e.stopPropagation();
+              const d = availableDates[idx + 1];
+              onChange(d);
+              track('date_navigated', { method: 'keyboard', date: d });
+            }
           }}
           role="slider"
           aria-valuemin={0}
@@ -151,7 +176,7 @@ const DateTimeline = ({ availableDates, selectedDate, onChange, disabled = false
 
       <button
         className="date-timeline-arrow"
-        onClick={() => idx < availableDates.length - 1 && onChange(availableDates[idx + 1])}
+        onClick={() => { if (idx < availableDates.length - 1) { const d = availableDates[idx + 1]; onChange(d); track('date_navigated', { method: 'arrow', date: d }); } }}
         disabled={disabled || idx === availableDates.length - 1}
         aria-label="Next date"
       >›</button>

@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Annotation } from "react-simple-maps";
 import { calculateOffsets } from "./utils/mapCalloutUtils";
 import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./types/news";
+import { track } from './utils/analytics';
 
 interface StoryCalloutListProps {
   readonly projection: MapProjection;
@@ -147,12 +148,14 @@ const modalTriggerRef = useRef<HTMLElement | null>(null);
 const handleMoreDetails = useCallback((callout: StoryCallout) => {
   modalTriggerRef.current = document.activeElement as HTMLElement;
   setSelectedCallout(callout);
+  track('callout_clicked', { country: callout.country.name, headline: callout.headline });
 }, []);
 
 // @author Claude Sonnet 4.6 Anthropic
 const handleCloseModal = useCallback(() => {
   setSelectedCallout(null);
   setTimeout(() => modalTriggerRef.current?.focus(), 0);
+  track('story_modal_closed');
 }, []);
 
 // Track viewport size for visible SVG height calculation

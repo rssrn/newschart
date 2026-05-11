@@ -293,6 +293,12 @@ const Credits =(): React.ReactElement => (
             <td>Zero-config VPN; GitHub Actions deploys to the production server over Tailscale</td>
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="umami.is" alt="" /></td>
+            <td><a href="https://umami.is/" target="_blank" rel="noopener noreferrer">Umami</a></td>
+            <td>Privacy-friendly, cookie-free web analytics</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
         </tbody>
         <tbody>
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Academic References</th></tr>
