@@ -115,6 +115,12 @@ function App(): React.ReactElement {
     <div className="App">
       <div className="map-container">
 
+        {/* Brand badge – top-left, mirrors source selector placement */}
+        <div className="brand-badge" aria-label="NewsChart">
+          <img src="/logo192.png" className="brand-badge-icon" alt="" aria-hidden="true" />
+          <span className="brand-badge-text">NewsChart</span>
+        </div>
+
         {/* Desktop controls overlay */}
         <div className={`source-selector-overlay${isLoading ? ' controls-loading' : ''}`}>
           {NEWS_SOURCES.map(({ value, label }) => (
@@ -167,14 +173,16 @@ function App(): React.ReactElement {
           </button>
         </div>
 
-        <MapChart
-          source={source}
-          projectionType={projectionType}
-          onFetchStatus={handleFetchStatus}
-          date={selectedDate}
-          bottomReservedPx={availableDates.length > 1 ? 90 : 0}
-          isHistorical={selectedDate !== todayIso()}
-        />
+        <div className="map-chart-layer">
+          <MapChart
+            source={source}
+            projectionType={projectionType}
+            onFetchStatus={handleFetchStatus}
+            date={selectedDate}
+            bottomReservedPx={availableDates.length > 1 ? 90 : 0}
+            isHistorical={selectedDate !== todayIso()}
+          />
+        </div>
 
         {/* Desktop date timeline – @author Claude Sonnet 4.6 Anthropic */}
         <div className="date-timeline-overlay">
