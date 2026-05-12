@@ -210,6 +210,12 @@ const Credits =(): React.ReactElement => (
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://opensource.org/licenses/Apache-2.0" /></td>
           </tr>
           <tr>
+            <td className="icon-col"><FaviconImg domain="vitejs.dev" alt="" /></td>
+            <td><a href="https://vitejs.dev/" target="_blank" rel="noopener noreferrer">Vite</a></td>
+            <td>Frontend build tool and dev server</td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+          </tr>
+          <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/zcreativelabs/react-simple-maps" target="_blank" rel="noopener noreferrer">react-simple-maps</a></td>
             <td>SVG world map component with geography rendering</td>
@@ -332,10 +338,22 @@ const Credits =(): React.ReactElement => (
             <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
           </tr>
           <tr>
+            <td className="icon-col"><FaviconImg domain="vitest.dev" alt="" /></td>
+            <td><a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a></td>
+            <td>Frontend unit test runner, used with React Testing Library</td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+          </tr>
+          <tr>
             <td className="icon-col"><FaviconImg domain="playwright.dev" alt="" /></td>
             <td><a href="https://playwright.dev/" target="_blank" rel="noopener noreferrer">Playwright</a></td>
             <td>Screenshot tests for visual regression checking of the map layout</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="eslint.org" alt="" /></td>
+            <td><a href="https://eslint.org/" target="_blank" rel="noopener noreferrer">ESLint</a></td>
+            <td>JavaScript/TypeScript linter with react-hooks and typescript-eslint plugins</td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="owasp.org" alt="" /></td>
