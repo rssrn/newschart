@@ -142,7 +142,7 @@ function _calculateOffsets(
   const DIRECTIONS: { angle: number }[] = Array.from({ length: 16 }, (_, i) => ({
     angle: -Math.PI + (i * Math.PI) / 8,
   }));
-  const DISTANCES: number[] = [80, 110, 145, 185, 225, 270];
+  const DISTANCES: number[] = [95, 110, 145, 185, 225, 270];
   const ORIGIN_PADDING = 10;
 
   // Helper: check if a box position would obscure another callout's origin point.
