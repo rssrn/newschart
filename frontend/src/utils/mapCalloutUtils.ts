@@ -250,10 +250,14 @@ function _calculateOffsets(
     return penalty;
   }
 
-  // Helper: calculate penalty for origin points near a placement
-  function scoreOriginProximity(pi: LayoutCandidate): number {
-    for (const nk of nodes) {
-      // Hard reject: origin literally inside the box
+  // Helper: calculate penalty for origin points near a placement.
+  // selfIndex is excluded — a box sitting near its own origin is expected and fine,
+  // matching the same exclusion in boxObscuresOrigin. @author Claude Sonnet 4.6 Anthropic
+  function scoreOriginProximity(pi: LayoutCandidate, selfIndex: number): number {
+    for (let k = 0; k < nodes.length; k++) {
+      if (k === selfIndex) continue;
+      const nk = nodes[k];
+      // Hard reject: another callout's origin literally inside this box
       if (nk.subjectX > pi.boxX && nk.subjectX < pi.boxX + BOX_WIDTH &&
           nk.subjectY > pi.boxY && nk.subjectY < pi.boxY + RENDERED_HEIGHT) {
         return Infinity;
@@ -261,8 +265,10 @@ function _calculateOffsets(
     }
 
     let penalty = 0;
-    for (const nk of nodes) {
-      // Graduated penalty: origin near the box edge
+    for (let k = 0; k < nodes.length; k++) {
+      if (k === selfIndex) continue;
+      const nk = nodes[k];
+      // Graduated penalty: another origin near the box edge
       const nearestX = Math.max(pi.boxX, Math.min(pi.boxX + BOX_WIDTH, nk.subjectX));
       const nearestY = Math.max(pi.boxY, Math.min(pi.boxY + RENDERED_HEIGHT, nk.subjectY));
       const edgeDist = Math.hypot(nearestX - nk.subjectX, nearestY - nk.subjectY);
@@ -300,7 +306,7 @@ function _calculateOffsets(
       score += diagonalBias * 60;
 
       // Penalty: origin point proximity to this box
-      const proximityPenalty = scoreOriginProximity(pi);
+      const proximityPenalty = scoreOriginProximity(pi, i);
       if (proximityPenalty === Infinity) {
         return Infinity;
       }
@@ -367,7 +373,7 @@ function _calculateOffsets(
     const ci: Point = { x: chosen.boxX + BOX_WIDTH / 2, y: chosen.boxY + ANCHOR_Y };
 
     const diagonalBias = 1 - Math.abs(Math.sin(2 * chosen.angle));
-    const proximityPenalty = scoreOriginProximity(chosen);
+    const proximityPenalty = scoreOriginProximity(chosen, i);
 
     let crossing = 0;
     let throughBox = 0;

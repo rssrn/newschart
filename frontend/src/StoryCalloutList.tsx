@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import { Annotation } from "react-simple-maps";
-import { calculateOffsets } from "./utils/mapCalloutUtils";
+import { calculateOffsets, calculateOffsetsWithDiagnostics } from "./utils/mapCalloutUtils";
 import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./types/news";
 import { track } from './utils/analytics';
 
@@ -15,6 +15,11 @@ interface StoryCalloutListProps {
 function getShowBoundingBox(): boolean {
   const params = new URLSearchParams(window.location.search); // NOSONAR
   return params.get('showBoundingBox') === 'true';
+}
+
+function getLayoutDiagnostics(): boolean {
+  const params = new URLSearchParams(window.location.search); // NOSONAR
+  return params.get('layoutDiagnostics') === 'true';
 }
 
 // @author Claude Sonnet 4.6 Anthropic
@@ -140,6 +145,7 @@ function StoryCalloutList({ projection, callouts, bottomReservedPx = 0, isHistor
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
+const layoutDiagnostics = getLayoutDiagnostics();
 // @author Claude Sonnet 4.6 Anthropic
 const [selectedCallout, setSelectedCallout] = useState<StoryCallout | null>(null);
 const modalTriggerRef = useRef<HTMLElement | null>(null);
@@ -198,8 +204,30 @@ const boundingBox = useMemo(() => {
     if (callouts.length === 0 || !projection) return [];
 
     const bottomPaddingSvg = bottomReservedPx * (SVG_WIDTH / viewportSize.w);
+    if (layoutDiagnostics) {
+      const { positioned, diagnostics } = calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPaddingSvg);
+      console.group('[layoutDiagnostics] Score breakdown');
+      diagnostics.nodes.forEach((node, i) => {
+        const label = callouts[i]?.country?.name ?? `node ${i}`;
+        const total = Object.values(node.scoreContribution).reduce((a, b) => a + b, 0);
+        const accepted = node.allCandidates.filter(c => !c.rejectedReason).length;
+        const byReason = node.allCandidates.reduce<Record<string, number>>((acc, c) => {
+          const key = c.rejectedReason ?? 'accepted';
+          acc[key] = (acc[key] ?? 0) + 1;
+          return acc;
+        }, {});
+        const chosen = node.chosenCandidate;
+        const angleDeg = (chosen.angle * 180 / Math.PI).toFixed(1);
+        console.group(`${label} — total: ${total.toFixed(1)} | chosen: dist=${chosen.dist} angle=${angleDeg}° | candidates: ${accepted} accepted ${JSON.stringify(byReason)}`);
+        console.table(node.scoreContribution);
+        console.groupEnd();
+      });
+      console.log('Best score:', diagnostics.bestScore, '| Combinations evaluated:', diagnostics.combinationsEvaluated);
+      console.groupEnd();
+      return positioned;
+    }
     return calculateOffsets(callouts, projection, visibleSvgHeight, bottomPaddingSvg);
-  }, [callouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w]);
+  }, [callouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w, layoutDiagnostics]);
 
   return (
   <>
