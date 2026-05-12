@@ -42,7 +42,7 @@ public class GeminiGatewayService {
             """;
 
     static final String MAIN_SUMMARY_MODEL = "gemini-2.5-flash-lite";
-    static final String FIND_NEWS_MODEL = "gemini-3.1-flash-lite-preview";
+    static final String FIND_NEWS_MODEL = "gemini-2.5-flash";
 
     public GeminiGatewayService(GoogleGenAiChatModel chatModel) {
         this.chatClient = ChatClient.create(chatModel);

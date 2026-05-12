@@ -113,7 +113,7 @@ Scheduler → Pipeline Orchestrator → News Source
 
 | Source | Model | Notes |
 |---|---|---|
-| Gemini | `gemini-2.5-flash-lite-preview` (3.1) | Google Search grounding enabled |
+| Gemini | `gemini-2.5-flash` | Google Search grounding enabled |
 | Perplexity | `perplexity/sonar-pro-search` | Via OpenRouter, native web search |
 | OpenAI | `openai/gpt-4o-search-preview` | Via OpenRouter, native web search |
 | NYT RSS | `gemini-2.5-flash-lite` (2.5, geo-tag only) | Human-curated feed; Gemini summarises and geo-tags, search grounding off |

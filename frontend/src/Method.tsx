@@ -272,7 +272,7 @@ const Method = (): React.ReactElement => (
 
         <h3>The models</h3>
         <div className="mt-tag-row">
-          <span className="mt-tag">Gemini 3.1 Flash Lite Preview (news search)</span>
+          <span className="mt-tag">Gemini 2.5 Flash (news search)</span>
           <span className="mt-tag">Gemini 2.5 Flash Lite (NYT geo-tagging)</span>
           <span className="mt-tag">Perplexity Sonar Pro Search</span>
           <span className="mt-tag">OpenAI gpt-4o-search-preview</span>
@@ -280,9 +280,9 @@ const Method = (): React.ReactElement => (
         </div>
         <ul>
           <li>
-            <strong>Gemini 3.1 Flash Lite Preview</strong> — used for the Gemini
-            news source with Google Search grounding enabled, giving it a
-            different index than either of the other two LLM sources.
+            <strong>Gemini 2.5 Flash</strong> — used for the Gemini news source
+            with Google Search grounding enabled, giving it a different index
+            than either of the other two LLM sources.
           </li>
           <li>
             <strong>Perplexity Sonar Pro Search</strong> — a search-native model
