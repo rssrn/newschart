@@ -87,6 +87,8 @@ public class OpenRouterGatewayService {
         log.info("Extracting json from: {}", prefix);
         int braceStart = raw.indexOf('{');
         if (braceStart > 0) raw = raw.substring(braceStart);
+        int braceEnd = raw.lastIndexOf('}');
+        if (braceEnd >= 0 && braceEnd < raw.length() - 1) raw = raw.substring(0, braceEnd + 1);
         return raw.trim();
     }
 }
