@@ -6,7 +6,10 @@
 //   node scripts/run-layout-tests.mjs [--id <id>] [--tag <tag>] [--group <group>]
 //                                      [--viewport <name>]
 //                                      [--projection mercator|natural-earth]
-//                                      [--screenshots]
+//                                      [--screenshots] [--failures-only]
+//
+// --screenshots      Take Playwright screenshots (builds frontend, starts preview server)
+// --failures-only    With --screenshots: only screenshot failing combinations (default: all)
 //
 // @author Claude Sonnet 4.6 Anthropic
 
@@ -36,6 +39,7 @@ const filterGroup      = getArg('--group');
 const filterViewport   = getArg('--viewport');
 const filterProjection = getArg('--projection'); // mercator | natural-earth
 const takeScreenshots  = hasFlag('--screenshots');
+const failuresOnly     = hasFlag('--failures-only');
 
 // --- Load fixtures ---
 const allFixtures = readdirSync(FIXTURES_DIR)
@@ -219,9 +223,12 @@ function screenshotFilename(fixture, projection, viewport) {
   return `${fixture.id}__${projection.name}__${viewport.name}.png`;
 }
 
+const screenshotRuns = failuresOnly ? runs.filter((_, i) => !batchResults[i].pass) : runs;
+if (failuresOnly) console.log(`  ${screenshotRuns.length} failing combination(s) to screenshot\n`);
+
 let screenshotCount = 0;
 try {
-  for (const { fixture, projection, viewport } of runs) {
+  for (const { fixture, projection, viewport } of screenshotRuns) {
     const page = await browser.newPage();
     await page.setViewportSize({ width: viewport.w, height: viewport.h });
 

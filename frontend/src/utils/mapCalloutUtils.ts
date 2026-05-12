@@ -12,8 +12,8 @@
 //   - four-winds: Assigned the 4 most extreme points to diagonal directions (NW/NE/SW/SE).
 //                 Only supported exactly 4 callouts and was too rigid.
 //
-// The exhaustive algorithm generates ~20-30 candidate positions per callout (8 directions
-// × 5 distances, filtered by bounds/origin-obscuring), then evaluates every combination
+// The exhaustive algorithm generates up to 96 candidate positions per callout (16 directions
+// × 6 distances, filtered by bounds/origin-obscuring), then evaluates every combination
 // and picks the lowest-penalty layout. With N≤4 labels this is trivially fast (<1ms).
 //
 // @author Claude Opus 4.6 Anthropic
@@ -135,16 +135,13 @@ function _calculateOffsets(
   const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT - bottomPadding;
 
   // --- Step 2: Generate candidate positions per callout ---
-  const DIRECTIONS: { angle: number }[] = [
-    { angle: -3 * Math.PI / 4 }, // NW
-    { angle: -Math.PI / 2 },     // N
-    { angle: -Math.PI / 4 },     // NE
-    { angle: 0 },                // E
-    { angle: Math.PI / 4 },      // SE
-    { angle: Math.PI / 2 },      // S
-    { angle: 3 * Math.PI / 4 },  // SW
-    { angle: Math.PI },          // W
-  ];
+  // 16-way grid (22.5° steps): the extra intermediate angles let a connector thread
+  // *between* two neighbouring boxes instead of being forced through one of them —
+  // important for clustered origins (e.g. Middle East + East Asia stories).
+  // @author Claude Opus 4.7 Anthropic
+  const DIRECTIONS: { angle: number }[] = Array.from({ length: 16 }, (_, i) => ({
+    angle: -Math.PI + (i * Math.PI) / 8,
+  }));
   const DISTANCES: number[] = [80, 110, 145, 185, 225, 270];
   const ORIGIN_PADDING = 10;
 
@@ -228,15 +225,17 @@ function _calculateOffsets(
       penalty += 600;
     }
 
-    // Penalty: connector i passes through box j
+    // Penalty: connector i passes through box j.
+    // Weighted above a connector crossing (600): a leader line ploughing through a
+    // callout box reads worse than two lines merely crossing. @author Claude Opus 4.7 Anthropic
     if (lineIntersectsBox({ x: ni.subjectX, y: ni.subjectY }, ci,
                           { x: pj.boxX, y: pj.boxY })) {
-      penalty += 300;
+      penalty += 700;
     }
     // Penalty: connector j passes through box i
     if (lineIntersectsBox({ x: nj.subjectX, y: nj.subjectY }, cj,
                           { x: pi.boxX, y: pi.boxY })) {
-      penalty += 300;
+      penalty += 700;
     }
 
     // Penalty: similar connector directions (prefer angular spread between callouts).
@@ -386,7 +385,7 @@ function _calculateOffsets(
         crossing += 300; // half of the 600 pair penalty attributed to each side
       }
       if (lineIntersectsBox({ x: ni.subjectX, y: ni.subjectY }, ci, { x: pj.boxX, y: pj.boxY })) {
-        throughBox += 300;
+        throughBox += 700;
       }
       const rawDiff = Math.abs(chosen.angle - pj.angle);
       const angleDiff = Math.min(rawDiff % (2 * Math.PI), (2 * Math.PI) - (rawDiff % (2 * Math.PI)));

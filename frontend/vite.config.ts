@@ -13,6 +13,11 @@ export default defineConfig({
       '/api': 'http://localhost:8080',
     },
   },
+  // `vite preview` (used by the layout-test screenshot harness) otherwise inherits
+  // server.open, which steals focus and pops a browser tab on every run.
+  preview: {
+    open: false,
+  },
   build: {
     outDir: 'build',
     sourcemap: true,

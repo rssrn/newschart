@@ -44,7 +44,7 @@ React SPA using react-simple-maps for world map visualization:
 - **StoryCalloutList** - Renders callout boxes with connectors to country points
 
 **Layout Algorithm** (`utils/mapCalloutUtils.ts`):
-Exhaustive candidate enumeration - generates ~20-30 candidate positions per callout (8 directions × 5 distances, filtered by bounds/origin-obscuring), evaluates every combination, and picks the lowest-penalty layout. Feasible because N≤4. Based on PFLP (Point-Feature Label Placement) literature.
+Exhaustive candidate enumeration - generates up to 96 candidate positions per callout (16 directions × 6 distances, filtered by bounds/origin-obscuring), evaluates every combination, and picks the lowest-penalty layout. Feasible because N≤4. Based on PFLP (Point-Feature Label Placement) literature.
 
 **Layout Algorithm Success Criteria:** Callouts must not overlap or touch, must stay fully in-viewport, connectors must not cross each other or pass behind other callout boxes, minimize connector length and distance to origin, origin markers must not be obscured by callout boxes.
 
@@ -52,6 +52,25 @@ Test scenarios are defined in `CalloutController.sampleCallouts()` including clu
 
 ### Data Flow
 Scheduler → pipeline orchestrator → news source (NYT RSS or Gemini AI) → parse/summarize/geo-tag → MongoDB `StoryCallout` → REST API → frontend map layout.
+
+### Layout Algorithm Test Harness
+
+Fixtures live in `frontend/src/__tests__/layout/fixtures/*.json`. Fixtures tagged `needs-fix` are skipped in CI (`layout.test.ts` uses `test.skip` for them).
+
+**Run layout tests (no screenshots, fast):**
+```bash
+node scripts/run-layout-tests.mjs                        # all fixtures
+node scripts/run-layout-tests.mjs --tag needs-fix        # only skipped/failing fixtures
+node scripts/run-layout-tests.mjs --id <fixture-id>      # one fixture
+```
+
+**Run with screenshots** (builds frontend, spins up preview server automatically — no services needed):
+```bash
+node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
+```
+`--failures-only` restricts screenshots to the specific viewport/projection combinations that actually fail (omit it to screenshot all combinations). Screenshots land in `frontend/test-output/screenshots/`. Filter further with `--viewport <name>` or `--projection mercator|natural-earth`.
+
+**Add a new fixture:** drop a `.json` file in `frontend/src/__tests__/layout/fixtures/`. Tag it `needs-fix` if the algorithm currently fails it. The `TestMapPage` at `/__layout-test?case=<id>&strip=1&projection=<name>` renders any fixture in-browser without the backend.
 
 ## Key Technologies
 - **Backend**: Spring Boot 4.0.x, Java 21, MongoDB, WebFlux

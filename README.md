@@ -40,7 +40,7 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 - **Typed AI output** — Spring AI's structured-output binding maps model responses directly to `NewsHighlight` Java records; no free-form text parsing anywhere in the pipeline.
 - **Full-stack type safety** — Java 21 records on the backend, TypeScript on the frontend, shared schema via REST contract.
 - **Production-grade CI/CD** — split backend/frontend pipelines, Testcontainers integration tests against real MongoDB, OWASP Dependency-Check + Sonatype OSS Index + Dependabot across Maven/npm/Actions, tag-triggered deploys via Tailscale.
-- **PFLP callout layout algorithm** — exhaustive candidate enumeration (8 directions × 5 distances per callout) with penalty scoring for overlaps, connector crossings, and viewport violations. Based on [Christensen, Marks & Shieber (1995)](https://doi.org/10.1145/212332.212334); feasible because N ≤ 3.
+- **PFLP callout layout algorithm** — exhaustive candidate enumeration (16 directions × 6 distances per callout) with penalty scoring for overlaps, connector crossings, connectors passing through boxes, and viewport violations. Based on [Christensen, Marks & Shieber (1995)](https://doi.org/10.1145/212332.212334); feasible because N ≤ 3.
 
 ## Quick Start
 
@@ -127,7 +127,7 @@ Scheduler → Pipeline Orchestrator → News Source
 | `DateTimeline.tsx` | Date navigation (desktop slider + mobile chip strip) |
 | `utils/mapCalloutUtils.ts` | Exhaustive PFLP-based callout layout algorithm |
 
-**Layout algorithm:** Generates ~20–30 candidate positions per callout (8 directions × 5 distances), evaluates all combinations for up to N=3 callouts, and selects the lowest-penalty layout. Penalises overlaps, viewport violations, connector crossings, and connector length.
+**Layout algorithm:** Generates up to ~96 candidate positions per callout (16 directions × 6 distances), evaluates all combinations for up to N=3 callouts, and selects the lowest-penalty layout. Penalises overlaps, viewport violations, connector crossings, connectors passing through boxes, and connector length.
 
 ### Storage
 
