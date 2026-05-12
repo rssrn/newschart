@@ -194,6 +194,10 @@ function App(): React.ReactElement {
           />
         </div>
         <div className="map-footer-overlay">
+          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
+          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
           <a
             href="https://github.com/rssrn/newschart"
             target="_blank"
@@ -203,16 +207,16 @@ function App(): React.ReactElement {
           >
             GitHub
           </a>
-          <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
-          <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
         </div>
       </div>
 
       {/* Mobile controls bar – below the map to avoid obscuring callouts – @author Claude Sonnet 4.6 Anthropic */}
       <div className={`mobile-controls-bar${isLoading ? ' controls-loading' : ''}`}>
         <div className="mobile-footer-links">
+          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
+          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
           <a
             href="https://github.com/rssrn/newschart"
             target="_blank"
@@ -222,10 +226,6 @@ function App(): React.ReactElement {
           >
             GitHub
           </a>
-          <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
-          <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
         </div>
         <button
           className="mobile-controls-toggle"
