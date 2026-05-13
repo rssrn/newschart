@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-05-13
+
+Heatmap view mode.
+
+### Added
+- **Heatmap view mode** — Day View / Heatmap radio toggle above the source selector (desktop + mobile). Heatmap colours countries by story count using a cool-blue → orange HSL scale with glow; date timeline and callout boxes are hidden in this mode. View mode persisted in `localStorage`.
+- `/api/news/statsAllCallouts` endpoint returning per-country story counts across all stored callouts
+- Vite, Vitest, and ESLint credited on the Credits page
+
 ## [0.9.3] - 2026-05-12
 
 Brand badge, layout spacing, and Gemini model fix.
