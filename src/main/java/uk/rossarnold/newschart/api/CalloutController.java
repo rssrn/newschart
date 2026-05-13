@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.rossarnold.newschart.callout.CalloutService;
 import uk.rossarnold.newschart.callout.CalloutSource;
 import uk.rossarnold.newschart.callout.Callout;
+import uk.rossarnold.newschart.callout.CalloutStats;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -44,6 +45,13 @@ public class CalloutController {
         log.info("availableDays {}", source);
 
         return calloutService.availableDays(source);
+    }
+
+    @GetMapping("statsAllCallouts")
+    public List<CalloutStats> statsAllCallouts() {
+        log.info("statsAllCallouts");
+
+        return calloutService.calloutStatsAllCallouts();
     }
 
     /**
