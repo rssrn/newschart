@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-05-13
+
+Hotfix: hide heatmap toggle until backend aggregation bug is resolved.
+
+### Fixed
+- Day View / Heatmap radio buttons temporarily hidden; view mode hardcoded to Day View to prevent 500 error and blank-screen crash on heatmap selection
+
 ## [0.10.0] - 2026-05-13
 
 Heatmap view mode.

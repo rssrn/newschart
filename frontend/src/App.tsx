@@ -13,6 +13,7 @@ type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
 // @author Claude Sonnet 4.6 Anthropic
 type ViewMode = 'day' | 'heatmap';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const VIEW_MODES: { value: ViewMode; label: string }[] = [
   { value: 'day', label: 'Day View' },
   { value: 'heatmap', label: 'Heatmap' },
@@ -39,9 +40,7 @@ function App(): React.ReactElement {
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   // @author Claude Sonnet 4.6 Anthropic
-  const [viewMode, setViewMode] = useState<ViewMode>(
-    () => (localStorage.getItem('viewMode') as ViewMode | null) ?? 'day'
-  );
+  const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [heatmapStats, setHeatmapStats] = useState<CalloutStat[] | null>(null);
   // @author Claude Sonnet 4.6 Anthropic
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
@@ -50,6 +49,7 @@ function App(): React.ReactElement {
   const [errorDismissed, setErrorDismissed] = useState(false);
 
   // @author Claude Sonnet 4.6 Anthropic
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
     localStorage.setItem('viewMode', mode);
@@ -160,6 +160,7 @@ function App(): React.ReactElement {
 
         {/* Desktop controls overlay */}
         <div className={`source-selector-overlay${isLoading ? ' controls-loading' : ''}`}>
+          {/* view-mode toggle hidden until heatmap backend is fixed
           {VIEW_MODES.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
               <input
@@ -172,6 +173,8 @@ function App(): React.ReactElement {
               {label}
             </label>
           ))}
+          <div className="selector-divider" />
+          */}
           <div className="selector-divider" />
           {NEWS_SOURCES.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
@@ -315,6 +318,7 @@ function App(): React.ReactElement {
         aria-modal="true"
       >
         <div className="mobile-sheet-handle" aria-hidden="true" />
+        {/* view-mode toggle hidden until heatmap backend is fixed
         <div className="mobile-sheet-section-title">View</div>
         {VIEW_MODES.map(({ value, label }) => (
           <label key={value} className="mobile-sheet-radio-label">
@@ -328,6 +332,8 @@ function App(): React.ReactElement {
             {label}
           </label>
         ))}
+        <div className="mobile-sheet-divider" />
+        */}
         <div className="mobile-sheet-divider" />
         <div className="mobile-sheet-section-title">Source</div>
         {NEWS_SOURCES.map(({ value, label }) => (
