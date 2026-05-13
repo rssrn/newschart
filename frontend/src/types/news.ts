@@ -118,3 +118,14 @@ export interface LayoutDiagnostics {
   bestScore: number;
   combinationsEvaluated: number;
 }
+
+/**
+ * Per-source, per-country story count from /api/news/statsAllCallouts.
+ *
+ * @author Claude Sonnet 4.6 Anthropic
+ */
+export interface CalloutStat {
+  source: string;
+  countryCode: string; // ISO alpha-2
+  count: number;
+}

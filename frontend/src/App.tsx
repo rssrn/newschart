@@ -5,9 +5,21 @@ import DateTimeline from './DateTimeline';
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 import { todayIso, isToday, formatShortDate } from './utils/dateUtils';
 import { track } from './utils/analytics';
+import { CalloutStat } from './types/news';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
+
+// @author Claude Sonnet 4.6 Anthropic
+type ViewMode = 'day' | 'heatmap';
+
+const VIEW_MODES: { value: ViewMode; label: string }[] = [
+  { value: 'day', label: 'Day View' },
+  { value: 'heatmap', label: 'Heatmap' },
+];
+
+// Module-level cache so stats survive source/projection changes but not page reload
+let heatmapStatsCache: CalloutStat[] | null = null;
 
 const NEWS_SOURCES: { value: NewsSource; label: string; shortLabel: string }[] = [
   { value: 'GOOGLE_GEMINI', label: 'Google Gemini', shortLabel: 'Gemini' },
@@ -27,10 +39,35 @@ function App(): React.ReactElement {
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   // @author Claude Sonnet 4.6 Anthropic
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    () => (localStorage.getItem('viewMode') as ViewMode | null) ?? 'day'
+  );
+  const [heatmapStats, setHeatmapStats] = useState<CalloutStat[] | null>(null);
+  // @author Claude Sonnet 4.6 Anthropic
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   // @author Claude Sonnet 4.6 Anthropic
   const [fetchStatus, setFetchStatus] = useState<FetchStatus | null>(null);
   const [errorDismissed, setErrorDismissed] = useState(false);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('viewMode', mode);
+    track('view_mode_changed', { mode });
+    if (mode === 'heatmap') {
+      if (heatmapStatsCache !== null) {
+        setHeatmapStats(heatmapStatsCache);
+      } else {
+        fetch('/api/news/statsAllCallouts')
+          .then(r => r.json())
+          .then((data: CalloutStat[]) => {
+            heatmapStatsCache = data;
+            setHeatmapStats(data);
+          })
+          .catch(err => console.error('Failed to fetch heatmap stats', err));
+      }
+    }
+  };
 
   // @author Claude Sonnet 4.6 Anthropic
   const handleSourceChange = (value: NewsSource) => {
@@ -123,6 +160,19 @@ function App(): React.ReactElement {
 
         {/* Desktop controls overlay */}
         <div className={`source-selector-overlay${isLoading ? ' controls-loading' : ''}`}>
+          {VIEW_MODES.map(({ value, label }) => (
+            <label key={value} className="source-radio-label">
+              <input
+                type="radio"
+                name="view-mode"
+                value={value}
+                checked={viewMode === value}
+                onChange={() => handleViewModeChange(value)}
+              />
+              {label}
+            </label>
+          ))}
+          <div className="selector-divider" />
           {NEWS_SOURCES.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
               <input
@@ -179,20 +229,24 @@ function App(): React.ReactElement {
             projectionType={projectionType}
             onFetchStatus={handleFetchStatus}
             date={selectedDate}
-            bottomReservedPx={availableDates.length > 1 ? 90 : 0}
+            bottomReservedPx={viewMode === 'day' && availableDates.length > 1 ? 90 : 0}
             isHistorical={selectedDate !== todayIso()}
+            viewMode={viewMode}
+            heatmapStats={heatmapStats ?? []}
           />
         </div>
 
         {/* Desktop date timeline – @author Claude Sonnet 4.6 Anthropic */}
-        <div className="date-timeline-overlay">
-          <DateTimeline
-            availableDates={availableDates}
-            selectedDate={selectedDate}
-            onChange={setSelectedDate}
-            disabled={isLoading}
-          />
-        </div>
+        {viewMode === 'day' && (
+          <div className="date-timeline-overlay">
+            <DateTimeline
+              availableDates={availableDates}
+              selectedDate={selectedDate}
+              onChange={setSelectedDate}
+              disabled={isLoading}
+            />
+          </div>
+        )}
         <div className="map-footer-overlay">
           <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
@@ -261,6 +315,20 @@ function App(): React.ReactElement {
         aria-modal="true"
       >
         <div className="mobile-sheet-handle" aria-hidden="true" />
+        <div className="mobile-sheet-section-title">View</div>
+        {VIEW_MODES.map(({ value, label }) => (
+          <label key={value} className="mobile-sheet-radio-label">
+            <input
+              type="radio"
+              name="view-mode-mobile"
+              value={value}
+              checked={viewMode === value}
+              onChange={() => handleViewModeChange(value)}
+            />
+            {label}
+          </label>
+        ))}
+        <div className="mobile-sheet-divider" />
         <div className="mobile-sheet-section-title">Source</div>
         {NEWS_SOURCES.map(({ value, label }) => (
           <label key={value} className="mobile-sheet-radio-label">
@@ -299,7 +367,7 @@ function App(): React.ReactElement {
       </div>
 
       {/* Mobile date chip strip (outside map-container to avoid overflow clip) – @author Claude Opus 4.6 Anthropic */}
-      {availableDates.length > 1 && (
+      {viewMode === 'day' && availableDates.length > 1 && (
         <div className={`mobile-date-strip-wrapper${isLoading ? ' controls-loading' : ''}`}>
           <div className="mobile-date-strip-overlay">
             {availableDates.map(d => (

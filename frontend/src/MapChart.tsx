@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { GeoProjection } from "d3-geo";
 import StoryCalloutList from './StoryCalloutList';
-import { StoryCallout } from './types/news';
+import { StoryCallout, CalloutStat } from './types/news';
 import {
   ComposableMap,
   Geographies,
@@ -9,6 +9,7 @@ import {
 } from "react-simple-maps";
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 import { track } from './utils/analytics';
+import iso2ToNumeric from './utils/iso2ToNumeric';
 
 export type { ProjectionType, FetchStatus };
 
@@ -27,13 +28,24 @@ interface MapChartProps {
   readonly date: string;
   readonly bottomReservedPx?: number;
   readonly isHistorical?: boolean;
+  readonly viewMode?: 'day' | 'heatmap';
+  readonly heatmapStats?: CalloutStat[];
+}
+
+// @author Claude Sonnet 4.6 Anthropic
+function heatmapFill(count: number, globalMax: number): string {
+  if (count === 0) return '#1a3a5c';
+  const t = count / globalMax;
+  const sat = Math.round(30 + t * 65);
+  const lit = Math.round(45 + t * 10);
+  return `hsl(30, ${sat}%, ${lit}%)`;
 }
 
 // @author Claude Sonnet 4.6 Anthropic
 const calloutsCache = new Map<string, StoryCallout[]>();
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [] }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
 
@@ -115,6 +127,20 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
     return new Set(nums);
   }, [callouts]);
 
+  // @author Claude Sonnet 4.6 Anthropic
+  const heatmapData = useMemo(() => {
+    if (viewMode !== 'heatmap' || heatmapStats.length === 0) return null;
+    const globalMax = Math.max(...heatmapStats.map(s => s.count), 1);
+    const countByNumeric = new Map<number, number>();
+    heatmapStats
+      .filter(s => s.source === source)
+      .forEach(s => {
+        const num = iso2ToNumeric[s.countryCode];
+        if (num !== undefined) countByNumeric.set(num, s.count);
+      });
+    return { countByNumeric, globalMax };
+  }, [viewMode, heatmapStats, source]);
+
   return (
     <ComposableMap
       projection={projectionType}
@@ -134,6 +160,25 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
           geographies
             .filter((geo) => geo.properties.name !== "Antarctica")
             .map((geo) => {
+              if (heatmapData) {
+                const count = heatmapData.countByNumeric.get(Number(geo.id)) ?? 0;
+                const fill = heatmapFill(count, heatmapData.globalMax);
+                const glowPx = count > 0 ? 3 + (count / heatmapData.globalMax) * 4 : 0;
+                const glow = count > 0
+                  ? `drop-shadow(0 0 ${glowPx.toFixed(1)}px rgba(255,120,20,0.7))`
+                  : undefined;
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    fill={fill}
+                    stroke={count > 0 ? '#e0702080' : DEFAULT_STROKE}
+                    strokeWidth={count > 0 ? 0.8 : 0.5}
+                    style={{ default: { filter: glow } }}
+                    tabIndex={-1}
+                  />
+                );
+              }
               const isActive = activeIsoNumerics.has(Number(geo.id));
               const activeFill = isHistorical ? ACTIVE_COUNTRY_FILL_HISTORICAL : ACTIVE_COUNTRY_FILL_CURRENT;
               const activeStroke = isHistorical ? ACTIVE_COUNTRY_STROKE_HISTORICAL : ACTIVE_COUNTRY_STROKE_CURRENT;
@@ -150,8 +195,10 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
             })
         }
       </Geographies>
-      {/* Annotations handled by StoryCalloutList */}
-      <StoryCalloutList projection={projection} callouts={callouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical}/>
+      {/* Annotations hidden in heatmap mode */}
+      {viewMode !== 'heatmap' && (
+        <StoryCalloutList projection={projection} callouts={callouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical}/>
+      )}
     </ComposableMap>
   );
 };
