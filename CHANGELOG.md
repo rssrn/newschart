@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.2] - 2026-05-14
+
+Fix heatmap stats aggregation StackOverflowError.
+
+### Fixed
+- `findStatsFromAllCallouts` MongoDB aggregation used malformed `{$count}` expression in `$project` stage, causing a `StackOverflowError` on every call to `/api/news/statsAllCallouts`
+
+### Tests
+- Added integration tests for `calloutStatsAllCallouts` including a regression test that reproduces the aggregation bug
+- Suppressed `BasicFetchSchedulerService` startup in all `@SpringBootTest` classes to prevent costly AI pipeline calls during test runs
+
 ## [0.10.1] - 2026-05-13
 
 Hotfix: hide heatmap toggle until backend aggregation bug is resolved.
