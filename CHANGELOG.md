@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2026-05-14
+
+Fix heatmap not loading on page reload when Story Counts mode was saved in localStorage.
+
+### Fixed
+- Heatmap stats are now fetched on mount when `viewMode` is restored as `'heatmap'` from localStorage; previously the map rendered blank with no choropleth colouring
+
 ## [0.11.0] - 2026-05-14
 
 Story Counts heatmap debut: inferno colour scale, legend pill, normalised scale, and cache fixes.
