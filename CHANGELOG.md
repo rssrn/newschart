@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-05-14
+
+Story Counts heatmap debut: inferno colour scale, legend pill, normalised scale, and cache fixes.
+
+### Changed
+- **Story Counts** (formerly Heatmap) mode renamed; mode toggle labels updated to "Daily" / "Story Counts"
+- Heatmap colour scale replaced with inferno-inspired multi-stop RGB gradient (dark red → vivid orange) with sqrt scaling so low-count countries are visually distinct from the background
+- Colour scale normalised across all sources so the same colour represents the same count globally
+- Low-count countries are static; mid/high-count countries show a two-tier subtle pulse animation
+
+### Added
+- Legend pill overlay (same position as date timeline) showing source name, date range, and a dynamic gradient bar reflecting the colour range in use
+
+### Fixed
+- Backend `calloutsForDay` no longer caches empty results, preventing cache poisoning when data hasn't loaded yet
+- Frontend no longer caches empty callout responses from the API
+
 ## [0.10.2] - 2026-05-14
 
 Fix heatmap stats aggregation StackOverflowError.
