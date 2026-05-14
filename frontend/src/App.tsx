@@ -6,6 +6,7 @@ import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/project
 import { todayIso, isToday, formatShortDate } from './utils/dateUtils';
 import { track } from './utils/analytics';
 import { CalloutStat } from './types/news';
+import { heatmapLegendGradient } from './utils/heatmapUtils';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
@@ -13,10 +14,9 @@ type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
 // @author Claude Sonnet 4.6 Anthropic
 type ViewMode = 'day' | 'heatmap';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const VIEW_MODES: { value: ViewMode; label: string }[] = [
-  { value: 'day', label: 'Day View' },
-  { value: 'heatmap', label: 'Heatmap' },
+  { value: 'day', label: 'Daily' },
+  { value: 'heatmap', label: 'Story Counts' },
 ];
 
 // Module-level cache so stats survive source/projection changes but not page reload
@@ -40,7 +40,9 @@ function App(): React.ReactElement {
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   // @author Claude Sonnet 4.6 Anthropic
-  const [viewMode, setViewMode] = useState<ViewMode>('day');
+  const [viewMode, setViewMode] = useState<ViewMode>(
+    () => (localStorage.getItem('viewMode') as ViewMode | null) ?? 'day'
+  );
   const [heatmapStats, setHeatmapStats] = useState<CalloutStat[] | null>(null);
   // @author Claude Sonnet 4.6 Anthropic
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
@@ -49,7 +51,6 @@ function App(): React.ReactElement {
   const [errorDismissed, setErrorDismissed] = useState(false);
 
   // @author Claude Sonnet 4.6 Anthropic
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
     localStorage.setItem('viewMode', mode);
@@ -146,7 +147,25 @@ function App(): React.ReactElement {
   }, [mobileSheetOpen]);
 
   const sourceShortLabel = NEWS_SOURCES.find(s => s.value === source)?.shortLabel ?? source;
+  const sourceLabel = NEWS_SOURCES.find(s => s.value === source)?.label ?? source;
   const projectionLabel = PROJECTION_OPTIONS.find(p => p.value === projectionType)?.label ?? '';
+
+  // @author Claude Sonnet 4.6 Anthropic
+  // @author Claude Sonnet 4.6 Anthropic
+  const heatmapLegend = viewMode === 'heatmap' && availableDates.length > 0 ? (() => {
+    const stats = heatmapStats ?? [];
+    const globalMax = Math.max(...stats.map(s => s.count), 1);
+    const sourceMax = stats.filter(s => s.source === source).reduce((m, s) => Math.max(m, s.count), 0);
+    const gradient = sourceMax > 0 ? heatmapLegendGradient(sourceMax, globalMax) : null;
+    const fmt = (iso: string) => {
+      const [y, m, d] = iso.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+    const first = availableDates[0];
+    const last = availableDates[availableDates.length - 1];
+    const dateRange = first === last ? fmt(first) : `${formatShortDate(first)} – ${fmt(last)}`;
+    return { sourceMax, globalMax, gradient, dateRange };
+  })() : null;
 
   return (
     <div className="App">
@@ -160,7 +179,6 @@ function App(): React.ReactElement {
 
         {/* Desktop controls overlay */}
         <div className={`source-selector-overlay${isLoading ? ' controls-loading' : ''}`}>
-          {/* view-mode toggle hidden until heatmap backend is fixed
           {VIEW_MODES.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
               <input
@@ -173,8 +191,6 @@ function App(): React.ReactElement {
               {label}
             </label>
           ))}
-          <div className="selector-divider" />
-          */}
           <div className="selector-divider" />
           {NEWS_SOURCES.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
@@ -250,6 +266,22 @@ function App(): React.ReactElement {
             />
           </div>
         )}
+
+        {/* Heatmap legend pill – @author Claude Sonnet 4.6 Anthropic */}
+        {heatmapLegend && heatmapLegend.gradient && (
+          <div className="heatmap-legend-pill" aria-label="Map legend">
+            <span className="heatmap-legend-text">
+              {sourceLabel} story counts · {heatmapLegend.dateRange}
+            </span>
+            <div className="heatmap-legend-divider" aria-hidden="true" />
+            <div className="heatmap-legend-scale" aria-label={`Scale: 1 to ${heatmapLegend.sourceMax} stories`}>
+              <span className="heatmap-legend-bound">1</span>
+              <div className="heatmap-legend-bar" style={{ background: heatmapLegend.gradient }} aria-hidden="true" />
+              <span className="heatmap-legend-bound">{heatmapLegend.sourceMax}</span>
+            </div>
+          </div>
+        )}
+
         <div className="map-footer-overlay">
           <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
@@ -318,7 +350,6 @@ function App(): React.ReactElement {
         aria-modal="true"
       >
         <div className="mobile-sheet-handle" aria-hidden="true" />
-        {/* view-mode toggle hidden until heatmap backend is fixed
         <div className="mobile-sheet-section-title">View</div>
         {VIEW_MODES.map(({ value, label }) => (
           <label key={value} className="mobile-sheet-radio-label">
@@ -332,8 +363,6 @@ function App(): React.ReactElement {
             {label}
           </label>
         ))}
-        <div className="mobile-sheet-divider" />
-        */}
         <div className="mobile-sheet-divider" />
         <div className="mobile-sheet-section-title">Source</div>
         {NEWS_SOURCES.map(({ value, label }) => (

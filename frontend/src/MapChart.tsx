@@ -10,6 +10,7 @@ import {
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 import { track } from './utils/analytics';
 import iso2ToNumeric from './utils/iso2ToNumeric';
+import { heatmapColor } from './utils/heatmapUtils';
 
 export type { ProjectionType, FetchStatus };
 
@@ -32,14 +33,6 @@ interface MapChartProps {
   readonly heatmapStats?: CalloutStat[];
 }
 
-// @author Claude Sonnet 4.6 Anthropic
-function heatmapFill(count: number, globalMax: number): string {
-  if (count === 0) return '#1a3a5c';
-  const t = count / globalMax;
-  const sat = Math.round(30 + t * 65);
-  const lit = Math.round(45 + t * 10);
-  return `hsl(30, ${sat}%, ${lit}%)`;
-}
 
 // @author Claude Sonnet 4.6 Anthropic
 const calloutsCache = new Map<string, StoryCallout[]>();
@@ -102,7 +95,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         return response.json();
       })
       .then((data: StoryCallout[]) => {
-        calloutsCache.set(url, data);
+        if (data.length > 0) calloutsCache.set(url, data);
         setCallouts(data);
         onFetchStatusRef.current?.('success');
         if (testCase === null) track('news_loaded', { source, date, callout_count: data.length, cached: false, duration_ms: Math.round(performance.now() - fetchStart) });
@@ -162,19 +155,25 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
             .map((geo) => {
               if (heatmapData) {
                 const count = heatmapData.countByNumeric.get(Number(geo.id)) ?? 0;
-                const fill = heatmapFill(count, heatmapData.globalMax);
-                const glowPx = count > 0 ? 3 + (count / heatmapData.globalMax) * 4 : 0;
+                const fill = count > 0 ? heatmapColor(count, heatmapData.globalMax) : DEFAULT_FILL;
+                const t = count > 0 ? Math.sqrt(count / heatmapData.globalMax) : 0;
+                const glowPx = count > 0 ? 2 + t * 9 : 0;
                 const glow = count > 0
-                  ? `drop-shadow(0 0 ${glowPx.toFixed(1)}px rgba(255,120,20,0.7))`
+                  ? `drop-shadow(0 0 ${glowPx.toFixed(1)}px rgba(234,88,12,0.75))`
                   : undefined;
+                const animation = t > 0.6
+                  ? 'heatPulseHot 2s ease-in-out infinite'
+                  : t > 0.3
+                    ? 'heatPulseMid 3.5s ease-in-out infinite'
+                    : 'none';
                 return (
                   <Geography
                     key={geo.rsmKey}
                     geography={geo}
                     fill={fill}
-                    stroke={count > 0 ? '#e0702080' : DEFAULT_STROKE}
+                    stroke={count > 0 ? '#c2410c60' : DEFAULT_STROKE}
                     strokeWidth={count > 0 ? 0.8 : 0.5}
-                    style={{ default: { filter: glow } }}
+                    style={{ default: { filter: glow, animation } }}
                     tabIndex={-1}
                   />
                 );

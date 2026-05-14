@@ -249,6 +249,80 @@ svg {
   transition: opacity 0.2s ease;
 }
 
+/* ── Heatmap pulse animation ─────────────────────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+/* heatPulseHot: high-count countries, subtle 18% dip */
+@keyframes heatPulseHot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.82; }
+}
+/* heatPulseMid: mid-count countries, barely perceptible 8% dip */
+@keyframes heatPulseMid {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.92; }
+}
+
+/* ── Heatmap legend pill ──────────────────────────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+.heatmap-legend-pill {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(10, 20, 35, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  padding: 7px 18px;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  user-select: none;
+}
+
+.heatmap-legend-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+.heatmap-legend-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.heatmap-legend-scale {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.heatmap-legend-bound {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+  min-width: 14px;
+  text-align: center;
+}
+
+.heatmap-legend-bar {
+  width: 64px;
+  height: 6px;
+  border-radius: 3px;
+  /* background set via inline style — dynamically reflects the source's actual colour range */
+}
+
+@media (max-width: 640px) {
+  .heatmap-legend-pill {
+    display: none;
+  }
+}
+
 /* ── Fetch error toast ───────────────────────────────────────────────────── */
 /* @author Claude Sonnet 4.6 Anthropic */
 @keyframes toastSlideDown {
