@@ -43,7 +43,9 @@ function App(): React.ReactElement {
   const [viewMode, setViewMode] = useState<ViewMode>(
     () => (localStorage.getItem('viewMode') as ViewMode | null) ?? 'day'
   );
-  const [heatmapStats, setHeatmapStats] = useState<CalloutStat[] | null>(null);
+  const [heatmapStats, setHeatmapStats] = useState<CalloutStat[] | null>(
+    () => (localStorage.getItem('viewMode') === 'heatmap' && heatmapStatsCache !== null) ? heatmapStatsCache : null
+  );
   // @author Claude Sonnet 4.6 Anthropic
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   // @author Claude Sonnet 4.6 Anthropic
@@ -69,6 +71,20 @@ function App(): React.ReactElement {
       }
     }
   };
+
+  // Fetch heatmap stats on mount if viewMode was restored as 'heatmap' from localStorage
+  // @author Claude Sonnet 4.6 Anthropic
+  useEffect(() => {
+    if (viewMode !== 'heatmap' || heatmapStatsCache !== null) return;
+    fetch('/api/news/statsAllCallouts')
+      .then(r => r.json())
+      .then((data: CalloutStat[]) => {
+        heatmapStatsCache = data;
+        setHeatmapStats(data);
+      })
+      .catch(err => console.error('Failed to fetch heatmap stats', err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // @author Claude Sonnet 4.6 Anthropic
   const handleSourceChange = (value: NewsSource) => {
