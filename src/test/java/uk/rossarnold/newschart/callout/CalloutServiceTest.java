@@ -4,12 +4,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import uk.rossarnold.newschart.TestcontainersConfiguration;
+import uk.rossarnold.newschart.geo.Country;
 import uk.rossarnold.newschart.news.pipeline.PipelineContext;
+import uk.rossarnold.newschart.scheduler.BasicFetchSchedulerService;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Import(TestcontainersConfiguration.class)
 class CalloutServiceTest {
+
+    // Suppress the startup scheduler so tests don't trigger costly external AI pipeline calls.
+    @MockitoBean
+    @SuppressWarnings("unused")
+    private BasicFetchSchedulerService basicFetchSchedulerService;
 
     @Autowired
     private CalloutService calloutService;
@@ -41,6 +50,21 @@ class CalloutServiceTest {
                 .detail("Detail")
                 .source(source)
                 .type(CalloutType.NEWS)
+                .build();
+    }
+
+    private Callout calloutWithCountry(Instant generatedAt, CalloutSource source, String iso2, String name) {
+        Country country = new Country();
+        country.setIso2(iso2);
+        country.setName(name);
+        country.setLatitude(0);
+        country.setLongitude(0);
+        return new Callout.Builder(generatedAt)
+                .headline("Headline")
+                .detail("Detail")
+                .source(source)
+                .type(CalloutType.NEWS)
+                .country(country)
                 .build();
     }
 
@@ -159,5 +183,79 @@ class CalloutServiceTest {
 
         assertTrue(context.isFailed());
         assertEquals(0, calloutRepository.count());
+    }
+
+    // === calloutStatsAllCallouts ===
+    // These tests exercise the findStatsFromAllCallouts() aggregation.
+    // The aggregation was broken in production (StackOverflowError from malformed {$count} in
+    // the $project stage); these tests reproduce and guard against that regression.
+
+    @Test
+    void calloutStatsAllCalloutsReturnsEmptyWhenNoData() {
+        List<CalloutStats> stats = calloutService.calloutStatsAllCallouts();
+        assertTrue(stats.isEmpty());
+    }
+
+    @Test
+    void calloutStatsAllCalloutsCountsSingleSourceAndCountry() {
+        // Reproduces the prod StackOverflowError — any call to this aggregation will fail
+        // if the $project stage contains the malformed {$count} expression.
+        calloutRepository.saveAll(List.of(
+                calloutWithCountry(Instant.parse("2024-01-01T10:00:00Z"), CalloutSource.NEW_YORK_TIMES, "US", "United States"),
+                calloutWithCountry(Instant.parse("2024-01-02T10:00:00Z"), CalloutSource.NEW_YORK_TIMES, "US", "United States"),
+                calloutWithCountry(Instant.parse("2024-01-03T10:00:00Z"), CalloutSource.NEW_YORK_TIMES, "US", "United States")
+        ));
+
+        List<CalloutStats> stats = calloutService.calloutStatsAllCallouts();
+
+        assertEquals(1, stats.size());
+        assertEquals("NEW_YORK_TIMES", stats.get(0).source());
+        assertEquals("US", stats.get(0).countryCode());
+        assertEquals(3, stats.get(0).count());
+    }
+
+    @Test
+    void calloutStatsAllCalloutsGroupsBySourceAndCountry() {
+        calloutRepository.saveAll(List.of(
+                calloutWithCountry(Instant.parse("2024-02-01T10:00:00Z"), CalloutSource.NEW_YORK_TIMES, "GB", "United Kingdom"),
+                calloutWithCountry(Instant.parse("2024-02-02T10:00:00Z"), CalloutSource.NEW_YORK_TIMES, "GB", "United Kingdom"),
+                calloutWithCountry(Instant.parse("2024-02-03T10:00:00Z"), CalloutSource.NEW_YORK_TIMES, "FR", "France"),
+                calloutWithCountry(Instant.parse("2024-02-04T10:00:00Z"), CalloutSource.GOOGLE_GEMINI, "GB", "United Kingdom")
+        ));
+
+        List<CalloutStats> stats = calloutService.calloutStatsAllCallouts();
+        stats.sort(Comparator.comparing(CalloutStats::source).thenComparing(CalloutStats::countryCode));
+
+        assertEquals(3, stats.size());
+
+        assertEquals("GOOGLE_GEMINI", stats.get(0).source());
+        assertEquals("GB", stats.get(0).countryCode());
+        assertEquals(1, stats.get(0).count());
+
+        assertEquals("NEW_YORK_TIMES", stats.get(1).source());
+        assertEquals("FR", stats.get(1).countryCode());
+        assertEquals(1, stats.get(1).count());
+
+        assertEquals("NEW_YORK_TIMES", stats.get(2).source());
+        assertEquals("GB", stats.get(2).countryCode());
+        assertEquals(2, stats.get(2).count());
+    }
+
+    @Test
+    void calloutStatsAllCalloutsExcludesCalloutsWithNoCountry() {
+        // Callouts without a country produce a null countryCode in the group key;
+        // verify the aggregation handles them without error and does not mix their
+        // count into a real country bucket.
+        calloutRepository.saveAll(List.of(
+                calloutWithCountry(Instant.parse("2024-03-01T10:00:00Z"), CalloutSource.NEW_YORK_TIMES, "DE", "Germany"),
+                callout(Instant.parse("2024-03-02T10:00:00Z"), CalloutSource.NEW_YORK_TIMES)   // no country
+        ));
+
+        List<CalloutStats> stats = calloutService.calloutStatsAllCallouts();
+        List<CalloutStats> withCountry = stats.stream().filter(s -> s.countryCode() != null).toList();
+
+        assertEquals(1, withCountry.size());
+        assertEquals("DE", withCountry.get(0).countryCode());
+        assertEquals(1, withCountry.get(0).count());
     }
 }
