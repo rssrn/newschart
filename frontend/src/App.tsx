@@ -164,7 +164,7 @@ function App(): React.ReactElement {
 
   const sourceShortLabel = NEWS_SOURCES.find(s => s.value === source)?.shortLabel ?? source;
   const sourceLabel = NEWS_SOURCES.find(s => s.value === source)?.label ?? source;
-  const projectionLabel = PROJECTION_OPTIONS.find(p => p.value === projectionType)?.label ?? '';
+
 
   // @author Claude Sonnet 4.6 Anthropic
   // @author Claude Sonnet 4.6 Anthropic
@@ -346,7 +346,7 @@ function App(): React.ReactElement {
             <circle cx="8" cy="12" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
             <circle cx="16" cy="18" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
           </svg>
-          <span>{sourceShortLabel}{!isToday(selectedDate) ? ` · ${formatShortDate(selectedDate)}` : ''} · {projectionLabel}</span>
+          <span>{sourceShortLabel} · {viewMode === 'heatmap' ? 'Story Counts' : isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
         </button>
       </div>
 
