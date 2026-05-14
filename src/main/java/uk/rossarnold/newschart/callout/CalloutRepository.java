@@ -35,7 +35,7 @@ public interface CalloutRepository extends MongoRepository<Callout, String> {
                     "_id: 0, " +
                     "source: '$_id.source', " +
                     "countryCode: '$_id.countryCode', " +
-                    "count: {$count} " +
+                    "count: '$count' " +
                     "} }",
 
             // sort by source and countryCode
