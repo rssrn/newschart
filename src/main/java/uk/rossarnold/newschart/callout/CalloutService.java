@@ -65,7 +65,7 @@ public class CalloutService implements PipelineStep {
         return firstMatch.isPresent();
     }
 
-    @Cacheable(value="callouts", key="#date.toString() + '_' + #source.name()")
+    @Cacheable(value="callouts", key="#date.toString() + '_' + #source.name()", unless="#result.isEmpty()")
     public List<Callout> calloutsForDay(LocalDate date, CalloutSource source) {
         log.info("Cache miss for {} {} - fetching callouts from repository", date, source);
 

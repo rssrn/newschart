@@ -117,6 +117,21 @@ class CalloutServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    void calloutsForDayDoesNotCacheEmptyResult() {
+        // Regression: empty results must not be cached, because data may arrive after the first call.
+        // Without unless="#result.isEmpty()" on @Cacheable, the second call would still return [].
+        LocalDate date = LocalDate.of(2021, 7, 20);
+
+        List<Callout> beforeData = calloutService.calloutsForDay(date, CalloutSource.PERPLEXITY);
+        assertTrue(beforeData.isEmpty());
+
+        calloutRepository.save(callout(Instant.parse("2021-07-20T12:00:00Z"), CalloutSource.PERPLEXITY));
+
+        List<Callout> afterData = calloutService.calloutsForDay(date, CalloutSource.PERPLEXITY);
+        assertEquals(1, afterData.size());
+    }
+
     // === availableDays ===
 
     @Test
