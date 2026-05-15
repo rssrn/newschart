@@ -78,6 +78,10 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 ## Environment Variables
 - Gemini API key configured in application properties
 
+## Analytics
+- Umami tracking is wired via `track(eventName, properties)` in `frontend/src/utils/analytics.ts`
+- **Proactively propose tracking** for any new or changed frontend interactions before committing — suggest event names and properties, confirm with user before adding
+
 ## Claude Assistance
 - For the frontend it's likely Claude will be producing/updating code
 - For the backend, Claude is likely to be giving review/advice only, so don't offer to make edits

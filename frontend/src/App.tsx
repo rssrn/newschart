@@ -7,6 +7,7 @@ import { todayIso, isToday, formatShortDate } from './utils/dateUtils';
 import { track } from './utils/analytics';
 import { CalloutStat } from './types/news';
 import { heatmapLegendGradient } from './utils/heatmapUtils';
+import HeatmapCountryModal from './HeatmapCountryModal';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
@@ -51,6 +52,8 @@ function App(): React.ReactElement {
   // @author Claude Sonnet 4.6 Anthropic
   const [fetchStatus, setFetchStatus] = useState<FetchStatus | null>(null);
   const [errorDismissed, setErrorDismissed] = useState(false);
+  // @author Claude Sonnet 4.6 Anthropic
+  const [heatmapClickedCountry, setHeatmapClickedCountry] = useState<{ iso2: string; name: string; count: number } | null>(null);
 
   // @author Claude Sonnet 4.6 Anthropic
   const handleViewModeChange = (mode: ViewMode) => {
@@ -268,6 +271,7 @@ function App(): React.ReactElement {
             isHistorical={selectedDate !== todayIso()}
             viewMode={viewMode}
             heatmapStats={heatmapStats ?? []}
+            onCountryClick={(iso2, name, count) => setHeatmapClickedCountry({ iso2, name, count })}
           />
         </div>
 
@@ -416,6 +420,17 @@ function App(): React.ReactElement {
           Done
         </button>
       </div>
+
+      {/* Heatmap country modal – @author Claude Sonnet 4.6 Anthropic */}
+      {heatmapClickedCountry && viewMode === 'heatmap' && (
+        <HeatmapCountryModal
+          source={source}
+          iso2={heatmapClickedCountry.iso2}
+          countryName={heatmapClickedCountry.name}
+          totalCount={heatmapClickedCountry.count}
+          onClose={() => setHeatmapClickedCountry(null)}
+        />
+      )}
 
       {/* Mobile date chip strip (outside map-container to avoid overflow clip) – @author Claude Opus 4.6 Anthropic */}
       {viewMode === 'day' && availableDates.length > 1 && (

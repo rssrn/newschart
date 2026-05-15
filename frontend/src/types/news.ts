@@ -129,3 +129,21 @@ export interface CalloutStat {
   countryCode: string; // ISO alpha-2
   count: number;
 }
+
+// @author Claude Sonnet 4.6 Anthropic
+export interface SpringPage<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  number: number; // 0-indexed current page
+  size: number;
+}
+
+// @author Claude Sonnet 4.6 Anthropic
+export interface SourceCallout {
+  headline: string;
+  detail: string;
+  country: Country;
+  source: string;
+  generatedAt: string; // ISO instant string
+}

@@ -31,6 +31,7 @@ interface MapChartProps {
   readonly isHistorical?: boolean;
   readonly viewMode?: 'day' | 'heatmap';
   readonly heatmapStats?: CalloutStat[];
+  readonly onCountryClick?: (iso2: string, name: string, count: number) => void;
 }
 
 
@@ -38,13 +39,24 @@ interface MapChartProps {
 const calloutsCache = new Map<string, StoryCallout[]>();
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [] }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [], onCountryClick }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
   const [hoveredGeoKey, setHoveredGeoKey] = useState<string | null>(null);
 
   interface HoverTooltip { x: number; y: number; name: string; count: number; iso2: string; }
   const [hoveredTooltip, setHoveredTooltip] = useState<HoverTooltip | null>(null);
+  const hideTooltipTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleHideTooltip = () => {
+    hideTooltipTimer.current = setTimeout(() => {
+      setHoveredGeoKey(null);
+      setHoveredTooltip(null);
+    }, 150);
+  };
+  const cancelHideTooltip = () => {
+    if (hideTooltipTimer.current) clearTimeout(hideTooltipTimer.current);
+  };
 
   // Stable ref so the fetch effect doesn't re-run when parent re-renders the callback
   const onFetchStatusRef = React.useRef(onFetchStatus);
@@ -197,6 +209,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
                   strokeWidth={isHovered ? 1.5 : count > 0 ? 0.8 : 0.5}
                   style={{ default: geoStyle, hover: geoStyle }}
                   onMouseEnter={count > 0 ? () => {
+                    if (window.matchMedia('(hover: none)').matches) return;
                     setHoveredGeoKey(geo.rsmKey);
                     if (heatmapPathGen) {
                       const [cx, cy] = heatmapPathGen.centroid(geo);
@@ -206,7 +219,11 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
                       }
                     }
                   } : undefined}
-                  onMouseLeave={count > 0 ? () => { setHoveredGeoKey(null); setHoveredTooltip(null); } : undefined}
+                  onMouseLeave={count > 0 ? scheduleHideTooltip : undefined}
+                  onClick={count > 0 ? () => {
+                    const iso2 = numericToIso2[Number(geo.id)] ?? '';
+                    onCountryClick?.(iso2, geo.properties.name as string, count);
+                  } : undefined}
                   tabIndex={-1}
                 />
               );
@@ -239,28 +256,32 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         ? [...hoveredTooltip.iso2.toUpperCase()].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('')
         : '';
       return (
-        <div style={{
-          position: 'absolute',
-          left: `${(hoveredTooltip.x / 800) * 100}%`,
-          top: `${(hoveredTooltip.y / 600) * 100}%`,
-          transform: 'translate(-50%, calc(-100% - 10px))',
-          pointerEvents: 'none',
-          zIndex: 10,
-          background: 'rgba(8, 18, 32, 0.93)',
-          border: '1px solid rgba(251, 146, 60, 0.5)',
-          borderRadius: '10px',
-          padding: '8px 14px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '3px',
-          whiteSpace: 'nowrap',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-        }}>
+        <div
+          onMouseEnter={cancelHideTooltip}
+          onMouseLeave={() => { setHoveredGeoKey(null); setHoveredTooltip(null); }}
+          onClick={() => onCountryClick?.(hoveredTooltip.iso2, hoveredTooltip.name, hoveredTooltip.count)}
+          style={{
+            position: 'absolute',
+            left: `${(hoveredTooltip.x / 800) * 100}%`,
+            top: `${(hoveredTooltip.y / 600) * 100}%`,
+            transform: 'translate(-50%, calc(-100% - 10px))',
+            cursor: 'pointer',
+            zIndex: 10,
+            background: 'rgba(8, 18, 32, 0.93)',
+            border: '1px solid rgba(251, 146, 60, 0.5)',
+            borderRadius: '10px',
+            padding: '8px 14px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '3px',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          }}>
           <div style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600, letterSpacing: '0.01em' }}>
             {flag && <span style={{ marginRight: '5px' }}>{flag}</span>}{hoveredTooltip.name}
           </div>
-          <div style={{ color: '#fb923c', fontSize: '12px', fontWeight: 500 }}>
+          <div style={{ color: '#fb923c', fontSize: '12px', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '2px' }}>
             {hoveredTooltip.count} {hoveredTooltip.count === 1 ? 'story' : 'stories'}
           </div>
         </div>
