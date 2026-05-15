@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.rossarnold.newschart.news.pipeline.PipelineContext;
 import uk.rossarnold.newschart.news.pipeline.PipelineStep;
@@ -79,6 +81,7 @@ public class CalloutService implements PipelineStep {
     }
 
     public List<CalloutStats> calloutStatsAllCallouts() {
+        log.info("calloutStatsAllCallouts");
         return calloutRepository.findStatsFromAllCallouts();
     }
 
@@ -87,5 +90,11 @@ public class CalloutService implements PipelineStep {
           .stream()
           .map(LocalDate::parse)
           .toList();
+    }
+
+    public Page<Callout> calloutsForSourceAndCountry(CalloutSource source, String countryCode, Pageable pageable) {
+        log.info("CalloutsForSourceAndCountry {} {}", source, countryCode);
+
+        return calloutRepository.findBySourceAndCountryIso2(source, countryCode, pageable);
     }
 }

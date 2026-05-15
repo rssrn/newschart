@@ -3,12 +3,18 @@ package uk.rossarnold.newschart.api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import uk.rossarnold.newschart.callout.CalloutService;
 import uk.rossarnold.newschart.callout.CalloutSource;
 import uk.rossarnold.newschart.callout.Callout;
@@ -37,6 +43,20 @@ public class CalloutController {
         log.info("calloutsForDay {} {}", date, source);
 
         return calloutService.calloutsForDay(date, source);
+    }
+
+    @GetMapping("calloutsForSourceAndCountry")
+    public Page<Callout> calloutsForSourceAndCountry (
+            @RequestParam CalloutSource source,
+            @RequestParam String countryCode,
+            @PageableDefault(size=5, sort="generatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        log.info("calloutsForSourceAndCountry {} {}", source, countryCode);
+
+        if (!countryCode.matches("[A-Z]{2}")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "countryCode must be a 2-letter ISO code");
+        }
+
+        return calloutService.calloutsForSourceAndCountry(source, countryCode, pageable);
     }
 
     @GetMapping("availableDays")
