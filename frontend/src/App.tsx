@@ -174,7 +174,9 @@ function App(): React.ReactElement {
   const heatmapLegend = viewMode === 'heatmap' && availableDates.length > 0 ? (() => {
     const stats = heatmapStats ?? [];
     const globalMax = Math.max(...stats.map(s => s.count), 1);
-    const sourceMax = stats.filter(s => s.source === source).reduce((m, s) => Math.max(m, s.count), 0);
+    const sourceStats = stats.filter(s => s.source === source);
+    const sourceMax = sourceStats.reduce((m, s) => Math.max(m, s.count), 0);
+    const sourceTotalCount = sourceStats.reduce((sum, s) => sum + s.count, 0);
     const gradient = sourceMax > 0 ? heatmapLegendGradient(sourceMax, globalMax) : null;
     const fmt = (iso: string) => {
       const [y, m, d] = iso.split('-').map(Number);
@@ -183,7 +185,7 @@ function App(): React.ReactElement {
     const first = availableDates[0];
     const last = availableDates[availableDates.length - 1];
     const dateRange = first === last ? fmt(first) : `${formatShortDate(first)} – ${fmt(last)}`;
-    return { sourceMax, globalMax, gradient, dateRange };
+    return { sourceMax, globalMax, gradient, dateRange, sourceTotalCount };
   })() : null;
 
   return (
@@ -291,8 +293,10 @@ function App(): React.ReactElement {
         {heatmapLegend && heatmapLegend.gradient && (
           <div className="heatmap-legend-pill" aria-label="Map legend">
             <span className="heatmap-legend-text">
-              {sourceLabel} story counts · {heatmapLegend.dateRange}
+              {heatmapLegend.sourceTotalCount} stories from {sourceLabel}
             </span>
+            <div className="heatmap-legend-divider" aria-hidden="true" />
+            <span className="heatmap-legend-text">{heatmapLegend.dateRange}</span>
             <div className="heatmap-legend-divider" aria-hidden="true" />
             <div className="heatmap-legend-scale" aria-label={`Scale: 1 to ${heatmapLegend.sourceMax} stories`}>
               <span className="heatmap-legend-bound">1</span>
