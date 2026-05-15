@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-05-15
+
+Coverage Map interactivity: country hover, drill-down modal, and UI polish.
+
+### Added
+- **Country hover** in Coverage Map mode (desktop only) — border highlight and tooltip showing flag, country name, and story count
+- **Country drill-down modal** (desktop only) — click any country in Coverage Map mode to open a paginated list of stories for that country and source (`/api/news/calloutsForSourceAndCountry` endpoint)
+- Coverage Map status pill now shows the total story count across all countries, with dividers between sections
+
+### Changed
+- Natural Earth is now the default map projection
+- View mode toggle labels updated to **Day View** / **Coverage Map**
+
+### Fixed
+- Focus outline removed on map country click
+- Mobile status pill: date hidden in Coverage Map mode; always shows two elements (source + count)
+
+### CI
+- Deploy rollback step skipped if the backup step never ran (prevents spurious failure when deploy aborts before touching production)
+
 ## [0.11.1] - 2026-05-14
 
 Fix heatmap not loading on page reload when Story Counts mode was saved in localStorage.
