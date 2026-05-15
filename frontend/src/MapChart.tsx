@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { GeoProjection } from "d3-geo";
+import { GeoProjection, geoPath } from "d3-geo";
 import StoryCalloutList from './StoryCalloutList';
 import { StoryCallout, CalloutStat } from './types/news';
 import {
@@ -41,6 +41,10 @@ const calloutsCache = new Map<string, StoryCallout[]>();
 const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [] }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
+  const [hoveredGeoKey, setHoveredGeoKey] = useState<string | null>(null);
+
+  interface HoverTooltip { x: number; y: number; name: string; count: number; iso2: string; }
+  const [hoveredTooltip, setHoveredTooltip] = useState<HoverTooltip | null>(null);
 
   // Stable ref so the fetch effect doesn't re-run when parent re-renders the callback
   const onFetchStatusRef = React.useRef(onFetchStatus);
@@ -134,7 +138,20 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
     return { countByNumeric, globalMax };
   }, [viewMode, heatmapStats, source]);
 
+  // @author Claude Sonnet 4.6 Anthropic
+  const numericToIso2 = useMemo(() => {
+    const rev: Record<number, string> = {};
+    for (const [code, num] of Object.entries(iso2ToNumeric)) rev[num] = code;
+    return rev;
+  }, []);
+
+  const heatmapPathGen = useMemo(
+    () => heatmapData ? geoPath().projection(projection) : null,
+    [heatmapData, projection]
+  );
+
   return (
+    <div style={{ position: 'relative' }}>
     <ComposableMap
       projection={projectionType}
       projectionConfig={projectionOption.config}
@@ -147,58 +164,109 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         geography="https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
         stroke="#2d4257"
         strokeWidth={0.5}
-        style={{ pointerEvents: "none" }}
+        style={heatmapData ? undefined : { pointerEvents: "none" }}
       >
-        {({ geographies }) =>
-          geographies
-            .filter((geo) => geo.properties.name !== "Antarctica")
-            .map((geo) => {
-              if (heatmapData) {
-                const count = heatmapData.countByNumeric.get(Number(geo.id)) ?? 0;
-                const fill = count > 0 ? heatmapColor(count, heatmapData.globalMax) : DEFAULT_FILL;
-                const t = count > 0 ? Math.sqrt(count / heatmapData.globalMax) : 0;
-                const glowPx = count > 0 ? 2 + t * 9 : 0;
-                const glow = count > 0
-                  ? `drop-shadow(0 0 ${glowPx.toFixed(1)}px rgba(234,88,12,0.75))`
-                  : undefined;
-                const animation = t > 0.6
-                  ? 'heatPulseHot 2s ease-in-out infinite'
-                  : t > 0.3
-                    ? 'heatPulseMid 3.5s ease-in-out infinite'
-                    : 'none';
-                return (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill={fill}
-                    stroke={count > 0 ? '#c2410c60' : DEFAULT_STROKE}
-                    strokeWidth={count > 0 ? 0.8 : 0.5}
-                    style={{ default: { filter: glow, animation } }}
-                    tabIndex={-1}
-                  />
-                );
-              }
-              const isActive = activeIsoNumerics.has(Number(geo.id));
-              const activeFill = isHistorical ? ACTIVE_COUNTRY_FILL_HISTORICAL : ACTIVE_COUNTRY_FILL_CURRENT;
-              const activeStroke = isHistorical ? ACTIVE_COUNTRY_STROKE_HISTORICAL : ACTIVE_COUNTRY_STROKE_CURRENT;
+        {({ geographies }) => {
+          // @author Claude Sonnet 4.6 Anthropic
+          const filtered = geographies.filter((geo) => geo.properties.name !== "Antarctica");
+
+          return filtered.map((geo) => {
+            if (heatmapData) {
+              const count = heatmapData.countByNumeric.get(Number(geo.id)) ?? 0;
+              const fill = count > 0 ? heatmapColor(count, heatmapData.globalMax) : DEFAULT_FILL;
+              const t = count > 0 ? Math.sqrt(count / heatmapData.globalMax) : 0;
+              const glowPx = count > 0 ? 2 + t * 9 : 0;
+              const isHovered = count > 0 && geo.rsmKey === hoveredGeoKey;
+
+              const glow = count > 0
+                ? `drop-shadow(0 0 ${(isHovered ? glowPx * 1.6 : glowPx).toFixed(1)}px rgba(234,88,12,0.75))`
+                : undefined;
+              const animation = t > 0.6
+                ? 'heatPulseHot 2s ease-in-out infinite'
+                : t > 0.3
+                  ? 'heatPulseMid 3.5s ease-in-out infinite'
+                  : 'none';
+
+              const geoStyle = { filter: glow, animation };
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
-                  fill={isActive ? activeFill : DEFAULT_FILL}
-                  stroke={isActive ? activeStroke : DEFAULT_STROKE}
-                  strokeWidth={isActive ? 0.8 : 0.5}
+                  fill={fill}
+                  stroke={isHovered ? '#fb923c' : count > 0 ? '#c2410c60' : DEFAULT_STROKE}
+                  strokeWidth={isHovered ? 1.5 : count > 0 ? 0.8 : 0.5}
+                  style={{ default: geoStyle, hover: geoStyle }}
+                  onMouseEnter={count > 0 ? () => {
+                    setHoveredGeoKey(geo.rsmKey);
+                    if (heatmapPathGen) {
+                      const [cx, cy] = heatmapPathGen.centroid(geo);
+                      if (isFinite(cx) && isFinite(cy)) {
+                        const iso2 = numericToIso2[Number(geo.id)] ?? '';
+                        setHoveredTooltip({ x: cx, y: cy, name: geo.properties.name as string, count, iso2 });
+                      }
+                    }
+                  } : undefined}
+                  onMouseLeave={count > 0 ? () => { setHoveredGeoKey(null); setHoveredTooltip(null); } : undefined}
                   tabIndex={-1}
                 />
               );
-            })
-        }
+            }
+            const isActive = activeIsoNumerics.has(Number(geo.id));
+            const activeFill = isHistorical ? ACTIVE_COUNTRY_FILL_HISTORICAL : ACTIVE_COUNTRY_FILL_CURRENT;
+            const activeStroke = isHistorical ? ACTIVE_COUNTRY_STROKE_HISTORICAL : ACTIVE_COUNTRY_STROKE_CURRENT;
+            return (
+              <Geography
+                key={geo.rsmKey}
+                geography={geo}
+                fill={isActive ? activeFill : DEFAULT_FILL}
+                stroke={isActive ? activeStroke : DEFAULT_STROKE}
+                strokeWidth={isActive ? 0.8 : 0.5}
+                style={{ default: { pointerEvents: 'none' } }}
+                tabIndex={-1}
+              />
+            );
+          });
+        }}
       </Geographies>
       {/* Annotations hidden in heatmap mode */}
       {viewMode !== 'heatmap' && (
         <StoryCalloutList projection={projection} callouts={callouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical}/>
       )}
     </ComposableMap>
+    {/* @author Claude Sonnet 4.6 Anthropic */}
+    {hoveredTooltip && (() => {
+      const flag = hoveredTooltip.iso2
+        ? [...hoveredTooltip.iso2.toUpperCase()].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('')
+        : '';
+      return (
+        <div style={{
+          position: 'absolute',
+          left: `${(hoveredTooltip.x / 800) * 100}%`,
+          top: `${(hoveredTooltip.y / 600) * 100}%`,
+          transform: 'translate(-50%, calc(-100% - 10px))',
+          pointerEvents: 'none',
+          zIndex: 10,
+          background: 'rgba(8, 18, 32, 0.93)',
+          border: '1px solid rgba(251, 146, 60, 0.5)',
+          borderRadius: '10px',
+          padding: '8px 14px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '3px',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+        }}>
+          <div style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600, letterSpacing: '0.01em' }}>
+            {flag && <span style={{ marginRight: '5px' }}>{flag}</span>}{hoveredTooltip.name}
+          </div>
+          <div style={{ color: '#fb923c', fontSize: '12px', fontWeight: 500 }}>
+            {hoveredTooltip.count} {hoveredTooltip.count === 1 ? 'story' : 'stories'}
+          </div>
+        </div>
+      );
+    })()}
+    </div>
   );
 };
 
