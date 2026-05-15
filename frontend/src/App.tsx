@@ -16,8 +16,8 @@ type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
 type ViewMode = 'day' | 'heatmap';
 
 const VIEW_MODES: { value: ViewMode; label: string }[] = [
-  { value: 'day', label: 'Daily' },
-  { value: 'heatmap', label: 'Story Counts' },
+  { value: 'day', label: 'Day View' },
+  { value: 'heatmap', label: 'Coverage Map' },
 ];
 
 // Module-level cache so stats survive source/projection changes but not page reload
@@ -35,7 +35,7 @@ function App(): React.ReactElement {
     () => (localStorage.getItem('newsSource') as NewsSource | null) ?? 'GOOGLE_GEMINI'
   );
   const [projectionType, setProjectionType] = useState<ProjectionType>(
-    () => (localStorage.getItem('projectionType') as ProjectionType | null) ?? 'geoMercator'
+    () => (localStorage.getItem('projectionType') as ProjectionType | null) ?? 'geoNaturalEarth1'
   );
   // @author Claude Sonnet 4.6 Anthropic
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
