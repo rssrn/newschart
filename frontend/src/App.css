@@ -23,6 +23,10 @@ svg {
   display: block;
 }
 
+.rsm-svg path:focus {
+  outline: none;
+}
+
 .map-container {
   max-height: 100vh;
   overflow: hidden;
