@@ -104,7 +104,13 @@ public class BasicFetchSchedulerService extends BaseScheduler {
     private void scheduleAllOpenRouter() {
         List<BasicFetchSchedulerConfig.OpenRouterConfig> openRouterConfigs = config.getOpenRouterConfigs();
 
-        openRouterConfigs.stream().filter(BasicFetchSchedulerConfig.OpenRouterConfig::enabled).forEach(cfg -> {
+        openRouterConfigs.stream().filter(cfg -> {
+            if (!cfg.enabled()) {
+                log.info("OpenRouter fetch {} is disabled in config, skipping", cfg.source());
+                return false;
+            }
+            return true;
+        }).forEach(cfg -> {
             executorService.schedule(() -> {
                 try {
                     fetchOpenRouter(cfg);
