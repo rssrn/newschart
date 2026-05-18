@@ -142,6 +142,7 @@
                 <configuration>
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                     <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                    <ossIndexAnalyzerUrl>https://api.guide.sonatype.com</ossIndexAnalyzerUrl>
                     <ossIndexUsername>${env.OSS_INDEX_USERNAME}</ossIndexUsername>
                     <ossIndexPassword>${env.OSS_INDEX_PASSWORD}</ossIndexPassword>
                     <nvdApiKey>${nvd.api.key}</nvdApiKey>
