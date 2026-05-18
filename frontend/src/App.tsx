@@ -354,7 +354,7 @@ function App(): React.ReactElement {
             <circle cx="8" cy="12" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
             <circle cx="16" cy="18" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
           </svg>
-          <span>{sourceShortLabel} · {viewMode === 'heatmap' ? 'Story Counts' : isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
+          <span>{sourceShortLabel} · {viewMode === 'heatmap' ? 'Coverage Map' : isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
         </button>
       </div>
 
