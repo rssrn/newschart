@@ -21,6 +21,13 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Cache dependency-check data
+        uses: actions/cache@v4
+        with:
+          path: ~/.dependency-check/data
+          key: dependency-check-data
+          restore-keys: dependency-check-data
+
       - name: Run OWASP dependency check
         env:
           OSS_INDEX_USERNAME: ${{ secrets.OSS_INDEX_USERNAME }}
