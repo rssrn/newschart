@@ -450,6 +450,10 @@ svg {
   display: none;
 }
 
+.mobile-nav-footer {
+  display: none;
+}
+
 /* Toggle pill: hidden on desktop */
 .mobile-controls-toggle {
   display: none;
@@ -539,12 +543,12 @@ svg {
     display: none;
   }
 
-  /* Controls bar: row below the map holding footer links + toggle pill.
+  /* Controls bar: row below the map holding the toggle pill only.
      Negative top margin pulls it up over the empty southern-ocean portion of the SVG. */
   .mobile-controls-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding: 6px 12px;
     background: #0f1923;
     margin-top: -52px;
@@ -552,21 +556,38 @@ svg {
     z-index: 5;
   }
 
-  .mobile-footer-links {
+  /* Fixed footer nav */
+  .mobile-nav-footer {
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    padding: 8px 12px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    background: #0a1420;
+    border-top: 1px solid rgba(96, 165, 250, 0.08);
     font-size: 11px;
   }
 
-  .mobile-footer-links a {
+  .mobile-nav-footer a {
     color: #60a5fa;
     text-decoration: none;
   }
 
-  .mobile-footer-links a:hover {
+  .mobile-nav-footer a:hover {
     color: #93c5fd;
     text-decoration: underline;
+  }
+
+  /* Pad list bottoms so last items clear the fixed footer */
+  .mobile-story-list,
+  .mobile-coverage-list {
+    padding-bottom: calc(36px + env(safe-area-inset-bottom));
   }
 
   /* Toggle pill */
@@ -1342,9 +1363,203 @@ svg {
   text-align: center;
 }
 
-@media (max-width: 767px) {
-  .heatmap-modal-card,
-  .heatmap-modal-backdrop {
-    display: none;
+@media (max-width: 640px) {
+  .heatmap-modal-card {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    max-height: 82svh;
+    border-radius: 16px 16px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    animation: mobileSheetIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+}
+
+@keyframes mobileSheetIn {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Mobile story list (day view) ──────────────────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+
+.mobile-story-list {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-story-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #0f1923;
+    border-top: 1px solid rgba(96, 165, 250, 0.1);
+  }
+
+  .mobile-story-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(96, 165, 250, 0.07);
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-story-item:active {
+    background: rgba(96, 165, 250, 0.06);
+  }
+
+  .mobile-story-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-story-flag {
+    font-size: 20px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .mobile-story-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-story-country {
+    font-size: 11px;
+    font-weight: 600;
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .mobile-story-headline {
+    font-size: 13px;
+    color: #e2e8f0;
+    line-height: 1.35;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .mobile-story-chevron {
+    flex-shrink: 0;
+    color: #475569;
+  }
+}
+
+/* ── Mobile coverage ranking list (heatmap view) ───────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+
+.mobile-coverage-list {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  /* Constrain the whole app to viewport height so the list can fill remaining space */
+  .App {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .mobile-brand-banner,
+  .map-container,
+  .mobile-controls-bar,
+  .mobile-date-strip-wrapper {
+    flex-shrink: 0;
+  }
+
+  .mobile-coverage-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #0f1923;
+    border-top: 1px solid rgba(251, 146, 60, 0.15);
+    position: relative;
+    z-index: 6;
+  }
+
+  .mobile-coverage-list-header {
+    padding: 8px 14px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+  }
+
+  .mobile-coverage-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(251, 146, 60, 0.06);
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-coverage-item:active {
+    background: rgba(251, 146, 60, 0.07);
+  }
+
+  .mobile-coverage-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-coverage-flag {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .mobile-coverage-name {
+    flex: 1;
+    font-size: 13px;
+    color: #e2e8f0;
+  }
+
+  .mobile-coverage-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fb923c;
+    flex-shrink: 0;
+  }
+
+  .mobile-coverage-list-footer {
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #475569;
+    text-align: center;
+    border-top: 1px solid rgba(251, 146, 60, 0.06);
   }
 }

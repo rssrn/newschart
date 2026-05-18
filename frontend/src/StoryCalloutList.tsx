@@ -46,14 +46,14 @@ function formatDatelinePart(isoString: string): string {
 }
 
 // @author Claude Sonnet 4.6 Anthropic
-interface StoryDetailModalProps {
+export interface StoryDetailModalProps {
   callout: StoryCallout;
   onClose: () => void;
   isHistorical?: boolean;
 }
 
 // @author Claude Sonnet 4.6 Anthropic
-function StoryDetailModal({ callout, onClose, isHistorical = false }: StoryDetailModalProps): React.ReactElement {
+export function StoryDetailModal({ callout, onClose, isHistorical = false }: StoryDetailModalProps): React.ReactElement {
   const cardRef = useRef<HTMLElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -306,19 +306,6 @@ const boundingBox = useMemo(() => {
 
 }
 
-function getCountryFlag(countryCode: string | undefined): string {
-  if (countryCode?.length === 2) {
-    // Convert country code to flag emoji using regional indicator symbols
-    // Each letter maps to a regional indicator symbol (🇦 = U+1F1E6, 🇧 = U+1F1E7, etc.)
-    const codePoints = countryCode
-      .toUpperCase()
-      .split('')
-      .map(char => 127397 + char.codePointAt(0)!); // 127397 = 0x1F1E6 - 65
-
-    return String.fromCodePoint(...codePoints);
-  }
-
-  return '🌍'; // Default globe emoji for unknown/international
-}
+import { getCountryFlag } from './utils/countryUtils';
 
 export default StoryCalloutList;

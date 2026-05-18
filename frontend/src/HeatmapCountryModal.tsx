@@ -35,10 +35,14 @@ function formatGeneratedAt(iso: string): string {
 
 // @author Claude Sonnet 4.6 Anthropic
 const HeatmapCountryModal = ({ source, iso2, countryName, totalCount, onClose }: HeatmapCountryModalProps): React.ReactElement => {
-  const pageSize = useMemo(
-    () => Math.max(5, Math.floor((Math.min(window.innerHeight * 0.88, 640) - 160) / 52)),
-    []
-  );
+  const pageSize = useMemo(() => {
+    const isMobile = window.innerWidth <= 767;
+    if (isMobile) {
+      // Modal is 82svh on mobile; use tighter overhead and actual row height
+      return Math.max(5, Math.floor((window.innerHeight * 0.82 - 120) / 41));
+    }
+    return Math.max(5, Math.floor((Math.min(window.innerHeight * 0.88, 640) - 160) / 52));
+  }, []);
 
   const [page, setPage] = useState(0);
   const cacheKey = `${source}:${iso2}:${page}:${pageSize}`;

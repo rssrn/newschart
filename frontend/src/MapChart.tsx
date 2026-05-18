@@ -32,6 +32,7 @@ interface MapChartProps {
   readonly viewMode?: 'day' | 'heatmap';
   readonly heatmapStats?: CalloutStat[];
   readonly onCountryClick?: (iso2: string, name: string, count: number) => void;
+  readonly onCalloutsLoaded?: (callouts: StoryCallout[]) => void;
 }
 
 
@@ -39,7 +40,7 @@ interface MapChartProps {
 const calloutsCache = new Map<string, StoryCallout[]>();
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [], onCountryClick }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [], onCountryClick, onCalloutsLoaded }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
   const [hoveredGeoKey, setHoveredGeoKey] = useState<string | null>(null);
@@ -61,6 +62,9 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
   // Stable ref so the fetch effect doesn't re-run when parent re-renders the callback
   const onFetchStatusRef = React.useRef(onFetchStatus);
   useEffect(() => { onFetchStatusRef.current = onFetchStatus; }, [onFetchStatus]);
+
+  const onCalloutsLoadedRef = React.useRef(onCalloutsLoaded);
+  useEffect(() => { onCalloutsLoadedRef.current = onCalloutsLoaded; }, [onCalloutsLoaded]);
 
   const projectionOption = useMemo(
     () => PROJECTION_OPTIONS.find(p => p.value === projectionType) ?? PROJECTION_OPTIONS[0],
@@ -92,6 +96,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       Promise.resolve(cached).then(data => {
         if (controller.signal.aborted) return;
         setCallouts(data);
+        onCalloutsLoadedRef.current?.(data);
         onFetchStatusRef.current?.('success');
         if (testCase === null) track('news_loaded', { source, date, callout_count: data.length, cached: true });
       });
@@ -101,6 +106,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
     queueMicrotask(() => {
       if (controller.signal.aborted) return;
       setCallouts([]);
+      onCalloutsLoadedRef.current?.([]);
       onFetchStatusRef.current?.('loading');
     });
 
@@ -113,6 +119,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       .then((data: StoryCallout[]) => {
         if (data.length > 0) calloutsCache.set(url, data);
         setCallouts(data);
+        onCalloutsLoadedRef.current?.(data);
         onFetchStatusRef.current?.('success');
         if (testCase === null) track('news_loaded', { source, date, callout_count: data.length, cached: false, duration_ms: Math.round(performance.now() - fetchStart) });
       })

@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import './App.css';
 import MapChart from './MapChart';
 import DateTimeline from './DateTimeline';
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 import { todayIso, isToday, formatShortDate } from './utils/dateUtils';
 import { track } from './utils/analytics';
-import { CalloutStat } from './types/news';
+import { CalloutStat, StoryCallout } from './types/news';
 import { heatmapLegendGradient } from './utils/heatmapUtils';
 import HeatmapCountryModal from './HeatmapCountryModal';
+import MobileStoryList from './MobileStoryList';
+import MobileCoverageList from './MobileCoverageList';
 import { ViewMode, VIEW_MODES, NAV } from './constants';
 
 // @author Claude Sonnet 4.6 Anthropic
@@ -47,6 +49,7 @@ function App(): React.ReactElement {
   const [errorDismissed, setErrorDismissed] = useState(false);
   // @author Claude Sonnet 4.6 Anthropic
   const [heatmapClickedCountry, setHeatmapClickedCountry] = useState<{ iso2: string; name: string; count: number } | null>(null);
+  const [callouts, setCallouts] = useState<StoryCallout[]>([]);
 
   // @author Claude Sonnet 4.6 Anthropic
   const handleViewModeChange = (mode: ViewMode) => {
@@ -159,6 +162,26 @@ function App(): React.ReactElement {
   }, [mobileSheetOpen]);
 
   const sourceShortLabel = NEWS_SOURCES.find(s => s.value === source)?.shortLabel ?? source;
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const mobilePillLabel = useMemo(() => {
+    if (viewMode === 'heatmap') {
+      const stats = heatmapStats ?? [];
+      const sourceTotal = stats.filter(s => s.source === source).reduce((sum, s) => sum + s.count, 0);
+      if (sourceTotal > 0 && availableDates.length > 0) {
+        const first = availableDates[0];
+        const last = availableDates[availableDates.length - 1];
+        const range = first === last ? formatShortDate(first) : `${formatShortDate(first)} – ${formatShortDate(last)}`;
+        return `${sourceShortLabel} · ${sourceTotal} stories · ${range}`;
+      }
+      return `${sourceShortLabel} · Coverage Map`;
+    }
+    const dateLabel = isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate);
+    if (callouts.length > 0) {
+      return `${sourceShortLabel} · ${dateLabel} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
+    }
+    return `${sourceShortLabel} · ${dateLabel}`;
+  }, [viewMode, heatmapStats, source, sourceShortLabel, availableDates, selectedDate, callouts]);
 
 
   // @author Claude Sonnet 4.6 Anthropic
@@ -285,6 +308,7 @@ function App(): React.ReactElement {
             viewMode={viewMode}
             heatmapStats={heatmapStats ?? []}
             onCountryClick={(iso2, name, count) => setHeatmapClickedCountry({ iso2, name, count })}
+            onCalloutsLoaded={setCallouts}
           />
         </div>
 
@@ -336,28 +360,13 @@ function App(): React.ReactElement {
 
       {/* Mobile controls bar – below the map to avoid obscuring callouts – @author Claude Sonnet 4.6 Anthropic */}
       <div className={`mobile-controls-bar${isLoading ? ' controls-loading' : ''}`}>
-        <div className="mobile-footer-links">
-          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>{NAV.HOW_IT_WORKS}</a>
-          <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>{NAV.CREDITS}</a>
-          <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a
-            href="https://github.com/rssrn/newschart"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="newschart on GitHub (opens in new tab)"
-            onClick={() => track('nav_link_clicked', { target: 'github' })}
-          >
-            {NAV.GITHUB}
-          </a>
-        </div>
         <button
           className="mobile-controls-toggle"
           onClick={() => setMobileSheetOpen(true)}
           aria-label="Open map settings"
           aria-expanded={mobileSheetOpen}
         >
-          <span>{sourceShortLabel} · {viewMode !== 'day' ? (VIEW_MODES.find(m => m.value === viewMode)?.label ?? viewMode) : isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
+          <span>{mobilePillLabel}</span>
         </button>
       </div>
 
@@ -457,6 +466,37 @@ function App(): React.ReactElement {
           </div>
         </div>
       )}
+
+      {/* Mobile story list – day view – @author Claude Sonnet 4.6 Anthropic */}
+      {viewMode === 'day' && (
+        <MobileStoryList callouts={callouts} isHistorical={selectedDate !== todayIso()} />
+      )}
+
+      {/* Mobile coverage ranking list – heatmap view – @author Claude Sonnet 4.6 Anthropic */}
+      {viewMode === 'heatmap' && heatmapStats && (
+        <MobileCoverageList
+          stats={heatmapStats}
+          source={source}
+          onCountryClick={(iso2, name, count) => setHeatmapClickedCountry({ iso2, name, count })}
+        />
+      )}
+
+      {/* Mobile fixed footer nav – @author Claude Sonnet 4.6 Anthropic */}
+      <nav className="mobile-nav-footer" aria-label="Site navigation">
+        <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>{NAV.HOW_IT_WORKS}</a>
+        <span className="map-footer-sep" aria-hidden="true">·</span>
+        <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>{NAV.CREDITS}</a>
+        <span className="map-footer-sep" aria-hidden="true">·</span>
+        <a
+          href="https://github.com/rssrn/newschart"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="newschart on GitHub (opens in new tab)"
+          onClick={() => track('nav_link_clicked', { target: 'github' })}
+        >
+          {NAV.GITHUB}
+        </a>
+      </nav>
     </div>
   );
 }
