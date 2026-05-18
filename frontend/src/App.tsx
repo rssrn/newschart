@@ -8,17 +8,10 @@ import { track } from './utils/analytics';
 import { CalloutStat } from './types/news';
 import { heatmapLegendGradient } from './utils/heatmapUtils';
 import HeatmapCountryModal from './HeatmapCountryModal';
+import { ViewMode, VIEW_MODES, NAV } from './constants';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
-
-// @author Claude Sonnet 4.6 Anthropic
-type ViewMode = 'day' | 'heatmap';
-
-const VIEW_MODES: { value: ViewMode; label: string }[] = [
-  { value: 'day', label: 'Day View' },
-  { value: 'heatmap', label: 'Coverage Map' },
-];
 
 // Module-level cache so stats survive source/projection changes but not page reload
 let heatmapStatsCache: CalloutStat[] | null = null;
@@ -307,9 +300,9 @@ function App(): React.ReactElement {
         )}
 
         <div className="map-footer-overlay">
-          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
+          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>{NAV.HOW_IT_WORKS}</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
+          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>{NAV.CREDITS}</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
           <a
             href="https://github.com/rssrn/newschart"
@@ -318,7 +311,7 @@ function App(): React.ReactElement {
             aria-label="newschart on GitHub (opens in new tab)"
             onClick={() => track('nav_link_clicked', { target: 'github' })}
           >
-            GitHub
+            {NAV.GITHUB}
           </a>
         </div>
       </div>
@@ -326,9 +319,9 @@ function App(): React.ReactElement {
       {/* Mobile controls bar – below the map to avoid obscuring callouts – @author Claude Sonnet 4.6 Anthropic */}
       <div className={`mobile-controls-bar${isLoading ? ' controls-loading' : ''}`}>
         <div className="mobile-footer-links">
-          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>How it works</a>
+          <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>{NAV.HOW_IT_WORKS}</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
-          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>Credits</a>
+          <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>{NAV.CREDITS}</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
           <a
             href="https://github.com/rssrn/newschart"
@@ -337,7 +330,7 @@ function App(): React.ReactElement {
             aria-label="newschart on GitHub (opens in new tab)"
             onClick={() => track('nav_link_clicked', { target: 'github' })}
           >
-            GitHub
+            {NAV.GITHUB}
           </a>
         </div>
         <button
@@ -354,7 +347,7 @@ function App(): React.ReactElement {
             <circle cx="8" cy="12" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
             <circle cx="16" cy="18" r="2.5" fill="white" stroke="currentColor" strokeWidth="2"/>
           </svg>
-          <span>{sourceShortLabel} · {viewMode === 'heatmap' ? 'Coverage Map' : isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
+          <span>{sourceShortLabel} · {viewMode !== 'day' ? (VIEW_MODES.find(m => m.value === viewMode)?.label ?? viewMode) : isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
         </button>
       </div>
 
