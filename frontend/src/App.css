@@ -34,6 +34,12 @@ svg {
   position: relative;
 }
 
+/* ── Mobile brand banner – above the map, hidden on desktop ─────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+.mobile-brand-banner {
+  display: none;
+}
+
 /* ── Brand badge – top-left, mirrors source selector ────────────────────── */
 /* @author Claude Sonnet 4.6 Anthropic */
 .map-chart-layer {
@@ -462,27 +468,46 @@ svg {
 }
 
 @media (max-width: 640px) {
-  /* Small breathing room at the top of the page */
-  .App {
-    padding-top: 8px;
+  /* Mobile brand banner replaces the in-map badge */
+  .mobile-brand-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #0f1923;
   }
 
-  /* Brand badge: smaller and flush to corner on mobile */
+  .mobile-brand-banner .brand-badge-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-brand-banner .brand-badge-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+
+  .mobile-banner-hamburger {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 4px;
+    color: #94a3b8;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-banner-hamburger:active {
+    color: #e2e8f0;
+  }
+
+  /* Hide the in-map badge on mobile */
   .brand-badge {
-    top: 5px;
-    left: 5px;
-    padding: 4px 8px 4px 5px;
-    gap: 6px;
-    border-radius: 6px;
-  }
-
-  .brand-badge-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .brand-badge-text {
-    font-size: 13px;
+    display: none;
   }
 
   /* Hide the desktop overlay */
@@ -568,10 +593,6 @@ svg {
     background: rgba(29, 78, 216, 0.2);
   }
 
-  .mobile-controls-icon {
-    color: #60a5fa;
-    flex-shrink: 0;
-  }
 
   /* Backdrop */
   .mobile-controls-backdrop {
