@@ -2,7 +2,7 @@ name: OWASP Dependency Check
 
 on:
   schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
+    - cron: '0 2 * * 3'  # Every Wednesday at 02:00 UTC
   workflow_dispatch:
 
 jobs:
