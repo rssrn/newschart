@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-05-18
+
+Mobile navigation redesign and SEO groundwork.
+
+### Added
+- **Mobile navigation**: brand moves to a top banner; hamburger in the banner opens the settings panel
+- `robots.txt` and `sitemap.xml` for search engine indexing
+
+### Changed
+- UI strings centralised in `constants.ts` to prevent label drift between components
+
+### Fixed
+- Mobile status pill label corrected to "Coverage Map" (was "Story Counts")
+- Heatmap legend pill now shows the short source name instead of the full name
+
+### Build
+- Vite upgraded to ^8, Vitest to ^4
+- Dev dependency bumps: `@types/node`, `@vitejs/plugin-react-swc`, `@testing-library/react`, `eslint-plugin-react-refresh`
+
 ## [0.12.0] - 2026-05-15
 
 Coverage Map interactivity: country hover, drill-down modal, and UI polish.
