@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /api/
+Disallow: /__layout-test
+
+Sitemap: https://newschart.rossarnold.uk/sitemap.xml
