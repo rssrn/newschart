@@ -159,7 +159,6 @@ function App(): React.ReactElement {
   }, [mobileSheetOpen]);
 
   const sourceShortLabel = NEWS_SOURCES.find(s => s.value === source)?.shortLabel ?? source;
-  const sourceLabel = NEWS_SOURCES.find(s => s.value === source)?.label ?? source;
 
 
   // @author Claude Sonnet 4.6 Anthropic
@@ -305,7 +304,7 @@ function App(): React.ReactElement {
         {heatmapLegend && heatmapLegend.gradient && (
           <div className="heatmap-legend-pill" aria-label="Map legend">
             <span className="heatmap-legend-text">
-              {heatmapLegend.sourceTotalCount} stories from {sourceLabel}
+              {heatmapLegend.sourceTotalCount} stories from {sourceShortLabel}
             </span>
             <div className="heatmap-legend-divider" aria-hidden="true" />
             <span className="heatmap-legend-text">{heatmapLegend.dateRange}</span>
