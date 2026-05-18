@@ -82,6 +82,9 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 - Umami tracking is wired via `track(eventName, properties)` in `frontend/src/utils/analytics.ts`
 - **Proactively propose tracking** for any new or changed frontend interactions before committing — suggest event names and properties, confirm with user before adding
 
+## Dependency Management
+- **Version selection**: When adding or migrating dependencies, verify the current stable latest version via `npm info <pkg> dist-tags` before selecting a version range. For major-version decisions (e.g. whether `^3` or `^4` is appropriate), also check peer dependency compatibility with other packages in the project via `npm info <pkg> peerDependencies`.
+
 ## Claude Assistance
 - For the frontend it's likely Claude will be producing/updating code
 - For the backend, Claude is likely to be giving review/advice only, so don't offer to make edits
