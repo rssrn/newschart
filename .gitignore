@@ -36,6 +36,7 @@ build/
 tools/node_modules/
 tools/screenshots/
 *.png
+!frontend/public/og-preview.png
 
 ### Layout test output ###
 frontend/test-output/

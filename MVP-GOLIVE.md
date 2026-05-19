@@ -118,7 +118,7 @@ Items are grouped into three tiers:
 
 ### Frontend — Polish
 
-- [ ] **Basic SEO meta tags** — description, og:title for portfolio discoverability
+- [x] **Basic SEO meta tags** — description, og:title for portfolio discoverability
 - [ ] **`accessibility.html`** — accessibility statement: WCAG commitment, what's been done, known limitations, contact for issues
 - [ ] **"How it works" / `method.html`** — explain the pipeline (news ingestion → Gemini summarisation → geo-tagging → map display); good portfolio signal
 - [ ] **Footer navigation** — link to credits, accessibility, and how-it-works from every page
