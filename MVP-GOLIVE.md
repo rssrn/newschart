@@ -84,9 +84,9 @@ Items are grouped into three tiers:
 
 ### Documentation & Portfolio
 
-- [x] **README updated** — architecture overview, screenshots, live URL
+- [ ] **README updated** — architecture overview, screenshots, live URL
 - [x] **Live URL working** — smoke test all key user flows after deploy
-- [ ] **GitHub repo tidy** — description, topics, social preview image set, badges
+- [x] **GitHub repo tidy** — description, topics, social preview image set, badges
 
 ---
 
