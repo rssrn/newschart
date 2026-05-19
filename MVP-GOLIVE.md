@@ -94,7 +94,7 @@ Items are grouped into three tiers:
 
 ### Code Quality & Accessibility
 
-- [ ] **ESLint** — confirm JavaScript linting is wired up and passing in CI
+- [x] **ESLint** — confirm JavaScript linting is wired up and passing in CI
 - [ ] **`html-validate`** — add for static HTML pages (credits, accessibility); catches WCAG violations at build time
 - [ ] **Manual Lighthouse audit** — run Lighthouse in Chrome DevTools against the live site; fix any critical accessibility or performance issues
 - [ ] **Pre-commit hooks** — wire ESLint and html-validate into `.pre-commit-config.yaml`
