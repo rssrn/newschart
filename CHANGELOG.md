@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-05-19
+
+Mobile completeness and backend cost fix.
+
+### Added
+- **Mobile Story List** — scrollable story list below the date strip in Day View; tap any story to open the detail modal
+- **Mobile Coverage List** — top 20 countries by story count in Coverage Map view; tap to open the country drill-down modal as a bottom sheet
+- **Contact footer link** — opens a modal with GitHub Issues (primary) and LinkedIn links on both desktop and mobile
+- Mobile pill now shows story count and date range (mirrors desktop legend)
+
+### Changed
+- Mobile nav links moved to a fixed footer; controls bar simplified to source/view pill only
+
+### Fixed
+- Backend now skips re-fetching today's news if callouts already exist — prevents redundant AI API calls on app restart or redeployment
+
+### CI
+- OWASP NVD dependency-check data cached between runs (faster CI)
+- OWASP scan rescheduled to Wednesday 02:00 UTC
+- OSS Index migrated to Sonatype Guide API
+
+### Security
+- Tomcat bumped/pinned to patch CVE-2026-41293, CVE-2026-43512, CVE-2026-43515
+
 ## [0.13.0] - 2026-05-18
 
 Mobile navigation redesign and SEO groundwork.
