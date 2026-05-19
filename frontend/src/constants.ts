@@ -9,4 +9,5 @@ export const NAV = {
   HOW_IT_WORKS: 'How it works',
   CREDITS: 'Credits',
   GITHUB: 'GitHub',
+  CONTACT: 'Contact',
 } as const;

@@ -8,6 +8,7 @@ import { track } from './utils/analytics';
 import { CalloutStat, StoryCallout } from './types/news';
 import { heatmapLegendGradient } from './utils/heatmapUtils';
 import HeatmapCountryModal from './HeatmapCountryModal';
+import ContactModal from './ContactModal';
 import MobileStoryList from './MobileStoryList';
 import MobileCoverageList from './MobileCoverageList';
 import { ViewMode, VIEW_MODES, NAV } from './constants';
@@ -49,6 +50,7 @@ function App(): React.ReactElement {
   const [errorDismissed, setErrorDismissed] = useState(false);
   // @author Claude Sonnet 4.6 Anthropic
   const [heatmapClickedCountry, setHeatmapClickedCountry] = useState<{ iso2: string; name: string; count: number } | null>(null);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
 
   // @author Claude Sonnet 4.6 Anthropic
@@ -355,6 +357,13 @@ function App(): React.ReactElement {
           >
             {NAV.GITHUB}
           </a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
+          <button
+            className="map-footer-btn"
+            onClick={() => { track('nav_link_clicked', { target: 'contact' }); setContactModalOpen(true); }}
+          >
+            {NAV.CONTACT}
+          </button>
         </div>
       </div>
 
@@ -437,6 +446,11 @@ function App(): React.ReactElement {
         </button>
       </div>
 
+      {/* Contact modal – @author Claude Sonnet 4.6 Anthropic */}
+      {contactModalOpen && (
+        <ContactModal onClose={() => setContactModalOpen(false)} />
+      )}
+
       {/* Heatmap country modal – @author Claude Sonnet 4.6 Anthropic */}
       {heatmapClickedCountry && viewMode === 'heatmap' && (
         <HeatmapCountryModal
@@ -496,6 +510,13 @@ function App(): React.ReactElement {
         >
           {NAV.GITHUB}
         </a>
+        <span className="map-footer-sep" aria-hidden="true">·</span>
+        <button
+          className="map-footer-btn"
+          onClick={() => { track('nav_link_clicked', { target: 'contact' }); setContactModalOpen(true); }}
+        >
+          {NAV.CONTACT}
+        </button>
       </nav>
     </div>
   );
