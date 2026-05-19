@@ -62,7 +62,7 @@ Items are grouped into three tiers:
 - [x] **npm audit workflow** — run `npm audit --audit-level=high` in frontend CI
 - [x] **Review `SUPPRESS.md` / `owasp-suppressions.xml`** — ensure all suppressions are still justified before go-live
 - [x] **Dependabot** — enable for Maven, npm, and GitHub Actions in `.github/dependabot.yml`
-- [ ] **CORS configuration** — lock down `@CrossOrigin` to the production domain only
+- [x] **CORS configuration** — lock down `@CrossOrigin` to the production domain only
 
 ### Frontend — Production Readiness
 
@@ -84,7 +84,7 @@ Items are grouped into three tiers:
 
 ### Documentation & Portfolio
 
-- [ ] **README updated** — architecture overview, screenshots, live URL
+- [x] **README updated** — architecture overview, screenshots, live URL
 - [x] **Live URL working** — smoke test all key user flows after deploy
 - [ ] **GitHub repo tidy** — description, topics, social preview image set, badges
 
