@@ -45,22 +45,18 @@ public class CalloutService implements PipelineStep {
         // set callout source here, it's not populated by the model
         callouts.forEach(c -> c.setSource(source));
 
-        // ideally this check is not necessary, but useful for local testing purposes
-        if (haveCalloutForToday(source)) {
-            log.warn("Already have at least one callout for source {} so ignoring new callouts", source);
-        } else {
-            calloutRepository.saveAll(callouts);
-            log.info("Saved {} callouts for source {}", callouts.size(), source);
-        }
+        calloutRepository.saveAll(callouts);
+        log.info("Saved {} callouts for source {}", callouts.size(), source);
+
         return context;
     }
 
-    private boolean haveCalloutForToday(CalloutSource source) {
+    public boolean haveCalloutForToday(CalloutSource source) {
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
         Instant start = today.atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant end = today.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
 
-        log.info("Checking start {} end {} source {}", start, end, source);
+        log.info("haveCalloutForToday: Checking start {} end {} source {}", start, end, source);
 
         Optional<Callout> firstMatch = calloutRepository.findFirstByGeneratedAtBetweenAndSourceOrderByGeneratedAtAsc(start, end, source);
 

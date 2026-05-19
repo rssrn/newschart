@@ -40,6 +40,7 @@ public class NytPipelineOrchestrator extends BasePipelineOrchestrator {
      * so steps can be re-used in other pipelines.
      */
     private void setOrderedPipelineSteps() {
+        pipelineSteps.add(new SkipIfCalloutExistsPipelineStep(calloutService)); // skip if already fetched today
         pipelineSteps.add(ingestionService);  // ingest NYT RSS
         pipelineSteps.add(parserService);     // parse the RSS
         pipelineSteps.add(highlighter);       // extract crucial details e.g. stories for top X countries, by country

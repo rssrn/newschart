@@ -93,7 +93,7 @@ class CalloutServiceTest {
         List<Callout> result = calloutService.calloutsForDay(LocalDate.of(2020, 2, 10), CalloutSource.NEW_YORK_TIMES);
 
         assertEquals(1, result.size());
-        assertEquals(CalloutSource.NEW_YORK_TIMES, result.get(0).getSource());
+        assertEquals(CalloutSource.NEW_YORK_TIMES, result.getFirst().getSource());
     }
 
     @Test
@@ -174,7 +174,9 @@ class CalloutServiceTest {
     }
 
     @Test
-    void executeSkipsSaveWhenCalloutAlreadyExistsForToday() {
+    void executeAlwaysSavesCallouts() {
+        // Duplicate-run guard moved to SkipIfCalloutExistsPipelineStep (upstream in pipeline).
+        // CalloutService.execute() now unconditionally saves whatever callouts it receives.
         calloutRepository.save(callout(Instant.now(), CalloutSource.NEW_YORK_TIMES));
 
         PipelineContext context = new PipelineContext();
@@ -186,7 +188,7 @@ class CalloutServiceTest {
 
         calloutService.execute(context);
 
-        assertEquals(1, calloutRepository.count());
+        assertEquals(3, calloutRepository.count());
     }
 
     @Test
@@ -224,9 +226,9 @@ class CalloutServiceTest {
         List<CalloutStats> stats = calloutService.calloutStatsAllCallouts();
 
         assertEquals(1, stats.size());
-        assertEquals("NEW_YORK_TIMES", stats.get(0).source());
-        assertEquals("US", stats.get(0).countryCode());
-        assertEquals(3, stats.get(0).count());
+        assertEquals("NEW_YORK_TIMES", stats.getFirst().source());
+        assertEquals("US", stats.getFirst().countryCode());
+        assertEquals(3, stats.getFirst().count());
     }
 
     @Test
@@ -243,9 +245,9 @@ class CalloutServiceTest {
 
         assertEquals(3, stats.size());
 
-        assertEquals("GOOGLE_GEMINI", stats.get(0).source());
-        assertEquals("GB", stats.get(0).countryCode());
-        assertEquals(1, stats.get(0).count());
+        assertEquals("GOOGLE_GEMINI", stats.getFirst().source());
+        assertEquals("GB", stats.getFirst().countryCode());
+        assertEquals(1, stats.getFirst().count());
 
         assertEquals("NEW_YORK_TIMES", stats.get(1).source());
         assertEquals("FR", stats.get(1).countryCode());
@@ -270,7 +272,7 @@ class CalloutServiceTest {
         List<CalloutStats> withCountry = stats.stream().filter(s -> s.countryCode() != null).toList();
 
         assertEquals(1, withCountry.size());
-        assertEquals("DE", withCountry.get(0).countryCode());
-        assertEquals(1, withCountry.get(0).count());
+        assertEquals("DE", withCountry.getFirst().countryCode());
+        assertEquals(1, withCountry.getFirst().count());
     }
 }

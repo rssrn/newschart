@@ -18,6 +18,7 @@ public class OpenRouterPipelineOrchestrator extends BasePipelineOrchestrator {
     }
 
     private void setOrderedPipelineSteps() {
+        pipelineSteps.add(new SkipIfCalloutExistsPipelineStep(calloutService)); // skip if already fetched today
         pipelineSteps.add(new OpenRouterPipelineStep(openRouterGatewayService)); // hit model via OpenRouter to generate the callouts
         pipelineSteps.add(calloutService);         // save the callouts
     }

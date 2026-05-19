@@ -11,6 +11,7 @@ import java.util.List;
 public class PipelineContext {
 
     private boolean failed = false;
+    private boolean skipped = false;
 
     private NewsEntry newsRss;
     private List<NewsItem> newsItems;
@@ -49,6 +50,14 @@ public class PipelineContext {
 
     public void setFailed(boolean failed) {
         this.failed = failed;
+    }
+
+    public boolean isSkipped() {
+        return skipped;
+    }
+
+    public void setSkipped(boolean skipped) {
+        this.skipped = skipped;
     }
 
     public List<Callout> getCallouts() {

@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import uk.rossarnold.newschart.ai.GeminiGatewayService;
-import uk.rossarnold.newschart.callout.CalloutSource;
 import uk.rossarnold.newschart.callout.Callout;
 
 import java.util.List;
@@ -22,7 +21,6 @@ public class GeminiPipelineStep implements PipelineStep {
 
     @Override
     public PipelineContext execute(PipelineContext context) {
-        context.setCalloutSource(CalloutSource.GOOGLE_GEMINI);
 
         Optional<List<Callout>> calloutsOpt = geminiGatewayService.getCallouts();
 

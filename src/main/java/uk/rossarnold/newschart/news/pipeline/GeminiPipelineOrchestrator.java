@@ -21,6 +21,7 @@ public class GeminiPipelineOrchestrator extends BasePipelineOrchestrator {
     }
 
     private void setOrderedPipelineSteps() {
+        pipelineSteps.add(new SkipIfCalloutExistsPipelineStep(calloutService));  // skip if already fetched today
         pipelineSteps.add(new GeminiPipelineStep(geminiGatewayService)); // gemini to generate the callouts
         pipelineSteps.add(calloutService);         // save the callouts
     }
