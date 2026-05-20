@@ -52,13 +52,21 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 - Google Gemini API key (for AI summarisation)
 - OpenRouter API key (optional, for Perplexity/OpenAI sources)
 
-### 1. Start MongoDB
+### 1. Install git hooks
+
+```bash
+./setup.sh
+```
+
+This configures pre-push checks (security audit + accessibility tests) that mirror CI.
+
+### 2. Start MongoDB
 
 ```bash
 docker compose up -d mongodb
 ```
 
-### 2. Start the backend
+### 3. Start the backend
 
 ```bash
 export GOOGLE_API_KEY=your_gemini_key
@@ -68,7 +76,7 @@ export OPENROUTER_API_KEY=your_openrouter_key   # optional, for Perplexity/OpenA
 
 The backend starts on port 8080 and begins ingesting news on a schedule.
 
-### 3. Start the frontend
+### 4. Start the frontend
 
 ```bash
 cd frontend

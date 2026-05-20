@@ -1,0 +1,31 @@
+#!/bin/bash
+# Run npm audit before push to catch high-severity vulnerabilities locally.
+# Mirrors the npm audit step in frontend-ci.yml.
+
+PUSHED=$(git diff --name-only HEAD @{u} 2>/dev/null || git diff --name-only HEAD)
+
+if ! echo "$PUSHED" | grep -q '^frontend/'; then
+  exit 0
+fi
+
+echo "Running npm audit in frontend..."
+
+cd frontend
+npm audit --audit-level=high
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "npm audit found high-severity vulnerabilities. Fix them or run 'npm audit --audit-level=high' for details."
+  exit 1
+fi
+
+echo "Running accessibility tests..."
+npm run test:a11y
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "Accessibility tests failed. Run 'npm run test:a11y' in frontend/ for details."
+  exit 1
+fi

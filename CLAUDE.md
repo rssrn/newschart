@@ -6,6 +6,13 @@ NewsChart displays top world news stories on an interactive world map. It's a fu
 
 **At the start of a new session**, propose starting the backend and frontend services if they're not already running.
 
+## First-Time Setup
+
+After cloning, run once to install git hooks:
+```bash
+./setup.sh
+```
+
 ## Build & Run Commands
 
 ### Backend (Spring Boot)
