@@ -22,11 +22,13 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest",
+    "test:a11y": "playwright test --config=playwright-a11y.config.ts",
     "test:layout": "node ../scripts/run-layout-tests.mjs",
     "lint": "eslint ."
   },
   "devDependencies": {
     "@eslint/js": "^10",
+    "@axe-core/playwright": "^4.11.3",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25",
     "@types/react": "^19.2.13",

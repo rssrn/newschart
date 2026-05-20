@@ -685,7 +685,7 @@ svg {
   .mobile-sheet-section-title {
     font-size: 10px;
     font-weight: 600;
-    color: #475569;
+    color: #94a3b8; /* was #475569 — lightened for WCAG AA contrast on dark bg */
     text-transform: uppercase;
     letter-spacing: 0.07em;
     padding: 0 20px 2px;
@@ -729,7 +729,7 @@ svg {
     width: calc(100% - 40px);
     margin: 14px 20px 16px;
     padding: 13px;
-    background: #8b5cf6;
+    background: #7c3aed; /* was #8b5cf6 — darkened for WCAG AA contrast (white text) */
     color: white;
     border: none;
     border-radius: 10px;
@@ -742,7 +742,7 @@ svg {
   }
 
   .mobile-sheet-done:active {
-    background: #7c3aed;
+    background: #6d28d9;
   }
 
   /* Always-visible date chip strip — sits below the map container */
@@ -1607,7 +1607,7 @@ svg {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #64748b;
+    color: #94a3b8; /* was #64748b — lightened for WCAG AA contrast on dark bg */
   }
 
   .mobile-coverage-item {

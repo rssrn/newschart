@@ -145,6 +145,7 @@ const DateTimeline = ({ availableDates, selectedDate, onChange, disabled = false
             }
           }}
           role="slider"
+          aria-label="Date"
           aria-valuemin={0}
           aria-valuemax={availableDates.length - 1}
           aria-valuenow={idx}
