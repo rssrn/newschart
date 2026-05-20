@@ -23,12 +23,13 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:a11y": "playwright test --config=playwright-a11y.config.ts",
+    "test:a11y:components": "vitest run --reporter=verbose a11y.test",
     "test:layout": "node ../scripts/run-layout-tests.mjs",
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@eslint/js": "^10",
     "@axe-core/playwright": "^4.11.3",
+    "@eslint/js": "^10",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25",
     "@types/react": "^19.2.13",
@@ -42,6 +43,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8",
     "vite": "^8",
-    "vitest": "^4"
+    "vitest": "^4",
+    "vitest-axe": "^0.1.0"
   }
 }

@@ -3,3 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+import 'vitest-axe/extend-expect';
+import { expect } from 'vitest';
+import { toHaveNoViolations } from 'vitest-axe/matchers';
+expect.extend({ toHaveNoViolations });

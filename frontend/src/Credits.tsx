@@ -147,7 +147,7 @@ const Credits =(): React.ReactElement => (
       <table className="cr-table">
         <thead>
           <tr>
-            <th scope="col" className="icon-col"></th>
+            <th scope="col" className="icon-col"><span className="visually-hidden">Icon</span></th>
             <th scope="col" style={{ width: '25%' }}>Person / Project / Service</th>
             <th scope="col" style={{ width: '50%' }}>Purpose</th>
             <th scope="col" style={{ width: '25%' }}>License</th>

@@ -226,7 +226,7 @@ function App(): React.ReactElement {
         </button>
       </div>
 
-      <div className="map-container">
+      <div className="map-container" role="main">
 
         {/* Brand badge – top-left, desktop only */}
         <div className="brand-badge" aria-label="NewsChart">
