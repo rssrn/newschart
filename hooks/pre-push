@@ -20,6 +20,16 @@ if [ $STATUS -ne 0 ]; then
   exit 1
 fi
 
+echo "Running Vitest suite..."
+npm test -- --run
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+  echo ""
+  echo "Vitest tests failed. Run 'npm test -- --run' in frontend/ for details."
+  exit 1
+fi
+
 echo "Running accessibility tests..."
 npm run test:a11y
 STATUS=$?
