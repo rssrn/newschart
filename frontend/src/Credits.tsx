@@ -99,6 +99,43 @@ const Credits =(): React.ReactElement => (
       .favicon-img { width: 20px; height: 20px; display: inline-block; vertical-align: middle; border-radius: 2px; }
       .cr-table tbody:last-child tr:last-child td { border-bottom: none; }
       .cr-table tr:hover td:not(.sec-hdr) { background: #eff6ff; }
+      @media (max-width: 600px) {
+        .cr-table thead { display: none; }
+        .cr-table,
+        .cr-table tbody { display: block; }
+        .cr-table tr {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: flex-start;
+          padding: 10px 14px;
+          border-bottom: 1px solid #f3f4f6;
+        }
+        .cr-table tr:has(.sec-hdr) { padding: 0; }
+        .cr-table td { padding: 0; border-bottom: none; }
+        .cr-table .icon-col {
+          width: 28px;
+          flex-shrink: 0;
+          align-self: center;
+          text-align: left;
+        }
+        .cr-table td:nth-child(2) {
+          flex: 1;
+          min-width: 0;
+          align-self: center;
+        }
+        .cr-table td:nth-child(3) {
+          flex-basis: 100%;
+          padding-left: 32px;
+          margin-top: 4px;
+        }
+        .cr-table td:nth-child(4) {
+          flex-basis: 100%;
+          padding-left: 32px;
+          margin-top: 4px;
+        }
+        .sec-hdr { display: block !important; width: 100% !important; }
+        .cr-table tr:hover td:not(.sec-hdr) { background: transparent; }
+      }
       .cr-footer {
         margin-top: 40px;
         padding-top: 20px;
