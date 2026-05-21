@@ -122,6 +122,11 @@ svg {
 /* Main callout box - SMALLER (2/3 size) */
 .map-annotation-box {
   background: rgb(8, 18, 32);
+  /* Opaque background fixes connector bleed-through (v0.14.1); the backdrop-filter
+     is visually a no-op here but forces the SVG <foreignObject> compositing path
+     that prevents map-wide GPU rasterization corruption on some mobile GPUs. */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(96, 165, 250, 0.4);
   border-radius: 4px;
   padding: 0;
