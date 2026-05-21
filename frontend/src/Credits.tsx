@@ -1,11 +1,9 @@
 import React from 'react';
+import StaticPageShell from './StaticPageShell';
 
 const Credits =(): React.ReactElement => (
-  <>
+  <StaticPageShell>
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
-      *, *::before, *::after { box-sizing: border-box; }
-      body { margin: 0; background-color: #f5f5f5; }
       .cr-container {
         max-width: 900px;
         margin: 0 auto;
@@ -23,28 +21,6 @@ const Credits =(): React.ReactElement => (
       }
       .cr-header h1 { margin: 0 0 4px; font-size: 1.75rem; font-weight: 700; color: #1e3a5f; font-family: 'IBM Plex Mono', monospace; }
       .cr-subtitle { color: #4b5563; font-size: 0.95rem; }
-      .cr-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 20px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #2563eb;
-        text-decoration: none;
-        transition: gap 0.15s ease;
-      }
-      .cr-back:hover, .cr-back:focus {
-        color: #1d4ed8;
-        gap: 9px;
-        text-decoration: none;
-      }
-      .cr-back-arrow {
-        font-size: 1rem;
-        line-height: 1;
-        transition: transform 0.15s ease;
-      }
-      .cr-back:hover .cr-back-arrow { transform: translateX(-2px); }
       .cr-table {
         width: 100%;
         border-collapse: collapse;
@@ -134,16 +110,6 @@ const Credits =(): React.ReactElement => (
         .sec-hdr { display: block !important; width: 100% !important; }
         .cr-table tr:hover td:not(.sec-hdr) { background: transparent; }
       }
-      .cr-footer {
-        margin-top: 40px;
-        padding-top: 20px;
-        border-top: 1px solid #dbeafe;
-        text-align: center;
-        font-size: 0.875rem;
-        color: #4b5563;
-      }
-      .cr-footer a { color: #2563eb; text-decoration: none; }
-      .cr-footer a:hover, .cr-footer a:focus { text-decoration: underline; }
       .visually-hidden {
         position: absolute; width: 1px; height: 1px; padding: 0;
         margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
@@ -176,11 +142,6 @@ const Credits =(): React.ReactElement => (
         <h1>Credits &amp; Acknowledgments</h1>
         <div className="cr-subtitle">Technologies and data sources powering NewsChart</div>
       </header>
-
-      <a href="/" className="cr-back">
-        <span className="cr-back-arrow">←</span>
-        Back to NewsChart
-      </a>
 
       <table className="cr-table">
         <thead>
@@ -420,17 +381,8 @@ const Credits =(): React.ReactElement => (
         </tbody>
       </table>
 
-      <footer className="cr-footer">
-        <a href="/">Home</a>
-        {' · '}
-        <a href="/method">How It Works</a>
-        {' · '}
-        <a href="/accessibility">Accessibility</a>
-        {' · '}
-        <a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer">GitHub</a>
-      </footer>
     </div>
-  </>
+  </StaticPageShell>
 );
 
 const FaviconImg = ({ domain, alt }: { domain: string; alt: string }): React.ReactElement => (

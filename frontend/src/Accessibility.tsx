@@ -1,12 +1,10 @@
 import React from 'react';
+import StaticPageShell from './StaticPageShell';
 
 /** @author Claude Sonnet 4.6 Anthropic */
 const Accessibility = (): React.ReactElement => (
-  <>
+  <StaticPageShell>
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
-      *, *::before, *::after { box-sizing: border-box; }
-      body { margin: 0; background-color: #f5f5f5; }
       .ac-container {
         max-width: 900px;
         margin: 0 auto;
@@ -18,8 +16,6 @@ const Accessibility = (): React.ReactElement => (
       }
       .ac-container a { color: #2563eb; text-decoration: underline; }
       .ac-container a:hover, .ac-container a:focus { color: #1d4ed8; }
-      .ac-back { text-decoration: none; }
-      .ac-back:hover, .ac-back:focus { text-decoration: none; }
       .ac-header {
         padding: 32px 0 24px;
         border-bottom: 2px solid #dbeafe;
@@ -33,24 +29,6 @@ const Accessibility = (): React.ReactElement => (
         font-family: 'IBM Plex Mono', monospace;
       }
       .ac-subtitle { color: #4b5563; font-size: 0.95rem; }
-      .ac-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 24px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #2563eb;
-        text-decoration: none;
-        transition: gap 0.15s ease;
-      }
-      .ac-back:hover, .ac-back:focus {
-        color: #1d4ed8;
-        gap: 9px;
-        text-decoration: none;
-      }
-      .ac-back-arrow { font-size: 1rem; line-height: 1; transition: transform 0.15s ease; }
-      .ac-back:hover .ac-back-arrow { transform: translateX(-2px); }
       .ac-section {
         background: #ffffff;
         border-radius: 6px;
@@ -73,16 +51,6 @@ const Accessibility = (): React.ReactElement => (
       }
       .ac-section li { margin-bottom: 8px; }
       .ac-section li:last-child { margin-bottom: 0; }
-      .ac-footer {
-        margin-top: 32px;
-        padding-top: 20px;
-        border-top: 1px solid #dbeafe;
-        color: #4b5563;
-        font-size: 0.875rem;
-        text-align: center;
-      }
-      .ac-footer a { color: #2563eb; text-decoration: none; }
-      .ac-footer a:hover, .ac-footer a:focus { text-decoration: underline; }
       .ac-updated {
         margin-top: 16px;
         font-style: italic;
@@ -97,10 +65,6 @@ const Accessibility = (): React.ReactElement => (
       </header>
 
       <main id="main-content">
-        <a href="/" className="ac-back">
-          <span className="ac-back-arrow">←</span> Back to map
-        </a>
-
         <section className="ac-section">
           <h2>Our commitment</h2>
           <p>
@@ -175,17 +139,8 @@ const Accessibility = (): React.ReactElement => (
         <p className="ac-updated">Last updated: May 2026</p>
       </main>
 
-      <footer className="ac-footer">
-        <a href="/">Home</a>
-        {' · '}
-        <a href="/method">How It Works</a>
-        {' · '}
-        <a href="/credits">Credits</a>
-        {' · '}
-        <a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer">GitHub</a>
-      </footer>
     </div>
-  </>
+  </StaticPageShell>
 );
 
 export default Accessibility;

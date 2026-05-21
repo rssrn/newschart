@@ -6,6 +6,7 @@ export const VIEW_MODES: { value: ViewMode; label: string }[] = [
 ];
 
 export const NAV = {
+  HOME: 'Home',
   HOW_IT_WORKS: 'How it works',
   CREDITS: 'Credits',
   ACCESSIBILITY: 'Accessibility',

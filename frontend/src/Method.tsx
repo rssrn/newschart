@@ -1,12 +1,10 @@
 import React from 'react';
+import StaticPageShell from './StaticPageShell';
 
 /** @author Claude Opus 4.7 Anthropic */
 const Method = (): React.ReactElement => (
-  <>
+  <StaticPageShell>
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
-      *, *::before, *::after { box-sizing: border-box; }
-      body { margin: 0; background-color: #f5f5f5; }
       .mt-container {
         max-width: 900px;
         margin: 0 auto;
@@ -18,8 +16,6 @@ const Method = (): React.ReactElement => (
       }
       .mt-container a { color: #2563eb; text-decoration: underline; }
       .mt-container a:hover, .mt-container a:focus { color: #1d4ed8; }
-      .mt-back { text-decoration: none; }
-      .mt-back:hover, .mt-back:focus { text-decoration: none; }
       .mt-header {
         padding: 32px 0 24px;
         border-bottom: 2px solid #dbeafe;
@@ -33,25 +29,6 @@ const Method = (): React.ReactElement => (
         font-family: 'IBM Plex Mono', monospace;
       }
       .mt-subtitle { color: #4b5563; font-size: 0.95rem; }
-      .mt-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 24px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #2563eb;
-        text-decoration: none;
-        transition: gap 0.15s ease;
-      }
-      .mt-back:hover, .mt-back:focus {
-        color: #1d4ed8;
-        gap: 9px;
-        text-decoration: none;
-      }
-      .mt-back-arrow { font-size: 1rem; line-height: 1; transition: transform 0.15s ease; }
-      .mt-back:hover .mt-back-arrow { transform: translateX(-2px); }
-
       .mt-section {
         background: #ffffff;
         border-radius: 6px;
@@ -134,17 +111,6 @@ const Method = (): React.ReactElement => (
       .mt-toc ol { margin: 0; padding-left: 20px; }
       .mt-toc li { margin-bottom: 4px; }
 
-      .mt-footer {
-        margin-top: 36px;
-        padding-top: 20px;
-        border-top: 1px solid #dbeafe;
-        text-align: center;
-        font-size: 0.875rem;
-        color: #4b5563;
-      }
-      .mt-footer a { color: #2563eb; text-decoration: none; }
-      .mt-footer a:hover, .mt-footer a:focus { text-decoration: underline; }
-
       @media (max-width: 640px) {
         .mt-container { padding: 0 16px 32px; }
         .mt-section { padding: 18px 18px; }
@@ -159,11 +125,6 @@ const Method = (): React.ReactElement => (
           A user guide, plus a look under the hood at the AI and engineering behind it
         </div>
       </header>
-
-      <a href="/" className="mt-back">
-        <span className="mt-back-arrow">←</span>
-        Back to NewsChart
-      </a>
 
       <nav className="mt-toc" aria-label="Page contents">
         <div className="mt-toc-title">On this page</div>
@@ -553,17 +514,8 @@ const Method = (): React.ReactElement => (
         </p>
       </section>
 
-      <footer className="mt-footer">
-        <a href="/">Home</a>
-        {' · '}
-        <a href="/credits">Credits</a>
-        {' · '}
-        <a href="/accessibility">Accessibility</a>
-        {' · '}
-        <a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer">GitHub</a>
-      </footer>
     </div>
-  </>
+  </StaticPageShell>
 );
 
 export default Method;
