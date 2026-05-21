@@ -45,8 +45,14 @@ public class CalloutController {
         return calloutService.calloutsForDay(date, source);
     }
 
+    record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages) {
+        static <T> PageResponse<T> of(Page<T> p) {
+            return new PageResponse<>(p.getContent(), p.getNumber(), p.getSize(), p.getTotalElements(), p.getTotalPages());
+        }
+    }
+
     @GetMapping("calloutsForSourceAndCountry")
-    public Page<Callout> calloutsForSourceAndCountry (
+    public PageResponse<Callout> calloutsForSourceAndCountry (
             @RequestParam CalloutSource source,
             @RequestParam String countryCode,
             @PageableDefault(size=5, sort="generatedAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -56,7 +62,7 @@ public class CalloutController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "countryCode must be a 2-letter ISO code");
         }
 
-        return calloutService.calloutsForSourceAndCountry(source, countryCode, pageable);
+        return PageResponse.of(calloutService.calloutsForSourceAndCountry(source, countryCode, pageable));
     }
 
     @GetMapping("availableDays")
