@@ -201,6 +201,27 @@ const Credits =(): React.ReactElement => (
           </tr>
         </tbody>
         <tbody>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Security</th></tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="owasp.org" alt="" /></td>
+            <td><a href="https://owasp.org/www-project-dependency-check/" target="_blank" rel="noopener noreferrer">OWASP Dependency-Check</a></td>
+            <td>Maven plugin that scans Java dependencies for known CVEs; runs as a dedicated GitHub Actions workflow</td>
+            <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="npmjs.com" alt="" /></td>
+            <td><a href="https://docs.npmjs.com/cli/commands/npm-audit" target="_blank" rel="noopener noreferrer">npm audit</a></td>
+            <td>Built-in npm command that checks frontend dependencies against the npm advisory database; runs locally in the pre-push hook and in the Frontend CI GitHub Actions workflow on every push</td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
+            <td><a href="https://docs.github.com/en/code-security/dependabot" target="_blank" rel="noopener noreferrer">GitHub Dependabot</a></td>
+            <td>Automated dependency update PRs for Maven, npm, and GitHub Actions packages; configured for weekly scans</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
+        </tbody>
+        <tbody>
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Frontend Libraries</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="react.dev" alt="" /></td>
@@ -359,12 +380,6 @@ const Credits =(): React.ReactElement => (
             <td><a href="https://eslint.org/" target="_blank" rel="noopener noreferrer">ESLint</a></td>
             <td>JavaScript/TypeScript linter with react-hooks and typescript-eslint plugins</td>
             <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
-          </tr>
-          <tr>
-            <td className="icon-col"><FaviconImg domain="owasp.org" alt="" /></td>
-            <td><a href="https://owasp.org/www-project-dependency-check/" target="_blank" rel="noopener noreferrer">OWASP Dependency-Check</a></td>
-            <td>Maven plugin that scans Java dependencies for known CVEs</td>
-            <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="deque.com" alt="" /></td>
