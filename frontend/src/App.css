@@ -53,7 +53,6 @@ svg {
   left: 12px;
   z-index: 2;
   background: rgba(10, 20, 35, 0.88);
-  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(96, 165, 250, 0.2);
   border-radius: 8px;
@@ -87,7 +86,6 @@ svg {
   right: 12px;
   z-index: 10;
   background: rgba(10, 20, 35, 0.88);
-  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(96, 165, 250, 0.2);
   border-radius: 6px;
@@ -125,7 +123,6 @@ svg {
   /* Opaque background fixes connector bleed-through (v0.14.1); the backdrop-filter
      is visually a no-op here but forces the SVG <foreignObject> compositing path
      that prevents map-wide GPU rasterization corruption on some mobile GPUs. */
-  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(96, 165, 250, 0.4);
   border-radius: 4px;
@@ -287,7 +284,6 @@ svg {
   align-items: center;
   gap: 10px;
   background: rgba(10, 20, 35, 0.88);
-  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
@@ -359,7 +355,6 @@ svg {
   align-items: center;
   gap: 7px;
   background: rgba(25, 15, 5, 0.95);
-  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(251, 191, 36, 0.5);
   border-radius: 6px;
@@ -415,7 +410,6 @@ svg {
   left: 12px;
   z-index: 10;
   background: rgba(10, 20, 35, 0.82);
-  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(96, 165, 250, 0.15);
   border-radius: 4px;
@@ -621,7 +615,6 @@ svg {
     align-items: center;
     gap: 5px;
     background: rgba(10, 20, 35, 0.88);
-    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(96, 165, 250, 0.25);
     border-radius: 20px;
@@ -811,7 +804,6 @@ svg {
   inset: 0;
   z-index: 200;
   background: rgba(15, 23, 42, 0.45);
-  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   animation: storyBackdropIn 0.2s ease forwards;
 }
@@ -1043,7 +1035,6 @@ svg {
   align-items: center;
   gap: 6px;
   background: rgba(10, 20, 35, 0.88);
-  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 6px;
@@ -1212,7 +1203,6 @@ svg {
   inset: 0;
   z-index: 200;
   background: rgba(15, 23, 42, 0.45);
-  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 
