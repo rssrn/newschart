@@ -404,7 +404,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 10
       },
       "id": 7,
       "panels": [],
@@ -439,7 +439,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 6
+        "y": 11
       },
       "id": 8,
       "options": {
@@ -501,7 +501,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 6
+        "y": 11
       },
       "id": 9,
       "options": {
@@ -571,7 +571,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 6
+        "y": 11
       },
       "id": 10,
       "options": {
@@ -642,7 +642,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 6
+        "y": 11
       },
       "id": 11,
       "options": {
@@ -683,7 +683,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 10
+        "y": 15
       },
       "id": 21,
       "panels": [],
@@ -718,7 +718,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 11
+        "y": 16
       },
       "id": 22,
       "options": {
@@ -780,7 +780,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 11
+        "y": 16
       },
       "id": 23,
       "options": {
@@ -850,7 +850,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 11
+        "y": 16
       },
       "id": 24,
       "options": {
@@ -921,7 +921,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 11
+        "y": 16
       },
       "id": 25,
       "options": {
@@ -962,7 +962,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 20
       },
       "id": 26,
       "panels": [],
@@ -997,7 +997,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 16
+        "y": 21
       },
       "id": 27,
       "options": {
@@ -1059,7 +1059,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 16
+        "y": 21
       },
       "id": 28,
       "options": {
@@ -1129,7 +1129,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 16
+        "y": 21
       },
       "id": 29,
       "options": {
@@ -1200,7 +1200,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 16
+        "y": 21
       },
       "id": 30,
       "options": {
@@ -1241,7 +1241,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 25
       },
       "id": 12,
       "panels": [],
@@ -1276,7 +1276,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 21
+        "y": 26
       },
       "id": 13,
       "options": {
@@ -1346,7 +1346,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 21
+        "y": 26
       },
       "id": 14,
       "options": {
@@ -1416,7 +1416,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 21
+        "y": 26
       },
       "id": 15,
       "options": {
@@ -1488,7 +1488,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 21
+        "y": 26
       },
       "id": 16,
       "options": {
@@ -1528,7 +1528,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 30
       },
       "id": 17,
       "panels": [],
@@ -1573,7 +1573,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 31
       },
       "id": 18,
       "options": {
@@ -1645,7 +1645,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 26
+        "y": 31
       },
       "id": 19,
       "options": {
@@ -1707,7 +1707,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 26
+        "y": 31
       },
       "id": 20,
       "options": {
@@ -1739,6 +1739,175 @@
         }
       ],
       "title": "Live threads",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 31,
+      "panels": [],
+      "title": "Application Logs",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cfhzotpx2uio0f"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cfhzotpx2uio0f"
+          },
+          "expr": "increase(logback_events_total{application=\"$application\", instance=\"$instance\", level=\"error\"}[$__range])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Errors (in range)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cfhzotpx2uio0f"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 33,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cfhzotpx2uio0f"
+          },
+          "expr": "increase(logback_events_total{application=\"$application\", instance=\"$instance\", level=\"warn\"}[$__range])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Warnings (in range)",
       "type": "stat"
     }
   ],
@@ -1786,6 +1955,6 @@
   "timezone": "browser",
   "title": "NewsChart — Key Metrics",
   "uid": "newschart-key",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }
