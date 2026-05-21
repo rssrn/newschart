@@ -89,6 +89,10 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 - Umami tracking is wired via `track(eventName, properties)` in `frontend/src/utils/analytics.ts`
 - **Proactively propose tracking** for any new or changed frontend interactions before committing — suggest event names and properties, confirm with user before adding
 
+## Sitemap
+- Sitemap lives at `frontend/public/sitemap.xml`
+- **When a new page is added, remind the user to update the sitemap** before committing
+
 ## Accessibility Testing
 - Playwright axe tests live in `frontend/src/__tests__/a11y/`: `map.a11y.spec.ts` (main map + modals), `static-pages.a11y.spec.ts` (/method and /credits)
 - Component-level axe tests (vitest-axe) live alongside each component as `*.a11y.test.tsx`
