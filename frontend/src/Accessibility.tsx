@@ -77,7 +77,7 @@ const Accessibility = (): React.ReactElement => (
         margin-top: 32px;
         padding-top: 20px;
         border-top: 1px solid #dbeafe;
-        color: #6b7280;
+        color: #4b5563;
         font-size: 0.875rem;
         text-align: center;
       }
@@ -86,7 +86,7 @@ const Accessibility = (): React.ReactElement => (
       .ac-updated {
         margin-top: 16px;
         font-style: italic;
-        color: #9ca3af;
+        color: #4b5563;
         font-size: 0.85rem;
       }
     `}</style>
