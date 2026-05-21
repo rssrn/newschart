@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.3] - 2026-05-21
+
+Mobile map rendering fix (production build).
+
+### Fixed
+- The 0.14.2 fix worked in dev but not in the production bundle: the CSS minifier dropped the unprefixed `backdrop-filter`, keeping only `-webkit-backdrop-filter`, which Android Chrome ignores — so the map corruption persisted on affected devices. Reordered all `backdrop-filter` declarations (prefixed first, standard last) so the minifier preserves both. Verified against the production build on-device.
+
 ## [0.14.2] - 2026-05-21
 
 Mobile map rendering fix.
