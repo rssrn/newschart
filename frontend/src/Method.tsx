@@ -142,6 +142,8 @@ const Method = (): React.ReactElement => (
         font-size: 0.875rem;
         color: #4b5563;
       }
+      .mt-footer a { color: #2563eb; text-decoration: none; }
+      .mt-footer a:hover, .mt-footer a:focus { text-decoration: underline; }
 
       @media (max-width: 640px) {
         .mt-container { padding: 0 16px 32px; }
@@ -552,13 +554,13 @@ const Method = (): React.ReactElement => (
       </section>
 
       <footer className="mt-footer">
-        <a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer">
-          GitHub
-        </a>
+        <a href="/">Home</a>
         {' · '}
         <a href="/credits">Credits</a>
         {' · '}
-        <a href="/">Home</a>
+        <a href="/accessibility">Accessibility</a>
+        {' · '}
+        <a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer">GitHub</a>
       </footer>
     </div>
   </>

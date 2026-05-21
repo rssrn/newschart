@@ -35,3 +35,15 @@ test('/credits page — no axe violations', async ({ page }) => {
   logViolations('/credits', results.violations);
   expect(results.violations, 'axe violations on /credits').toEqual([]);
 });
+
+test('/accessibility page — no axe violations', async ({ page }) => {
+  await page.goto('/accessibility');
+  await page.waitForSelector('h1', { state: 'visible' });
+
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+
+  logViolations('/accessibility', results.violations);
+  expect(results.violations, 'axe violations on /accessibility').toEqual([]);
+});

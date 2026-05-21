@@ -8,6 +8,7 @@ export const VIEW_MODES: { value: ViewMode; label: string }[] = [
 export const NAV = {
   HOW_IT_WORKS: 'How it works',
   CREDITS: 'Credits',
+  ACCESSIBILITY: 'Accessibility',
   GITHUB: 'GitHub',
   CONTACT: 'Contact',
 } as const;

@@ -348,6 +348,8 @@ function App(): React.ReactElement {
           <span className="map-footer-sep" aria-hidden="true">·</span>
           <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>{NAV.CREDITS}</a>
           <span className="map-footer-sep" aria-hidden="true">·</span>
+          <a href="/accessibility" onClick={() => track('nav_link_clicked', { target: 'accessibility' })}>{NAV.ACCESSIBILITY}</a>
+          <span className="map-footer-sep" aria-hidden="true">·</span>
           <a
             href="https://github.com/rssrn/newschart"
             target="_blank"
@@ -500,6 +502,8 @@ function App(): React.ReactElement {
         <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>{NAV.HOW_IT_WORKS}</a>
         <span className="map-footer-sep" aria-hidden="true">·</span>
         <a href="/credits" onClick={() => track('nav_link_clicked', { target: 'credits' })}>{NAV.CREDITS}</a>
+        <span className="map-footer-sep" aria-hidden="true">·</span>
+        <a href="/accessibility" onClick={() => track('nav_link_clicked', { target: 'accessibility' })}>{NAV.ACCESSIBILITY}</a>
         <span className="map-footer-sep" aria-hidden="true">·</span>
         <a
           href="https://github.com/rssrn/newschart"

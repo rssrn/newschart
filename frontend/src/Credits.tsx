@@ -142,6 +142,8 @@ const Credits =(): React.ReactElement => (
         font-size: 0.875rem;
         color: #4b5563;
       }
+      .cr-footer a { color: #2563eb; text-decoration: none; }
+      .cr-footer a:hover, .cr-footer a:focus { text-decoration: underline; }
       .visually-hidden {
         position: absolute; width: 1px; height: 1px; padding: 0;
         margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
@@ -419,10 +421,13 @@ const Credits =(): React.ReactElement => (
       </table>
 
       <footer className="cr-footer">
+        <a href="/">Home</a>
+        {' · '}
+        <a href="/method">How It Works</a>
+        {' · '}
+        <a href="/accessibility">Accessibility</a>
+        {' · '}
         <a href="https://github.com/rssrn/newschart" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <div style={{ marginTop: 8 }}>
-          Made with appreciation for the open source community
-        </div>
       </footer>
     </div>
   </>
