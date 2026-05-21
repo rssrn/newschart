@@ -59,10 +59,10 @@ const Accessibility = (): React.ReactElement => (
       }
     `}</style>
     <div className="ac-container">
-      <header className="ac-header">
+      <div className="ac-header">
         <h1>Accessibility</h1>
         <div className="ac-subtitle">Our commitment to inclusive access</div>
-      </header>
+      </div>
 
       <main id="main-content">
         <section className="ac-section">

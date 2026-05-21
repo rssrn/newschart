@@ -119,12 +119,12 @@ const Method = (): React.ReactElement => (
     `}</style>
 
     <div className="mt-container">
-      <header className="mt-header">
+      <div className="mt-header">
         <h1>How NewsChart Works</h1>
         <div className="mt-subtitle">
           A user guide, plus a look under the hood at the AI and engineering behind it
         </div>
-      </header>
+      </div>
 
       <nav className="mt-toc" aria-label="Page contents">
         <div className="mt-toc-title">On this page</div>

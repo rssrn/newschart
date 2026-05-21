@@ -138,10 +138,10 @@ const Credits =(): React.ReactElement => (
       .badge-mpl        { background: #fff7ed; color: #9a3412; }
     `}</style>
     <div className="cr-container">
-      <header className="cr-header">
+      <div className="cr-header">
         <h1>Credits &amp; Acknowledgments</h1>
         <div className="cr-subtitle">Technologies and data sources powering NewsChart</div>
-      </header>
+      </div>
 
       <table className="cr-table">
         <thead>
