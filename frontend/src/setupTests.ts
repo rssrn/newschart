@@ -17,3 +17,9 @@ declare module 'vitest' {
   interface Assertion<T = any> extends AxeMatchers {}
   interface AsymmetricMatchersContaining extends AxeMatchers {}
 }
+
+// jsdom does not implement scrollIntoView; stub it so components that call it
+// inside layout effects (e.g. the active date chip) don't throw during tests.
+if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
