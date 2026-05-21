@@ -13,9 +13,10 @@ import type { AxeMatchers } from 'vitest-axe/matchers';
 expect.extend(axeMatchers as never);
 
 declare module 'vitest' {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-object-type */
   interface Assertion<T = any> extends AxeMatchers {}
   interface AsymmetricMatchersContaining extends AxeMatchers {}
+  /* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-object-type */
 }
 
 // jsdom does not implement scrollIntoView; stub it so components that call it
