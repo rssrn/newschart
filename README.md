@@ -34,6 +34,16 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 
 **[How it works: AI models, prompts, and engineering →](https://newschart.rossarnold.uk/method)**
 
+## Screenshots
+
+| Desktop — day view | Desktop — heatmap |
+|---|---|
+| ![Desktop day view with three story callouts](docs/screenshots/screenshot-desktop-day-view.png) | ![Desktop heatmap choropleth](docs/screenshots/screenshot-desktop-heatmap.png) |
+
+| Mobile — heatmap | Desktop — credits |
+|---|---|
+| ![Mobile heatmap with country coverage list](docs/screenshots/screenshot-mobile-heatmap.png) | ![Desktop credits page](docs/screenshots/screenshot-desktop-credits.png) |
+
 ## Technical highlights
 
 - **Multi-model AI comparison** — three independent LLMs (each with native web search) plus a human-edited NYT baseline, queried daily via the same prompt so differences in coverage are the models' own.
