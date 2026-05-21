@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-05-21
+
+Accessibility statement, shared header/footer on static pages, and observability improvements.
+
+### Added
+- **Accessibility statement page** (`/accessibility`) — WCAG commitment, what's been done, known limitations, and contact link
+- **Shared header and footer** — `/accessibility`, `/credits`, and `/method` now share a consistent header (with nav links) and footer
+- **Credits: Security section** — acknowledges OWASP dependency-check, npm audit, and Dependabot
+- **Metrics dashboard** — error/warning log panels added to key metrics dashboard
+
+### Fixed
+- Contrast ratios on Accessibility page corrected to meet WCAG AA
+- `<header>` replaced with `<div>` in static page content sections (a11y fix)
+- Credits page now responsive on mobile
+- Backend: paged callout response wrapped in `PageResponse` (fixes log warning)
+
+### Build
+- Autoprefixer added — CSS vendor prefixes are now generated automatically, which is more robust than relying on manual declaration ordering
+
+### Tests
+- Playwright axe coverage extended to static pages, modals, and mobile sheet; two WCAG violations fixed
+
 ## [0.14.3] - 2026-05-21
 
 Mobile map rendering fix (production build).
