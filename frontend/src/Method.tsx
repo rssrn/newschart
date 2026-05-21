@@ -16,8 +16,10 @@ const Method = (): React.ReactElement => (
         color: #374151;
         line-height: 1.6;
       }
-      .mt-container a { color: #2563eb; text-decoration: none; }
-      .mt-container a:hover, .mt-container a:focus { color: #1d4ed8; text-decoration: underline; }
+      .mt-container a { color: #2563eb; text-decoration: underline; }
+      .mt-container a:hover, .mt-container a:focus { color: #1d4ed8; }
+      .mt-back { text-decoration: none; }
+      .mt-back:hover, .mt-back:focus { text-decoration: none; }
       .mt-header {
         padding: 32px 0 24px;
         border-bottom: 2px solid #dbeafe;
@@ -30,7 +32,7 @@ const Method = (): React.ReactElement => (
         color: #1e3a5f;
         font-family: 'IBM Plex Mono', monospace;
       }
-      .mt-subtitle { color: #6b7280; font-size: 0.95rem; }
+      .mt-subtitle { color: #4b5563; font-size: 0.95rem; }
       .mt-back {
         display: inline-flex;
         align-items: center;
@@ -138,7 +140,7 @@ const Method = (): React.ReactElement => (
         border-top: 1px solid #dbeafe;
         text-align: center;
         font-size: 0.875rem;
-        color: #6b7280;
+        color: #4b5563;
       }
 
       @media (max-width: 640px) {

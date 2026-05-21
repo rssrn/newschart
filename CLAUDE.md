@@ -89,6 +89,11 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 - Umami tracking is wired via `track(eventName, properties)` in `frontend/src/utils/analytics.ts`
 - **Proactively propose tracking** for any new or changed frontend interactions before committing — suggest event names and properties, confirm with user before adding
 
+## Accessibility Testing
+- Playwright axe tests live in `frontend/src/__tests__/a11y/`: `map.a11y.spec.ts` (main map + modals), `static-pages.a11y.spec.ts` (/method and /credits)
+- Component-level axe tests (vitest-axe) live alongside each component as `*.a11y.test.tsx`
+- **Proactively propose updating accessibility tests** when new UI elements, pages, modals, or interactive states are introduced — suggest which test file needs a new test case and what state to exercise
+
 ## Dependency Management
 - **Version selection**: When adding or migrating dependencies, verify the current stable latest version via `npm info <pkg> dist-tags` before selecting a version range. For major-version decisions (e.g. whether `^3` or `^4` is appropriate), also check peer dependency compatibility with other packages in the project via `npm info <pkg> peerDependencies`.
 

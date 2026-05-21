@@ -170,7 +170,16 @@ Uses Testcontainers (MongoDB) for integration tests — requires Docker.
 
 ```bash
 cd frontend
-CI=true npm test         # unit tests (React Testing Library)
+CI=true npm test         # unit tests (React Testing Library + vitest-axe component a11y)
+```
+
+#### Accessibility tests
+
+WCAG 2.1 AA audits using Playwright + axe-core, run against a production build (no backend required — API calls are stubbed). Covers the main map (day view, heatmap, modals, mobile sheet) and the `/method` and `/credits` pages, across desktop and mobile viewports.
+
+```bash
+cd frontend
+npm run test:a11y
 ```
 
 #### Layout algorithm test suite

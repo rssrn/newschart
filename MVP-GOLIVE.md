@@ -95,6 +95,7 @@ Items are grouped into three tiers:
 ### Code Quality & Accessibility
 
 - [x] **ESLint** — confirm JavaScript linting is wired up and passing in CI
+- [x] **Playwright axe tests** — WCAG 2.1 AA axe scans covering: main map (day + heatmap views), ContactModal, HeatmapCountryModal, mobile controls sheet, `/method` page, `/credits` page; desktop + mobile viewports
 - [ ] **`html-validate`** — add for static HTML pages (credits, accessibility); catches WCAG violations at build time
 - [ ] **Manual Lighthouse audit** — run Lighthouse in Chrome DevTools against the live site; fix any critical accessibility or performance issues
 - [ ] **Pre-commit hooks** — wire ESLint and html-validate into `.pre-commit-config.yaml`

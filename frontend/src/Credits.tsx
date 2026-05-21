@@ -22,7 +22,7 @@ const Credits =(): React.ReactElement => (
         margin-bottom: 28px;
       }
       .cr-header h1 { margin: 0 0 4px; font-size: 1.75rem; font-weight: 700; color: #1e3a5f; font-family: 'IBM Plex Mono', monospace; }
-      .cr-subtitle { color: #6b7280; font-size: 0.95rem; }
+      .cr-subtitle { color: #4b5563; font-size: 0.95rem; }
       .cr-back {
         display: inline-flex;
         align-items: center;
@@ -80,17 +80,15 @@ const Credits =(): React.ReactElement => (
       .sec-hdr-link {
         font-size: 0.75rem;
         font-weight: 400;
-        opacity: 0.8;
-        color: #ffffff;
+        color: #dbeafe;
         text-decoration: none;
         margin-left: 10px;
         letter-spacing: 0.01em;
         border-bottom: 1px solid rgba(255,255,255,0.4);
       }
       .sec-hdr-link:hover, .sec-hdr-link:focus {
-        opacity: 1;
-        border-bottom-color: #ffffff;
         color: #ffffff;
+        border-bottom-color: #ffffff;
         text-decoration: none;
       }
       .cr-table td a { color: #2563eb; font-weight: 500; border-bottom: 1px dotted #93c5fd; }
@@ -142,7 +140,7 @@ const Credits =(): React.ReactElement => (
         border-top: 1px solid #dbeafe;
         text-align: center;
         font-size: 0.875rem;
-        color: #6b7280;
+        color: #4b5563;
       }
       .visually-hidden {
         position: absolute; width: 1px; height: 1px; padding: 0;
@@ -169,6 +167,7 @@ const Credits =(): React.ReactElement => (
       .badge-epl        { background: #ede9fe; color: #5b21b6; }
       .badge-acm        { background: #f0f9ff; color: #0369a1; }
       .badge-nyt        { background: #fafafa; color: #374151; border: 1px solid #e5e7eb; }
+      .badge-mpl        { background: #fff7ed; color: #9a3412; }
     `}</style>
     <div className="cr-container">
       <header className="cr-header">
@@ -226,9 +225,15 @@ const Credits =(): React.ReactElement => (
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
           <tr>
+            <td className="icon-col"><FaviconImg domain="openrouter.ai" alt="" /></td>
+            <td><a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">OpenRouter</a></td>
+            <td>API gateway used to route requests to Perplexity Sonar and OpenAI ChatGPT models</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
+          <tr>
             <td className="icon-col"><FaviconImg domain="nytimes.com" alt="" /></td>
             <td><a href="https://rss.nytimes.com/" target="_blank" rel="noopener noreferrer">New York Times RSS</a></td>
-            <td>World news headlines feed used as primary news source</td>
+            <td>World news RSS feed; used to provide a non-AI-sourced, editorially curated news source for comparison</td>
             <td><LicenseBadge variant="nyt" label="NYT Terms of Service" href="https://thenewyorktimeshelpcenter.helpjuice.com/115002797688-Policies/115014893428-Terms-of-Service/" /></td>
           </tr>
         </tbody>
@@ -383,7 +388,7 @@ const Credits =(): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="playwright.dev" alt="" /></td>
             <td><a href="https://playwright.dev/" target="_blank" rel="noopener noreferrer">Playwright</a></td>
-            <td>Screenshot tests for visual regression checking of the map layout</td>
+            <td>End-to-end browser testing: layout screenshot tests and WCAG accessibility audits</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
           <tr>
@@ -397,6 +402,18 @@ const Credits =(): React.ReactElement => (
             <td><a href="https://owasp.org/www-project-dependency-check/" target="_blank" rel="noopener noreferrer">OWASP Dependency-Check</a></td>
             <td>Maven plugin that scans Java dependencies for known CVEs</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="deque.com" alt="" /></td>
+            <td><a href="https://github.com/dequelabs/axe-core" target="_blank" rel="noopener noreferrer">axe-core / @axe-core/playwright</a></td>
+            <td>Accessibility testing engine; runs WCAG 2.1 AA audits in Playwright end-to-end tests</td>
+            <td><LicenseBadge variant="mpl" label="MPL 2.0" href="https://opensource.org/licenses/MPL-2.0" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
+            <td><a href="https://github.com/nicholasbailey/vitest-axe" target="_blank" rel="noopener noreferrer">vitest-axe</a></td>
+            <td>Vitest matchers for axe-core component-level accessibility testing</td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
           </tr>
         </tbody>
       </table>
@@ -420,7 +437,7 @@ const FaviconImg = ({ domain, alt }: { domain: string; alt: string }): React.Rea
   />
 );
 
-type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'epl' | 'acm' | 'nyt';
+type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'epl' | 'acm' | 'nyt' | 'mpl';
 
 /** @author Claude Sonnet 4.6 Anthropic */
 const LicenseBadge = ({ variant, label, href }: { variant: LicenseVariant; label: string; href?: string }): React.ReactElement => {
