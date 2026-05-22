@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.1] - 2026-05-22
+
+CI link-checking, broken link fixes, and sitemap update.
+
+### Added
+- **Link-check CI** — post-deploy workflow scans the live site for broken links via lychee; weekly workflow scans frontend source files. Bot-blocking domains are excluded. Both run on `workflow_dispatch` for manual triggering. Lychee credited on the Credits page.
+
+### Fixed
+- Broken credits link in README now points to the live site
+- vitest-axe GitHub link updated to current repo owner (chaance)
+
+### Docs
+- `/accessibility` added to sitemap
+
 ## [0.15.0] - 2026-05-21
 
 Accessibility statement, shared header/footer on static pages, and observability improvements.
