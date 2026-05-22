@@ -389,7 +389,7 @@ const Credits =(): React.ReactElement => (
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
-            <td><a href="https://github.com/nicholasbailey/vitest-axe" target="_blank" rel="noopener noreferrer">vitest-axe</a></td>
+            <td><a href="https://github.com/chaance/vitest-axe" target="_blank" rel="noopener noreferrer">vitest-axe</a></td>
             <td>Vitest matchers for axe-core component-level accessibility testing</td>
             <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
           </tr>
