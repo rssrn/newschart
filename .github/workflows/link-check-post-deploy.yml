@@ -1,0 +1,22 @@
+name: Link Check (Post-Deploy)
+
+on:
+  workflow_run:
+    workflows: ["Deploy to Live"]
+    types: [completed]
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@v2.8.0
+        with:
+          args: >
+            --base https://newschart.rossarnold.uk
+            --include 'https://newschart\.rossarnold\.uk'
+            --verbose
+            --no-progress
+            https://newschart.rossarnold.uk
+          fail: true
