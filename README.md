@@ -288,7 +288,7 @@ Built with:
 - [MongoDB](https://www.mongodb.com/) — news storage
 - [Testcontainers](https://testcontainers.com/) — integration test infrastructure
 
-[See full credits and licenses →](frontend/public/credits.html)
+[See full credits and licenses →](https://newschart.rossarnold.uk/credits)
 
 ---
 
