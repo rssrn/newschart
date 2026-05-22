@@ -495,7 +495,7 @@ const Method = (): React.ReactElement => (
           </li>
           <li>
             <strong>Database.</strong>{' '}
-            <a href="https://www.mongodb.com/atlas" target="_blank" rel="noopener noreferrer">MongoDB Atlas</a>{' '}
+            <a href="https://www.mongodb.com/products/platform" target="_blank" rel="noopener noreferrer">MongoDB Atlas</a>{' '}
             (managed, free tier). MongoDB suits the document-shaped story data and
             removes one operational burden from a single-developer project.
           </li>

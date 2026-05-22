@@ -195,7 +195,7 @@ const Credits =(): React.ReactElement => (
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="nytimes.com" alt="" /></td>
-            <td><a href="https://rss.nytimes.com/" target="_blank" rel="noopener noreferrer">New York Times RSS</a></td>
+            <td><a href="https://www.nytimes.com/rss" target="_blank" rel="noopener noreferrer">New York Times RSS</a></td>
             <td>World news RSS feed; used to provide a non-AI-sourced, editorially curated news source for comparison</td>
             <td><LicenseBadge variant="nyt" label="NYT Terms of Service" href="https://thenewyorktimeshelpcenter.helpjuice.com/115002797688-Policies/115014893428-Terms-of-Service/" /></td>
           </tr>
@@ -212,11 +212,11 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="npmjs.com" alt="" /></td>
             <td><a href="https://docs.npmjs.com/cli/commands/npm-audit" target="_blank" rel="noopener noreferrer">npm audit</a></td>
             <td>Built-in npm command that checks frontend dependencies against the npm advisory database; runs locally in the pre-push hook and in the Frontend CI GitHub Actions workflow on every push</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
-            <td><a href="https://docs.github.com/en/code-security/dependabot" target="_blank" rel="noopener noreferrer">GitHub Dependabot</a></td>
+            <td><a href="https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain" target="_blank" rel="noopener noreferrer">GitHub Dependabot</a></td>
             <td>Automated dependency update PRs for Maven, npm, and GitHub Actions packages; configured for weekly scans</td>
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
@@ -227,37 +227,37 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="react.dev" alt="" /></td>
             <td><a href="https://github.com/facebook/react" target="_blank" rel="noopener noreferrer">React 18</a></td>
             <td>UI component library and rendering framework</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="typescriptlang.org" alt="" /></td>
             <td><a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">TypeScript</a></td>
             <td>Typed superset of JavaScript for the frontend codebase</td>
-            <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://opensource.org/licenses/Apache-2.0" /></td>
+            <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://opensource.org/license/Apache-2.0" /></td>
           </tr>
           <tr>
-            <td className="icon-col"><FaviconImg domain="vitejs.dev" alt="" /></td>
-            <td><a href="https://vitejs.dev/" target="_blank" rel="noopener noreferrer">Vite</a></td>
+            <td className="icon-col"><FaviconImg domain="vite.dev" alt="" /></td>
+            <td><a href="https://vite.dev/" target="_blank" rel="noopener noreferrer">Vite</a></td>
             <td>Frontend build tool and dev server</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/zcreativelabs/react-simple-maps" target="_blank" rel="noopener noreferrer">react-simple-maps</a></td>
             <td>SVG world map component with geography rendering</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="d3js.org" alt="" /></td>
             <td><a href="https://github.com/d3/d3-geo" target="_blank" rel="noopener noreferrer">d3-geo</a></td>
             <td>Geographic projections (Mercator, Natural Earth)</td>
-            <td><LicenseBadge variant="isc" label="ISC" href="https://opensource.org/licenses/ISC" /></td>
+            <td><LicenseBadge variant="isc" label="ISC" href="https://opensource.org/license/ISC" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener noreferrer">world-atlas</a></td>
             <td>Pre-built TopoJSON world map geometry used for country rendering</td>
-            <td><LicenseBadge variant="isc" label="ISC" href="https://opensource.org/licenses/ISC" /></td>
+            <td><LicenseBadge variant="isc" label="ISC" href="https://opensource.org/license/ISC" /></td>
           </tr>
         </tbody>
         <tbody>
@@ -270,7 +270,7 @@ const Credits =(): React.ReactElement => (
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="spring.io" alt="" /></td>
-            <td><a href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener noreferrer">Spring Boot 4</a></td>
+            <td><a href="https://spring.io/projects/spring-boot/" target="_blank" rel="noopener noreferrer">Spring Boot 4</a></td>
             <td>Java application framework; REST API, scheduling, dependency injection</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
@@ -282,19 +282,19 @@ const Credits =(): React.ReactElement => (
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="spring.io" alt="" /></td>
-            <td><a href="https://spring.io/projects/spring-ai" target="_blank" rel="noopener noreferrer">Spring AI</a></td>
+            <td><a href="https://spring.io/projects/spring-ai/" target="_blank" rel="noopener noreferrer">Spring AI</a></td>
             <td>AI model integration layer used to call the Google Gemini API</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="spring.io" alt="" /></td>
-            <td><a href="https://spring.io/projects/spring-data-mongodb" target="_blank" rel="noopener noreferrer">Spring Data MongoDB</a></td>
+            <td><a href="https://spring.io/projects/spring-data-mongodb/" target="_blank" rel="noopener noreferrer">Spring Data MongoDB</a></td>
             <td>MongoDB object mapping and repository abstraction</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="spring.io" alt="" /></td>
-            <td><a href="https://spring.io/projects/spring-framework" target="_blank" rel="noopener noreferrer">Spring WebFlux</a></td>
+            <td><a href="https://spring.io/projects/spring-framework/" target="_blank" rel="noopener noreferrer">Spring WebFlux</a></td>
             <td>Reactive HTTP client for non-blocking outbound API calls</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
@@ -309,7 +309,7 @@ const Credits =(): React.ReactElement => (
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Database &amp; Cloud Services</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="mongodb.com" alt="" /></td>
-            <td><a href="https://www.mongodb.com/atlas" target="_blank" rel="noopener noreferrer">MongoDB Atlas</a></td>
+            <td><a href="https://www.mongodb.com/products/platform" target="_blank" rel="noopener noreferrer">MongoDB Atlas</a></td>
             <td>Managed cloud MongoDB cluster for storing news callout documents</td>
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
@@ -347,27 +347,27 @@ const Credits =(): React.ReactElement => (
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Development &amp; Testing</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="junit.org" alt="" /></td>
-            <td><a href="https://junit.org/junit5/" target="_blank" rel="noopener noreferrer">JUnit 5</a></td>
+            <td><a href="https://junit.org/" target="_blank" rel="noopener noreferrer">JUnit 5</a></td>
             <td>Backend unit and integration test framework</td>
-            <td><LicenseBadge variant="epl" label="EPL 2.0" href="https://opensource.org/licenses/EPL-2.0" /></td>
+            <td><LicenseBadge variant="epl" label="EPL 2.0" href="https://opensource.org/license/EPL-2.0" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="testcontainers.com" alt="" /></td>
             <td><a href="https://github.com/testcontainers/testcontainers-java" target="_blank" rel="noopener noreferrer">Testcontainers</a></td>
             <td>Spins up a real MongoDB container for integration tests</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="testing-library.com" alt="" /></td>
             <td><a href="https://github.com/testing-library/react-testing-library" target="_blank" rel="noopener noreferrer">React Testing Library</a></td>
             <td>Frontend unit and integration testing utilities</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="vitest.dev" alt="" /></td>
             <td><a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a></td>
             <td>Frontend unit test runner, used with React Testing Library</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="playwright.dev" alt="" /></td>
@@ -379,25 +379,25 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="eslint.org" alt="" /></td>
             <td><a href="https://eslint.org/" target="_blank" rel="noopener noreferrer">ESLint</a></td>
             <td>JavaScript/TypeScript linter with react-hooks and typescript-eslint plugins</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="deque.com" alt="" /></td>
             <td><a href="https://github.com/dequelabs/axe-core" target="_blank" rel="noopener noreferrer">axe-core / @axe-core/playwright</a></td>
             <td>Accessibility testing engine; runs WCAG 2.1 AA audits in Playwright end-to-end tests</td>
-            <td><LicenseBadge variant="mpl" label="MPL 2.0" href="https://opensource.org/licenses/MPL-2.0" /></td>
+            <td><LicenseBadge variant="mpl" label="MPL 2.0" href="https://opensource.org/license/MPL-2.0" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/chaance/vitest-axe" target="_blank" rel="noopener noreferrer">vitest-axe</a></td>
             <td>Vitest matchers for axe-core component-level accessibility testing</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/lycheeverse/lychee" target="_blank" rel="noopener noreferrer">lychee</a></td>
             <td>Broken link checker; runs as a GitHub Actions workflow after each deploy and on a weekly schedule</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>
         </tbody>
       </table>
