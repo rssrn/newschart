@@ -4,11 +4,12 @@ on:
   workflow_run:
     workflows: ["Deploy to Live"]
     types: [completed]
+  workflow_dispatch:
 
 jobs:
   link-check:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Check internal links
         uses: lycheeverse/lychee-action@v2.8.0

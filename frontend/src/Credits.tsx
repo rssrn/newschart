@@ -393,6 +393,12 @@ const Credits =(): React.ReactElement => (
             <td>Vitest matchers for axe-core component-level accessibility testing</td>
             <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
           </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
+            <td><a href="https://github.com/lycheeverse/lychee" target="_blank" rel="noopener noreferrer">lychee</a></td>
+            <td>Broken link checker; runs as a GitHub Actions workflow after each deploy and on a weekly schedule</td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/licenses/MIT" /></td>
+          </tr>
         </tbody>
       </table>
 
