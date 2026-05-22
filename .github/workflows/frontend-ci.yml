@@ -60,5 +60,6 @@ jobs:
             --verbose
             --no-progress
             --max-retries 3
+            --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|google\.com/s2/favicons)'
             './frontend/src/**/*.tsx'
           fail: true

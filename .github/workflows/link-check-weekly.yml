@@ -12,12 +12,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Check all links in source files
+      - name: Check links in source files (strict)
         uses: lycheeverse/lychee-action@v2.8.0
         with:
           args: >
             --verbose
             --no-progress
             --max-retries 3
+            --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|google\.com/s2/favicons)'
             './frontend/src/**/*.tsx'
           fail: true
+          output: lychee/out-strict.md
+
+      # These sites block automated crawlers (403/999) but the links are real.
+      # This step gives visibility without failing CI — if a URL goes dead and
+      # starts returning something other than its usual bot-block code it will
+      # appear as an error in the job summary.
+      - name: Check bot-blocking links (visibility only, non-failing)
+        uses: lycheeverse/lychee-action@v2.8.0
+        with:
+          args: >
+            --verbose
+            --no-progress
+            --max-retries 3
+            --accept 403,999
+            'https://www.linkedin.com/in/rarnold/'
+            'https://www.npmjs.com/package/vitest-axe'
+            'https://claude.ai/'
+            'https://doi.org/10.1145/212332.212334'
+            'https://www.perplexity.ai/'
+            'https://openai.com/chatgpt'
+          fail: false
+          output: lychee/out-permissive.md
