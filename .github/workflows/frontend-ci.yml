@@ -45,3 +45,20 @@ jobs:
 
       - name: Run tests
         run: npm test -- --run
+
+  link-check:
+    name: Check links in source files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2.8.0
+        with:
+          args: >
+            --verbose
+            --no-progress
+            --max-retries 3
+            './frontend/src/**/*.tsx'
+          fail: true

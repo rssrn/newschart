@@ -9,12 +9,15 @@ jobs:
   link-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Check all links
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check all links in source files
         uses: lycheeverse/lychee-action@v2.8.0
         with:
           args: >
-            --base https://newschart.rossarnold.uk
             --verbose
             --no-progress
-            https://newschart.rossarnold.uk
+            --max-retries 3
+            './frontend/src/**/*.tsx'
           fail: true
