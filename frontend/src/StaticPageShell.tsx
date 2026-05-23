@@ -77,7 +77,7 @@ const StaticPageShell = ({ children }: { children: React.ReactNode }): React.Rea
     <div className="sp-shell">
       <header className="sp-header">
         <a href="/" className="sp-logo-link" aria-label="NewsChart – back to map">
-          <img src="/logo192.png" className="sp-logo-img" alt="" aria-hidden="true" />
+          <img src="/logo48.webp" className="sp-logo-img" alt="" aria-hidden="true" />
           <span className="sp-logo-text">NewsChart</span>
         </a>
       </header>

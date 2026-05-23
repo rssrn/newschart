@@ -210,7 +210,7 @@ function App(): React.ReactElement {
 
       {/* Mobile-only brand banner – sits above the map canvas */}
       <div className="mobile-brand-banner">
-        <img src="/logo192.png" className="brand-badge-icon" alt="" aria-hidden="true" />
+        <img src="/logo48.webp" className="brand-badge-icon" alt="" aria-hidden="true" />
         <span className="brand-badge-text">NewsChart</span>
         <button
           className="mobile-banner-hamburger"
@@ -230,7 +230,7 @@ function App(): React.ReactElement {
 
         {/* Brand badge – top-left, desktop only */}
         <div className="brand-badge" aria-label="NewsChart">
-          <img src="/logo192.png" className="brand-badge-icon" alt="" aria-hidden="true" />
+          <img src="/logo48.webp" className="brand-badge-icon" alt="" aria-hidden="true" />
           <span className="brand-badge-text">NewsChart</span>
         </div>
 
