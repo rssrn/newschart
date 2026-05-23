@@ -51,7 +51,7 @@
     "@types/react-simple-maps": "^3.0.6",
     "@vitejs/plugin-react-swc": "^4",
     "autoprefixer": "^10.5.0",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-plugin-react-hooks": "^7",
     "eslint-plugin-react-refresh": "^0.5",
     "jsdom": "^29",
