@@ -33,6 +33,7 @@ interface MapChartProps {
   readonly heatmapStats?: CalloutStat[];
   readonly onCountryClick?: (iso2: string, name: string, count: number) => void;
   readonly onCalloutsLoaded?: (callouts: StoryCallout[]) => void;
+  readonly retryKey?: number;
 }
 
 
@@ -40,7 +41,7 @@ interface MapChartProps {
 const calloutsCache = new Map<string, StoryCallout[]>();
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [], onCountryClick, onCalloutsLoaded }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [], onCountryClick, onCalloutsLoaded, retryKey }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
   const [hoveredGeoKey, setHoveredGeoKey] = useState<string | null>(null);
@@ -131,7 +132,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       });
 
     return () => controller.abort();
-  }, [source, date]);
+  }, [source, date, retryKey]);
 
   // Build set of ISO numeric codes (as numbers) for active callouts
   const activeIsoNumerics: Set<number> = useMemo(() => {

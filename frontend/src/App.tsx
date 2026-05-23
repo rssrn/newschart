@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, useReducer } from 'react';
 import './App.css';
 import MapChart from './MapChart';
 import DateTimeline from './DateTimeline';
@@ -52,6 +52,8 @@ function App(): React.ReactElement {
   const [heatmapClickedCountry, setHeatmapClickedCountry] = useState<{ iso2: string; name: string; count: number } | null>(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
+  const [retryKey, incrementRetryKey] = useReducer((n: number) => n + 1, 0);
+  const retryCountRef = useRef(0);
 
   // @author Claude Sonnet 4.6 Anthropic
   const handleViewModeChange = (mode: ViewMode) => {
@@ -73,7 +75,7 @@ function App(): React.ReactElement {
     }
   };
 
-  // Fetch heatmap stats on mount if viewMode was restored as 'heatmap' from localStorage
+  // Fetch heatmap stats on mount (or on retry) if viewMode is 'heatmap' and cache is empty
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
     if (viewMode !== 'heatmap' || heatmapStatsCache !== null) return;
@@ -84,8 +86,9 @@ function App(): React.ReactElement {
         setHeatmapStats(data);
       })
       .catch(err => console.error('Failed to fetch heatmap stats', err));
+  // retryKey included so stats reload when the backend recovers
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [retryKey]);
 
   // @author Claude Sonnet 4.6 Anthropic
   const handleSourceChange = (value: NewsSource) => {
@@ -104,7 +107,20 @@ function App(): React.ReactElement {
   const handleFetchStatus = useCallback((status: FetchStatus) => {
     setFetchStatus(status);
     if (status === 'loading') setErrorDismissed(false);
+    if (status === 'success') retryCountRef.current = 0;
   }, []);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  // Exponential-backoff retry when the backend is unreachable (5s → 10s → 20s → 40s → 60s cap)
+  useEffect(() => {
+    if (fetchStatus !== 'error') return;
+    const delay = Math.min(5000 * Math.pow(2, retryCountRef.current), 60000);
+    const timer = setTimeout(() => {
+      retryCountRef.current++;
+      incrementRetryKey();
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [fetchStatus, retryKey]);
 
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
@@ -119,7 +135,9 @@ function App(): React.ReactElement {
       })
       .catch(err => { if (err.name !== 'AbortError') console.error('Failed to fetch available dates', err); });
     return () => controller.abort();
-  }, [source]);
+  // retryKey included so dates reload when the backend recovers
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [source, retryKey]);
 
   const showError = fetchStatus === 'error' && !errorDismissed;
   const isLoading = fetchStatus === 'loading';
@@ -311,6 +329,7 @@ function App(): React.ReactElement {
             heatmapStats={heatmapStats ?? []}
             onCountryClick={(iso2, name, count) => setHeatmapClickedCountry({ iso2, name, count })}
             onCalloutsLoaded={setCallouts}
+            retryKey={retryKey}
           />
         </div>
 
