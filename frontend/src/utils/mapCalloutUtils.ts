@@ -365,7 +365,9 @@ function _calculateOffsets(
 
   // TypeScript needs this reassignment to understand bestPlacements is non-null here
   const finalPlacements: LayoutCandidate[] = bestPlacements;
-  console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}, svgH=${visibleSvgHeight}`);
+  if (!import.meta.env.VITEST) {
+    console.log(`[exhaustive] Best score: ${bestScore}, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}, svgH=${visibleSvgHeight}`);
+  }
 
   // Build per-node diagnostics for the winning combination
   const nodeDiagnostics: NodeDiagnostics[] = finalPlacements.map((chosen, i) => {

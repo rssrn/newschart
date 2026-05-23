@@ -1,5 +1,5 @@
 // @author Claude Sonnet 4.6 Anthropic
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { axe } from 'vitest-axe';
 import { beforeEach, afterEach } from 'vitest';
 import HeatmapCountryModal from './HeatmapCountryModal';
@@ -26,15 +26,17 @@ afterEach(() => {
 
 describe('HeatmapCountryModal accessibility', () => {
   it('has no axe violations when open', async () => {
-    render(
-      <HeatmapCountryModal
-        source="GOOGLE_GEMINI"
-        iso2="IR"
-        countryName="Iran"
-        totalCount={19}
-        onClose={() => {}}
-      />
-    );
+    await act(async () => {
+      render(
+        <HeatmapCountryModal
+          source="GOOGLE_GEMINI"
+          iso2="IR"
+          countryName="Iran"
+          totalCount={19}
+          onClose={() => {}}
+        />
+      );
+    });
     expect(await axe(document.body)).toHaveNoViolations();
   });
 });

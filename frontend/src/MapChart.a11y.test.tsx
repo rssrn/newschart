@@ -1,5 +1,5 @@
 // @author Claude Sonnet 4.6 Anthropic
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { axe } from 'vitest-axe';
 import { beforeEach, afterEach } from 'vitest';
 import App from './App';
@@ -32,7 +32,7 @@ afterEach(() => {
 
 describe('MapChart (App) accessibility', () => {
   it('has no axe violations in initial day view', async () => {
-    render(<App />);
+    await act(async () => { render(<App />); });
     expect(await axe(document.body)).toHaveNoViolations();
   });
 });

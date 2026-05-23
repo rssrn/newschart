@@ -24,3 +24,9 @@ declare module 'vitest' {
 if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+
+// jsdom does not implement canvas; stub getContext so react-simple-maps doesn't
+// log "Not implemented" noise on every test that renders a map.
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = () => null;
+}
