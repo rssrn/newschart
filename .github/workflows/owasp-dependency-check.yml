@@ -22,7 +22,7 @@ jobs:
           cache: 'maven'
 
       - name: Cache dependency-check data
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.dependency-check/data
           key: dependency-check-data
