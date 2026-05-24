@@ -99,7 +99,7 @@ public class GeminiGatewayService {
                     ServerException.class // 500, 502, 503, 504 Server errors
             },
             noRetryFor = {
-                    // fail fast on these, no point in retry - caller handlesfind
+                    // fail fast on these, no point in retry - caller handles
                     ClientException.class // 400, 401, 403, 404 Client errors
             },
             backoff = @Backoff(delayExpression = "${gemini.retry.delay-ms:30000}", multiplier = 2) // and defaults to 3 attempts
@@ -114,7 +114,7 @@ public class GeminiGatewayService {
                 .call()
                 .entity(LlmCalloutList.class);
 
-        // The model returns the minimal object LlmCallout so it can't try to invent enums.
+        // The model returns the minimal object LlmCallout - restriction is to prevent it inventing enum values.
         // Now map it back to a canonical Callout object.
         return Optional.ofNullable(result)
                 .map(LlmCalloutList::items)
