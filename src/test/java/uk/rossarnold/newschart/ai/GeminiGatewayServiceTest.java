@@ -3,6 +3,8 @@ package uk.rossarnold.newschart.ai;
 import com.google.genai.errors.ClientException;
 import com.google.genai.errors.GenAiIOException;
 import com.google.genai.errors.ServerException;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -43,6 +45,11 @@ class GeminiGatewayServiceTest {
         @Bean
         GoogleGenAiChatModel googleGenAiChatModel() {
             return Mockito.mock(GoogleGenAiChatModel.class);
+        }
+
+        @Bean
+        MeterRegistry meterRegistry() {
+            return new SimpleMeterRegistry();
         }
     }
 
