@@ -60,8 +60,8 @@ jobs:
           args: >
             --verbose
             --no-progress
-            --max-retries 3
-            --retry-wait-time 10
+            --max-retries 5
+            --retry-wait-time 30
             --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|google\.com/s2/favicons)'
             './frontend/src/**/*.tsx'
           fail: true
