@@ -437,7 +437,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 5,
         "x": 0,
         "y": 11
       },
@@ -499,8 +499,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 5,
+        "x": 10,
         "y": 11
       },
       "id": 9,
@@ -569,8 +569,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 12,
+        "w": 5,
+        "x": 15,
         "y": 11
       },
       "id": 10,
@@ -640,8 +640,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 20,
         "y": 11
       },
       "id": 11,
@@ -675,6 +675,84 @@
         }
       ],
       "title": "AI max latency",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cfhzotpx2uio0f"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "0"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 5,
+        "x": 5,
+        "y": 11
+      },
+      "id": 34,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cfhzotpx2uio0f"
+          },
+          "expr": "increase(gemini_getcallouts_exhausted_total{application=\"$application\", instance=\"$instance\"}[$__range])",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "getCallouts retry exhaustions",
       "type": "stat"
     },
     {
@@ -1955,6 +2033,6 @@
   "timezone": "browser",
   "title": "NewsChart — Key Metrics",
   "uid": "newschart-key",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
