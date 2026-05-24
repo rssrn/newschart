@@ -1,7 +1,14 @@
 package uk.rossarnold.newschart.ai;
 
+import com.google.genai.errors.ClientException;
+import com.google.genai.errors.GenAiIOException;
+import com.google.genai.errors.ServerException;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.ai.chat.client.ChatClient;
 
@@ -22,6 +29,7 @@ import java.util.Optional;
 @Service
 public class GeminiGatewayService {
     private final ChatClient chatClient;
+    private final MeterRegistry meterRegistry;
 
     private static final Logger log = LogManager.getLogger(GeminiGatewayService.class);
 
@@ -44,8 +52,12 @@ public class GeminiGatewayService {
     static final String MAIN_SUMMARY_MODEL = "gemini-2.5-flash-lite";
     static final String FIND_NEWS_MODEL = "gemini-2.5-flash";
 
-    public GeminiGatewayService(GoogleGenAiChatModel chatModel) {
+    static final String COUNTER_NAME_EXHAUSTED = "gemini.getcallouts.exhausted";
+
+    public GeminiGatewayService(GoogleGenAiChatModel chatModel, MeterRegistry meterRegistry) {
         this.chatClient = ChatClient.create(chatModel);
+        this.meterRegistry = meterRegistry;
+        meterRegistry.counter(COUNTER_NAME_EXHAUSTED); // pre-register to expose baseline 0 value
     }
 
     public Optional<GeminiGatewayService.StoryOutline> summariseStories(CountryNews countryNews) {
@@ -81,6 +93,17 @@ public class GeminiGatewayService {
      *
      * @return list of story callouts suggested by the LLM
      */
+    @Retryable(
+            retryFor = {
+                    GenAiIOException.class, // Network/timeout issues
+                    ServerException.class // 500, 502, 503, 504 Server errors
+            },
+            noRetryFor = {
+                    // fail fast on these, no point in retry - caller handlesfind
+                    ClientException.class // 400, 401, 403, 404 Client errors
+            },
+            backoff = @Backoff(delayExpression = "${gemini.retry.delay-ms:30000}", multiplier = 2) // and defaults to 3 attempts
+    )
     public Optional<List<Callout>> getCallouts() {
         LlmCalloutList result = chatClient.prompt()
                 .user(AiPrompts.FIND_NEWS_GEMINI)
@@ -105,5 +128,12 @@ public class GeminiGatewayService {
                                 .source(CalloutSource.GOOGLE_GEMINI)
                                 .build())
                         .toList());
+    }
+
+    @Recover
+    public Optional<List<Callout>> getCalloutsRecovery(Exception e) {
+        log.error("Gemini getCallouts failed after retries exhausted", e);
+        meterRegistry.counter(COUNTER_NAME_EXHAUSTED).increment();
+        return Optional.empty();
     }
 }
