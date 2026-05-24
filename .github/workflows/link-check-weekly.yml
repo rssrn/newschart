@@ -19,6 +19,7 @@ jobs:
             --verbose
             --no-progress
             --max-retries 3
+            --retry-wait-time 10
             --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|google\.com/s2/favicons)'
             './frontend/src/**/*.tsx'
           fail: true
@@ -35,6 +36,7 @@ jobs:
             --verbose
             --no-progress
             --max-retries 3
+            --retry-wait-time 10
             --accept 403,999
             'https://www.linkedin.com/in/rarnold/'
             'https://www.npmjs.com/package/vitest-axe'
