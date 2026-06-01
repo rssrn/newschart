@@ -16,11 +16,23 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 
-## What is this?
+
 
 Each major AI model has quietly become a news editor - deciding, from everything happening in the world, which stories matter most right now. NewsChart makes that editorial judgement visible and comparable. Switch between Gemini, Perplexity, and ChatGPT to see which stories each AI is leading with, where in the world their attention is focused, and how their picks diverge. The New York Times provides a human editorial baseline for comparison.
 
 The result is part news reader, part AI observatory: a way to watch - across different days and different models - whose version of the world you're being shown.
+
+## Table of Contents
+- [Screenshots](#screenshots)
+- [Technical highlights](#technical-highlights)
+- [Quick Start](#quick-start)
+- [Architecture](#architecture)
+- [Development](#development)
+- [Build](#build)
+- [Monitoring (optional)](#monitoring-optional)
+- [Deployment](#deployment)
+- [Credits](#credits)
+- [License](#license)
 
 **Features:**
 - Daily news from four sources: Gemini, Perplexity, ChatGPT, and NYT RSS
