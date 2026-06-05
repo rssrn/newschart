@@ -1,9 +1,9 @@
 import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import Credits from './Credits';
-import Method from './Method';
-import Accessibility from './Accessibility';
+const Credits = lazy(() => import('./Credits'));
+const Method = lazy(() => import('./Method'));
+const Accessibility = lazy(() => import('./Accessibility'));
 const App = lazy(() => import('./App'));
 const TestMapPage = lazy(() => import('./TestMapPage'));
 
