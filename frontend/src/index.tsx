@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import Credits from './Credits';
 import Method from './Method';
 import Accessibility from './Accessibility';
-import TestMapPage from './TestMapPage';
+const App = lazy(() => import('./App'));
+const TestMapPage = lazy(() => import('./TestMapPage'));
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -27,6 +27,8 @@ const page: React.ReactElement = ['/credits', '/credits.html'].includes(path)
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    {page}
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', color: '#94a3b8', fontFamily: 'system-ui, sans-serif' }}>Loading map…</div>}>
+      {page}
+    </Suspense>
   </React.StrictMode>
 );

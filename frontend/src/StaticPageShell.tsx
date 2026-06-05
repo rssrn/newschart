@@ -5,7 +5,7 @@ import { NAV } from './constants';
 const StaticPageShell = ({ children }: { children: React.ReactNode }): React.ReactElement => (
   <>
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&display=optional');
       *, *::before, *::after { box-sizing: border-box; }
       body { margin: 0; background-color: #f5f5f5; }
       .sp-shell {
