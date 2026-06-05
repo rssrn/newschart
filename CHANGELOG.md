@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2026-06-05
+
+Resilience improvements: Gemini retries with backoff, frontend auto-recovery on backend outage, and a new Grafana retry exhaustion panel.
+
+### Added
+- **Gemini API retries** — transient failures (network blips, brief service interruption) are retried at 30s and 90s before giving up
+- **Frontend auto-recovery** — the app now recovers automatically when the backend becomes available after an error, without requiring a manual page reload
+- **Grafana: retry exhaustion panel** — key-metrics dashboard now tracks when all Gemini retries are exhausted
+- **CI: `workflow_dispatch` trigger** — backend and frontend CI workflows can now be triggered manually from the GitHub UI
+
+### Changed
+- Dependabot version update frequency reduced to monthly (less noise)
+- Pre-push hook now gates on backend tests passing before allowing pushes
+- lychee link-check CI: retries increased and wait-time added to reduce flaky failures
+
+### Performance
+- `logo192.png` replaced with `logo48.webp` — reduces image weight by 97% (22 KB → 0.7 KB) with negligible visual difference at 48×48
+
+### Fixed
+- Redirected links in Credits and Method pages updated
+- CI test output noise cleaned up
+- Broken test: `MeterRegistry` bean missing from test context
+
+### Build
+- `actions/cache` bumped from v4 to v5
+- Vite 8.0.13 → 8.0.14, Vitest 4.1.6 → 4.1.7, ESLint 9.39.4 → 10.4.1, `typescript-eslint`, `@types/node`, `react`/`@types/react` dependency bumps
+
 ## [0.15.1] - 2026-05-22
 
 CI link-checking, broken link fixes, and sitemap update.
