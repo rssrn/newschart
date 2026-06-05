@@ -244,7 +244,7 @@ function App(): React.ReactElement {
         </button>
       </div>
 
-      <div className="map-container" role="main">
+      <main className="map-container">
 
         {/* Brand badge – top-left, desktop only */}
         <div className="brand-badge" aria-label="NewsChart">
@@ -386,7 +386,7 @@ function App(): React.ReactElement {
             {NAV.CONTACT}
           </button>
         </div>
-      </div>
+      </main>
 
       {/* Mobile controls bar – below the map to avoid obscuring callouts – @author Claude Sonnet 4.6 Anthropic */}
       <div className={`mobile-controls-bar${isLoading ? ' controls-loading' : ''}`}>

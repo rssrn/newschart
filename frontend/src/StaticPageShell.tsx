@@ -81,9 +81,9 @@ const StaticPageShell = ({ children }: { children: React.ReactNode }): React.Rea
           <span className="sp-logo-text">NewsChart</span>
         </a>
       </header>
-      <div className="sp-content">
+      <main className="sp-content">
         {children}
-      </div>
+      </main>
       <footer className="sp-footer">
         <a href="/">{NAV.HOME}</a>
         <span className="sp-footer-sep">·</span>

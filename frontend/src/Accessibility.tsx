@@ -64,7 +64,7 @@ const Accessibility = (): React.ReactElement => (
         <div className="ac-subtitle">Our commitment to inclusive access</div>
       </div>
 
-      <main id="main-content">
+      <div id="main-content">
         <section className="ac-section">
           <h2>Our commitment</h2>
           <p>
@@ -137,7 +137,7 @@ const Accessibility = (): React.ReactElement => (
         </section>
 
         <p className="ac-updated">Last updated: May 2026</p>
-      </main>
+      </div>
 
     </div>
   </StaticPageShell>
