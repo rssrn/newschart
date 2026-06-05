@@ -188,12 +188,6 @@ const Credits =(): React.ReactElement => (
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
           <tr>
-            <td className="icon-col"><FaviconImg domain="openrouter.ai" alt="" /></td>
-            <td><a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">OpenRouter</a></td>
-            <td>API gateway used to route requests to Perplexity Sonar and OpenAI ChatGPT models</td>
-            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
-          </tr>
-          <tr>
             <td className="icon-col"><FaviconImg domain="nytimes.com" alt="" /></td>
             <td><a href="https://www.nytimes.com/rss" target="_blank" rel="noopener noreferrer">New York Times RSS</a></td>
             <td>World news RSS feed; used to provide a non-AI-sourced, editorially curated news source for comparison</td>
@@ -304,6 +298,12 @@ const Credits =(): React.ReactElement => (
             <td>CSV parsing for country / ISO code lookup data</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="openrouter.ai" alt="" /></td>
+            <td><a href="https://openrouter.ai/" target="_blank" rel="noopener noreferrer">OpenRouter</a></td>
+            <td>API gateway used to route requests to Perplexity Sonar and OpenAI ChatGPT models</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
         </tbody>
         <tbody>
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Database &amp; Cloud Services</th></tr>
@@ -329,6 +329,12 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="umami.is" alt="" /></td>
             <td><a href="https://umami.is/" target="_blank" rel="noopener noreferrer">Umami</a></td>
             <td>Privacy-friendly, cookie-free web analytics</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="cloudflare.com" alt="" /></td>
+            <td><a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">Cloudflare</a></td>
+            <td>CDN, DDoS protection, and reverse proxy serving the production application</td>
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
         </tbody>
