@@ -238,7 +238,7 @@ const Method = (): React.ReactElement => (
         <h3>The models</h3>
         <div className="mt-tag-row">
           <span className="mt-tag">Gemini 2.5 Flash (news search)</span>
-          <span className="mt-tag">Gemini 2.5 Flash Lite (NYT geo-tagging)</span>
+          <span className="mt-tag">Gemini (NYT geo-tagging)</span>
           <span className="mt-tag">Perplexity Sonar Pro Search</span>
           <span className="mt-tag">OpenAI gpt-4o-search-preview</span>
           <span className="mt-tag">NYT RSS (non-AI baseline)</span>
@@ -261,13 +261,16 @@ const Method = (): React.ReactElement => (
             handles both.
           </li>
           <li>
-            <strong>New York Times RSS</strong> — a non-AI baseline: the NYT world
-            feed is well-structured, updated reliably, and individual stories
-            already carry clear location metadata, which makes geo-tagging
-            tractable. Gemini 2.5 Flash Lite is still used here, but only to{' '}
-            <em>geo-tag and summarise</em> NYT items (with search grounding
-            disabled) rather than to choose them, so we can compare AI-curated
-            headlines to a human-edited feed.
+            <strong>New York Times RSS</strong> — a non-AI baseline. The{' '}
+            <a href="https://rss.nytimes.com/services/xml/rss/nyt/World.xml" target="_blank" rel="noopener noreferrer">NYT world feed</a>{' '}
+            is polled daily and every item is geo-tagged. The top 3 countries
+            by story count become the day's callouts — the map shows the three
+            countries the NYT covered most that day. Gemini then
+            summarises the stories for each country: for example, if 17 items
+            are tagged UK, all 17 are sent together so Gemini can identify the
+            theme (they could be unrelated; if there's a thread Gemini should
+            find it). Search grounding is disabled — the model edits, it doesn't
+            choose.
           </li>
         </ul>
 
