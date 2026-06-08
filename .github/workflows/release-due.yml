@@ -1,0 +1,145 @@
+name: Release Due Check
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 6am UTC daily (7am BST in summer)
+  workflow_dispatch:
+
+jobs:
+  check-release-due:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure release-due label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "release-due" \
+            --description "A release should be cut" \
+            --color "E11D48" \
+            2>/dev/null || true
+
+      - name: Check for existing open release-due issue
+        id: existing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COUNT=$(gh issue list --label "release-due" --state open --json id --jq length)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Get last release date
+        id: last-release
+        if: steps.existing.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DATE=$(gh release list --limit 1 --json publishedAt --jq '.[0].publishedAt // empty')
+          if [ -z "$DATE" ]; then
+            DATE="1970-01-01T00:00:00Z"
+          fi
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Evaluate release criteria
+        id: criteria
+        if: steps.existing.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LAST_RELEASE_DATE: ${{ steps.last-release.outputs.date }}
+        run: |
+          REASONS_FILE=$(mktemp)
+
+          # 1. Dependabot security PRs merged since last release
+          SECURITY_PRS=$(gh pr list \
+            --state merged \
+            --search "author:app/dependabot label:security merged:>${LAST_RELEASE_DATE}" \
+            --limit 100 \
+            --json number,title \
+            --jq '.[]')
+          SECURITY_COUNT=$(echo "$SECURITY_PRS" | jq -s length)
+          if [ "$SECURITY_COUNT" -gt 0 ]; then
+            LIST=$(echo "$SECURITY_PRS" | jq -rs '.[] | "- #\(.number) \(.title)"')
+            printf '\n### Security dependency updates\n%d security PR(s) merged since last release:\n%s\n' \
+              "$SECURITY_COUNT" "$LIST" >> "$REASONS_FILE"
+          fi
+
+          # 2. 2+ weeks elapsed with commits on main
+          NOW_EPOCH=$(date -u +%s)
+          LAST_EPOCH=$(date -d "$LAST_RELEASE_DATE" -u +%s)
+          WEEKS_SINCE=$(( (NOW_EPOCH - LAST_EPOCH) / 604800 ))
+          if [ "$WEEKS_SINCE" -ge 2 ]; then
+            COMMIT_COUNT=$(git log --oneline origin/main --after="$LAST_RELEASE_DATE" | wc -l)
+            if [ "$COMMIT_COUNT" -gt 0 ]; then
+              printf '\n### Time elapsed\n%d week(s) have passed since the last release with %d commit(s) on main.\n' \
+                "$WEEKS_SINCE" "$COMMIT_COUNT" >> "$REASONS_FILE"
+            fi
+          fi
+
+          # 3. 5+ routine (non-security) Dependabot PRs merged since last release
+          NON_SEC_PRS=$(gh pr list \
+            --state merged \
+            --search "author:app/dependabot merged:>${LAST_RELEASE_DATE}" \
+            --limit 100 \
+            --json number,title,labels \
+            --jq '[.[] | select(.labels | map(.name) | contains(["security"]) | not)]')
+          NON_SEC_COUNT=$(echo "$NON_SEC_PRS" | jq length)
+          if [ "$NON_SEC_COUNT" -ge 5 ]; then
+            LIST=$(echo "$NON_SEC_PRS" | jq -r '.[] | "- #\(.number) \(.title)"')
+            printf '\n### Dependency accumulation\n%d routine Dependabot PRs merged since last release:\n%s\n' \
+              "$NON_SEC_COUNT" "$LIST" >> "$REASONS_FILE"
+          fi
+
+          # 4. Any fix: commits on main since last release
+          FIX_COMMITS=$(git log --format="%h %s" origin/main --after="$LAST_RELEASE_DATE" \
+            | grep -E "^[0-9a-f]+ fix:" || true)
+          if [ -n "$FIX_COMMITS" ]; then
+            FIX_COUNT=$(echo "$FIX_COMMITS" | wc -l)
+            LIST=$(echo "$FIX_COMMITS" | head -10 | sed 's/^/- /')
+            printf '\n### Bug fixes\n%d fix: commit(s) on main since last release:\n%s\n' \
+              "$FIX_COUNT" "$LIST" >> "$REASONS_FILE"
+          fi
+
+          if [ -s "$REASONS_FILE" ]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+            {
+              echo 'reasons<<REASONS_DELIMITER'
+              cat "$REASONS_FILE"
+              echo 'REASONS_DELIMITER'
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          fi
+          rm "$REASONS_FILE"
+
+      - name: Raise release-due issue
+        if: steps.criteria.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REASONS: ${{ steps.criteria.outputs.reasons }}
+        run: |
+          BODY_FILE=$(mktemp)
+          cat > "$BODY_FILE" <<'BODY_EOF'
+          ## Release recommended
+
+          The automated daily check has identified the following reason(s) to cut a release:
+          BODY_EOF
+          echo "$REASONS" >> "$BODY_FILE"
+          cat >> "$BODY_FILE" <<'BODY_EOF'
+
+          ---
+          *Raised automatically by the [Release Due Check](../actions/workflows/release-due.yml) workflow. Close this issue once a release has been cut, or if you decide to defer.*
+          BODY_EOF
+
+          gh issue create \
+            --title "Release due" \
+            --label "release-due" \
+            --body-file "$BODY_FILE"
+          rm "$BODY_FILE"
