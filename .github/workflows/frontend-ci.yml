@@ -62,6 +62,6 @@ jobs:
             --no-progress
             --max-retries 5
             --retry-wait-time 30
-            --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|google\.com/s2/favicons)'
+            --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|eslint\.org|google\.com/s2/favicons)'
             './frontend/src/**/*.tsx'
           fail: true
