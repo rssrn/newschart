@@ -44,7 +44,13 @@ jobs:
         run: |
           DATE=$(gh release list --limit 1 --json publishedAt --jq '.[0].publishedAt // empty')
           if [ -z "$DATE" ]; then
-            DATE="1970-01-01T00:00:00Z"
+            # Fall back to the most recent v* git tag
+            LATEST_TAG=$(git tag --sort=-creatordate | grep '^v' | head -1)
+            if [ -n "$LATEST_TAG" ]; then
+              DATE=$(git log -1 --format=%cI "$LATEST_TAG")
+            else
+              DATE="1970-01-01T00:00:00Z"
+            fi
           fi
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
 
