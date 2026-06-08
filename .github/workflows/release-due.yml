@@ -42,16 +42,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DATE=$(gh release list --limit 1 --json publishedAt --jq '.[0].publishedAt // empty')
+          DATE=$(gh release list --limit 1 --json publishedAt,tagName --jq '.[0].publishedAt // empty')
+          TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // empty')
           if [ -z "$DATE" ]; then
             # Fall back to the most recent v* git tag
-            LATEST_TAG=$(git tag --sort=-creatordate | grep '^v' | head -1)
-            if [ -n "$LATEST_TAG" ]; then
-              DATE=$(git log -1 --format=%cI "$LATEST_TAG")
+            TAG=$(git tag --sort=-creatordate | grep '^v' | head -1)
+            if [ -n "$TAG" ]; then
+              DATE=$(git log -1 --format=%cI "$TAG")
             else
+              TAG="(none)"
               DATE="1970-01-01T00:00:00Z"
             fi
           fi
+          echo "Last release: tag=${TAG}, date=${DATE}"
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
 
       - name: Evaluate release criteria
@@ -62,8 +65,10 @@ jobs:
           LAST_RELEASE_DATE: ${{ steps.last-release.outputs.date }}
         run: |
           REASONS_FILE=$(mktemp)
+          echo "Last release date: ${LAST_RELEASE_DATE}"
 
           # 1. Dependabot security PRs merged since last release
+          echo "--- Checking: Dependabot security PRs (gh pr list --search 'author:app/dependabot label:security merged:>${LAST_RELEASE_DATE}')"
           SECURITY_PRS=$(gh pr list \
             --state merged \
             --search "author:app/dependabot label:security merged:>${LAST_RELEASE_DATE}" \
@@ -71,6 +76,7 @@ jobs:
             --json number,title \
             --jq '.[]')
           SECURITY_COUNT=$(echo "$SECURITY_PRS" | jq -s length)
+          echo "  -> Found: ${SECURITY_COUNT}"
           if [ "$SECURITY_COUNT" -gt 0 ]; then
             LIST=$(echo "$SECURITY_PRS" | jq -rs '.[] | "- #\(.number) \(.title)"')
             printf '\n### Security dependency updates\n%d security PR(s) merged since last release:\n%s\n' \
@@ -81,15 +87,20 @@ jobs:
           NOW_EPOCH=$(date -u +%s)
           LAST_EPOCH=$(date -d "$LAST_RELEASE_DATE" -u +%s)
           WEEKS_SINCE=$(( (NOW_EPOCH - LAST_EPOCH) / 604800 ))
+          echo "--- Checking: weeks elapsed since last release -> ${WEEKS_SINCE} week(s)"
           if [ "$WEEKS_SINCE" -ge 2 ]; then
             COMMIT_COUNT=$(git log --oneline origin/main --after="$LAST_RELEASE_DATE" | wc -l)
+            echo "  -> Commits on main since last release: ${COMMIT_COUNT}"
             if [ "$COMMIT_COUNT" -gt 0 ]; then
               printf '\n### Time elapsed\n%d week(s) have passed since the last release with %d commit(s) on main.\n' \
                 "$WEEKS_SINCE" "$COMMIT_COUNT" >> "$REASONS_FILE"
             fi
+          else
+            echo "  -> Skipped (< 2 weeks)"
           fi
 
           # 3. 5+ routine (non-security) Dependabot PRs merged since last release
+          echo "--- Checking: routine Dependabot PRs (gh pr list --search 'author:app/dependabot merged:>${LAST_RELEASE_DATE}')"
           NON_SEC_PRS=$(gh pr list \
             --state merged \
             --search "author:app/dependabot merged:>${LAST_RELEASE_DATE}" \
@@ -97,6 +108,7 @@ jobs:
             --json number,title,labels \
             --jq '[.[] | select(.labels | map(.name) | contains(["security"]) | not)]')
           NON_SEC_COUNT=$(echo "$NON_SEC_PRS" | jq length)
+          echo "  -> Found: ${NON_SEC_COUNT} (threshold: 5)"
           if [ "$NON_SEC_COUNT" -ge 5 ]; then
             LIST=$(echo "$NON_SEC_PRS" | jq -r '.[] | "- #\(.number) \(.title)"')
             printf '\n### Dependency accumulation\n%d routine Dependabot PRs merged since last release:\n%s\n' \
@@ -104,13 +116,17 @@ jobs:
           fi
 
           # 4. Any fix: commits on main since last release
+          echo "--- Checking: fix: commits on main since last release"
           FIX_COMMITS=$(git log --format="%h %s" origin/main --after="$LAST_RELEASE_DATE" \
             | grep -E "^[0-9a-f]+ fix:" || true)
           if [ -n "$FIX_COMMITS" ]; then
             FIX_COUNT=$(echo "$FIX_COMMITS" | wc -l)
+            echo "  -> Found: ${FIX_COUNT}"
             LIST=$(echo "$FIX_COMMITS" | head -10 | sed 's/^/- /')
             printf '\n### Bug fixes\n%d fix: commit(s) on main since last release:\n%s\n' \
               "$FIX_COUNT" "$LIST" >> "$REASONS_FILE"
+          else
+            echo "  -> Found: 0"
           fi
 
           if [ -s "$REASONS_FILE" ]; then
