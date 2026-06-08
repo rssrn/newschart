@@ -20,7 +20,7 @@ jobs:
             --no-progress
             --max-retries 3
             --retry-wait-time 10
-            --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|eslint\.org|google\.com/s2/favicons)'
+            --exclude '(linkedin|npmjs|claude\.ai|doi\.org|perplexity\.ai|openai\.com|eslint\.org|vitest\.dev|google\.com/s2/favicons)'
             './frontend/src/**/*.tsx'
           fail: true
           output: lychee/out-strict.md
@@ -29,9 +29,9 @@ jobs:
       # This step gives visibility without failing CI — if a URL goes dead and
       # starts returning something other than its usual bot-block code it will
       # appear as an error in the job summary.
-      # eslint.org is excluded from both steps: it resets connections at the
-      # network level (OS error 104) rather than returning a 403/999, so
-      # --accept cannot suppress it. The link is stable enough to skip.
+      # eslint.org and vitest.dev are excluded from both steps: they reset
+      # connections at the network level (OS error 104) rather than returning
+      # a 403/999, so --accept cannot suppress them. Links are stable enough to skip.
       - name: Check bot-blocking links (visibility only, non-failing)
         uses: lycheeverse/lychee-action@v2.8.0
         with:
