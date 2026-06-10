@@ -1,6 +1,6 @@
 /**
  * ISO 3166-1 alpha-2 → numeric lookup.
- * Used to bridge API country codes (alpha-2) with react-simple-maps geo IDs (numeric).
+ * Used to bridge API country codes (alpha-2) with world-atlas topojson geo IDs (numeric).
  *
  * @author Claude Sonnet 4.6 Anthropic
  */

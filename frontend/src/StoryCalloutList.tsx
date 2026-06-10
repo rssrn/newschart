@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
-import { Annotation } from "react-simple-maps";
 import { calculateOffsets, calculateOffsetsWithDiagnostics } from "./utils/mapCalloutUtils";
 import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./types/news";
 import { track } from './utils/analytics';
@@ -252,52 +251,57 @@ const boundingBox = useMemo(() => {
       boundsMaxY (box top-left limit)
     </text>
   </>)}
-  {processedCallouts.map((callout) => (
-        <Annotation
-          key={`${callout.country.name}-${callout.headline}`}
-          subject={[callout.country.longitude, callout.country.latitude]}
-          dx={callout.dx}
-          dy={callout.dy}
-          connectorProps={{
-            stroke: isHistorical ? "#fbbf24" : "#60a5fa",
-            strokeWidth: 1.5,
-            strokeLinecap: "round",
-          }}
-          style={{ pointerEvents: "none" }}
-        >
-          <foreignObject
+  {processedCallouts.map((callout) => {
+    const origin = projection([callout.country.longitude, callout.country.latitude]);
+    if (!origin) return null;
+    const [ox, oy] = origin;
+    const { dx, dy } = callout;
+    return (
+      <g
+        key={`${callout.country.name}-${callout.headline}`}
+        transform={`translate(${ox + dx}, ${oy + dy})`}
+        style={{ pointerEvents: 'none' }}
+      >
+        <path
+          d={`M0,0 Q${-dx / 2},${-dy / 2} ${-dx},${-dy}`}
+          fill="transparent"
+          stroke={isHistorical ? '#fbbf24' : '#60a5fa'}
+          strokeWidth={1.5}
+          strokeLinecap="round"
+        />
+        <foreignObject
           x={-67.5}
           y={-50}
           width="135"
           height="100"
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
-
-            <div
-              className={`map-annotation-box map-annotation-box--clickable${isHistorical ? ' map-annotation-box--historical' : ''}`}
-              onClick={() => handleMoreDetails(callout)}
-              role="button"
-              tabIndex={0}
-              aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
-            >
-              <div className="map-annotation-header">
-                <div className="map-annotation-location">
-                  <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
-                  <span>{callout.country.name}</span>
-                </div>
-                <svg className="map-annotation-expand" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="15 3 21 3 21 9"/>
-                  <polyline points="9 21 3 21 3 15"/>
-                  <line x1="21" y1="3" x2="14" y2="10"/>
-                  <line x1="3" y1="21" x2="10" y2="14"/>
-                </svg>
+          <div
+            className={`map-annotation-box map-annotation-box--clickable${isHistorical ? ' map-annotation-box--historical' : ''}`}
+            onClick={() => handleMoreDetails(callout)}
+            role="button"
+            tabIndex={0}
+            aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
+          >
+            <div className="map-annotation-header">
+              <div className="map-annotation-location">
+                <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
+                <span>{callout.country.name}</span>
               </div>
-              <h4 className="map-annotation-title">{callout.headline}</h4>
-              <p className="map-annotation-text">{callout.detail}</p>
+              <svg className="map-annotation-expand" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="15 3 21 3 21 9"/>
+                <polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/>
+                <line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
             </div>
-          </foreignObject>
-        </Annotation>
-  ))}
+            <h4 className="map-annotation-title">{callout.headline}</h4>
+            <p className="map-annotation-text">{callout.detail}</p>
+          </div>
+        </foreignObject>
+      </g>
+    );
+  })}
   {selectedCallout && (
     <StoryDetailModal callout={selectedCallout} onClose={handleCloseModal} isHistorical={isHistorical} />
   )}

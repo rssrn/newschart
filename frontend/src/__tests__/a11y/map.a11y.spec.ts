@@ -46,8 +46,8 @@ test.beforeEach(async ({ page }) => {
   });
 
   await page.goto('/');
-  // Wait for the react-simple-maps SVG (class rsm-svg), not the icon SVGs.
-  await page.waitForSelector('svg.rsm-svg', { state: 'visible' });
+  // Wait for the map SVG (class geo-svg), not the icon SVGs.
+  await page.waitForSelector('svg.geo-svg', { state: 'visible' });
   // Give React a moment to render callouts after the fetch stub resolves.
   await page.waitForTimeout(500);
 });
@@ -138,7 +138,7 @@ test('heatmap country modal open — no axe violations', async ({ page, viewport
     // Click the first coloured country path (stroke differs from the default #2d4257)
     const coords = await page.evaluate(() => {
       const defaultStroke = '#2d4257';
-      const paths = Array.from(document.querySelectorAll<SVGPathElement>('path.rsm-geography'));
+      const paths = Array.from(document.querySelectorAll<SVGPathElement>('path.geo-country'));
       for (const path of paths) {
         if (path.getAttribute('stroke') === defaultStroke) continue;
         const rect = path.getBoundingClientRect();

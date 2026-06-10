@@ -1,6 +1,6 @@
 // Projection configs for the layout test matrix.
 // Values must match PROJECTION_OPTIONS in src/utils/projectionOptions.ts and
-// the ComposableMap defaults (translate = [width/2, height/2] = [400, 300]).
+// the SVG translate ([width/2, height/2] = [400, 300]).
 //
 // @author Claude Sonnet 4.6 Anthropic
 
@@ -9,7 +9,7 @@ import { MapProjection } from '../../types/news';
 
 export interface ProjectionConfig {
   name: string;
-  // d3 projection string used by ComposableMap (for TestMapPage URL param)
+  // d3 projection name (for TestMapPage URL param)
   projectionType: 'geoMercator' | 'geoNaturalEarth1';
   center: [number, number];
   scale: number;

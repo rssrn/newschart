@@ -136,6 +136,7 @@ const Credits =(): React.ReactElement => (
       .badge-acm        { background: #f0f9ff; color: #0369a1; }
       .badge-nyt        { background: #fafafa; color: #374151; border: 1px solid #e5e7eb; }
       .badge-mpl        { background: #fff7ed; color: #9a3412; }
+      .badge-bsd        { background: #e0f2fe; color: #075985; }
     `}</style>
     <div className="cr-container">
       <div className="cr-header">
@@ -237,9 +238,9 @@ const Credits =(): React.ReactElement => (
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
-            <td><a href="https://github.com/zcreativelabs/react-simple-maps" target="_blank" rel="noopener noreferrer">react-simple-maps</a></td>
-            <td>SVG world map component with geography rendering</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
+            <td><a href="https://github.com/topojson/topojson-client" target="_blank" rel="noopener noreferrer">topojson-client</a></td>
+            <td>TopoJSON to GeoJSON conversion for world map rendering</td>
+            <td><LicenseBadge variant="bsd" label="BSD" href="https://opensource.org/license/BSD-2-Clause" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="d3js.org" alt="" /></td>
@@ -421,7 +422,7 @@ const FaviconImg = ({ domain, alt }: { domain: string; alt: string }): React.Rea
   />
 );
 
-type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'epl' | 'acm' | 'nyt' | 'mpl';
+type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'epl' | 'acm' | 'nyt' | 'mpl' | 'bsd';
 
 /** @author Claude Sonnet 4.6 Anthropic */
 const LicenseBadge = ({ variant, label, href }: { variant: LicenseVariant; label: string; href?: string }): React.ReactElement => {

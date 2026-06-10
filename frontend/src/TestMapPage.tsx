@@ -6,10 +6,10 @@
 // @author Claude Sonnet 4.6 Anthropic
 
 import React, { useMemo } from 'react';
-import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
-import { geoMercator, geoNaturalEarth1 } from 'd3-geo';
+import { geoMercator, geoNaturalEarth1, geoPath } from 'd3-geo';
 import StoryCalloutList from './StoryCalloutList';
 import { StoryCallout } from './types/news';
+import { useWorldCountries } from './utils/useWorldCountries';
 
 // Bundle all handcrafted and live fixtures at build time.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,6 +62,10 @@ export default function TestMapPage(): React.ReactElement {
     return fn().center(projConfig.center).scale(projConfig.scale).translate([400, 300]);
   }, [projConfig]);
 
+  const pathGen = useMemo(() => geoPath(d3Projection), [d3Projection]);
+
+  const countries = useWorldCountries();
+
   const mapProjection = useMemo(() => {
     return (pt: [number, number]) => {
       const r = d3Projection(pt);
@@ -87,38 +91,27 @@ export default function TestMapPage(): React.ReactElement {
 
   return (
     <div className="map-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      <ComposableMap
-        projection={projConfig.type}
-        projectionConfig={{ center: projConfig.center, scale: projConfig.scale }}
-        style={{ width: '100%', height: 'auto' }}
-      >
-        <Geographies
-          geography="https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
-          stroke={DEFAULT_STROKE}
-          strokeWidth={0.5}
-          style={{ pointerEvents: 'none' }}
-        >
-          {({ geographies }) =>
-            geographies
-              .filter(geo => geo.properties.name !== 'Antarctica')
-              .map(geo => (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  fill={DEFAULT_FILL}
-                  stroke={DEFAULT_STROKE}
-                  strokeWidth={0.5}
-                  tabIndex={-1}
-                />
-              ))
-          }
-        </Geographies>
+      <svg viewBox="0 0 800 600" className="geo-svg" style={{ width: '100%', height: 'auto' }}>
+        <g style={{ pointerEvents: 'none' }}>
+          {countries
+            .filter(geo => geo.properties?.name !== 'Antarctica')
+            .map(geo => (
+              <path
+                key={String(geo.id)}
+                d={pathGen(geo) ?? undefined}
+                fill={DEFAULT_FILL}
+                stroke={DEFAULT_STROKE}
+                strokeWidth={0.5}
+                tabIndex={-1}
+              />
+            ))}
+        </g>
         <StoryCalloutList
           projection={mapProjection}
           callouts={fixture.callouts}
           bottomReservedPx={stripOn ? 90 : 0}
         />
-      </ComposableMap>
+      </svg>
     </div>
   );
 }

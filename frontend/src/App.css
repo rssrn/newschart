@@ -17,13 +17,13 @@ svg {
   vertical-align: middle;
 }
 
-.rsm-svg {
+.geo-svg {
   width: 100%;
   height: auto;
   display: block;
 }
 
-.rsm-svg path:focus {
+.geo-svg path:focus {
   outline: none;
 }
 

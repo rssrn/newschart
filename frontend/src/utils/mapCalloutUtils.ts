@@ -77,7 +77,7 @@ function _calculateOffsets(
 ): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
 
   // --- Coordinate setup ---
-  // Use SVG viewport bounds (react-simple-maps defaults: 800 wide)
+  // Use SVG viewport bounds (800 wide)
   const SVG_WIDTH = 800;
 
   // Convert callouts to screen coordinates
