@@ -13,6 +13,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Verify CI passed for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA="${{ github.sha }}"
+          echo "Checking CI status for commit $SHA"
+
+          RUNS=$(gh api "repos/${{ github.repository }}/commits/$SHA/check-runs" \
+            --paginate --jq '.check_runs[]')
+
+          TOTAL=$(echo "$RUNS" | jq -s 'length')
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "No CI checks found for $SHA — soft-pass (path-filtered commit)"
+            exit 0
+          fi
+
+          PENDING=$(echo "$RUNS" | jq -r 'select(.status == "queued" or .status == "in_progress" or .status == "pending") | .name')
+          if [ -n "$PENDING" ]; then
+            echo "CI is still running for $SHA — cannot deploy yet:"
+            echo "$PENDING"
+            exit 1
+          fi
+
+          FAILED=$(echo "$RUNS" | jq -r 'select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral") | "\(.name): \(.conclusion)"')
+          if [ -n "$FAILED" ]; then
+            echo "CI checks did not pass for $SHA:"
+            echo "$FAILED"
+            exit 1
+          fi
+
+          echo "All CI checks passed for $SHA — proceeding with deploy"
+
       - name: Set up Java 21
         uses: actions/setup-java@v5
         with:
