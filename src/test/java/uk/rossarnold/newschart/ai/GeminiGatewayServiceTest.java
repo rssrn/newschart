@@ -18,6 +18,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.TestPropertySource;
 import uk.rossarnold.newschart.callout.Callout;
+import uk.rossarnold.newschart.callout.CalloutSource;
+import uk.rossarnold.newschart.geo.Country;
+import uk.rossarnold.newschart.news.highlights.CountryNews;
+import uk.rossarnold.newschart.news.highlights.NewsItem;
 
 import java.util.List;
 import java.util.Optional;
@@ -98,12 +102,58 @@ class GeminiGatewayServiceTest {
         verify(googleGenAiChatModel, times(1)).call(any(Prompt.class));
     }
 
-    // === Recovery method ===
+    // === summariseStories retry behaviour ===
+
+    @Test
+    void summariseStoriesRetriesThreeTimesOnServerExceptionThenRecovers() {
+        when(googleGenAiChatModel.call(any(Prompt.class))).thenThrow(new ServerException(503, "Service Unavailable", "{}"));
+
+        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(googleGenAiChatModel, times(3)).call(any(Prompt.class));
+    }
+
+    @Test
+    void summariseStoriesRetriesThreeTimesOnGenAiIOExceptionThenRecovers() {
+        when(googleGenAiChatModel.call(any(Prompt.class))).thenThrow(new GenAiIOException("connection timeout"));
+
+        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(googleGenAiChatModel, times(3)).call(any(Prompt.class));
+    }
+
+    @Test
+    void summariseStoriesDoesNotRetryOnClientExceptionAndRecovers() {
+        when(googleGenAiChatModel.call(any(Prompt.class))).thenThrow(new ClientException(404, "Not Found", "{}"));
+
+        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(googleGenAiChatModel, times(1)).call(any(Prompt.class));
+    }
+
+    // === Recovery methods ===
+
+    @Test
+    void summariseStoriesRecoveryReturnsEmptyOptional() {
+        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStoriesRecovery(new RuntimeException("exhausted"));
+
+        assertTrue(result.isEmpty());
+    }
 
     @Test
     void recoveryReturnsEmptyOptional() {
         Optional<List<Callout>> result = geminiGatewayService.getCalloutsRecovery(new RuntimeException("exhausted"));
 
         assertTrue(result.isEmpty());
+    }
+
+    private CountryNews testCountryNews() {
+        Country country = new Country();
+        country.setName("Test Country");
+        NewsItem item = new NewsItem(CalloutSource.NEW_YORK_TIMES, "Test headline", "http://test", "Test content", List.of());
+        return new CountryNews(country, List.of(item));
     }
 }

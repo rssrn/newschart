@@ -1,11 +1,20 @@
 package uk.rossarnold.newschart.ai;
 
+import com.openai.errors.BadRequestException;
+import com.openai.errors.InternalServerException;
+import com.openai.errors.OpenAIIoException;
+import com.openai.errors.RateLimitException;
+import com.openai.errors.UnauthorizedException;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.callout.CalloutType;
@@ -19,21 +28,39 @@ import java.util.Optional;
 @Service
 public class OpenRouterGatewayService {
     private final ChatClient chatClient;
+    private final MeterRegistry meterRegistry;
 
     private static final Logger log = LogManager.getLogger(OpenRouterGatewayService.class);
 
-    public OpenRouterGatewayService(OpenAiChatModel chatModel) {
+    static final String OPENROUTER_GETCALLOUTS_EXHAUSTED = "gemini.getcallouts.exhausted";
+
+    public OpenRouterGatewayService(OpenAiChatModel chatModel, MeterRegistry meterRegistry) {
         this.chatClient = ChatClient.create(chatModel);
+        this.meterRegistry = meterRegistry;
+        meterRegistry.counter(OPENROUTER_GETCALLOUTS_EXHAUSTED); // pre-register to expose baseline 0 value
     }
 
     // workaround so the required return format is unambiguous - bare list can confuse the LLM
-    public record LlmCalloutList(List<LlmCallout> items) {}
+    public record LlmCalloutList(List<LlmCallout> items) {
+    }
 
     /**
      * Use LLM to generate top news stories for today.
      *
      * @return list of story callouts suggested by the LLM
      */
+    @Retryable(
+            retryFor = {
+                    OpenAIIoException.class,       // Network/timeout issues
+                    InternalServerException.class, // 500, 502, 503, 504 Server errors
+                    RateLimitException.class       // 429 Too Many Requests
+            },
+            noRetryFor = {
+                    BadRequestException.class,     // 400 Bad Request
+                    UnauthorizedException.class    // 401 Unauthorized
+            },
+            backoff = @Backoff(delayExpression = "${openrouter.retry.delay-ms:30000}", multiplier = 2)
+    )
     public Optional<List<Callout>> getCallouts(String model) {
         log.info("Calling OpenRouter {}", model);
 
@@ -80,7 +107,7 @@ public class OpenRouterGatewayService {
      * Sometimes the model randomly includes some text preamble before the raw json.  Strip this if present.
      *
      * @param raw - raw response from AI model
-     * @return
+     * @return json string
      */
     private String extractJson(String raw) {
         String prefix = raw.substring(0, Math.min(raw.length(), 100));
@@ -90,5 +117,12 @@ public class OpenRouterGatewayService {
         int braceEnd = raw.lastIndexOf('}');
         if (braceEnd >= 0 && braceEnd < raw.length() - 1) raw = raw.substring(0, braceEnd + 1);
         return raw.trim();
+    }
+
+    @Recover
+    public Optional<List<Callout>> getCalloutsRecovery(Exception e) {
+        log.error("OpenRouter getCallouts failed after retries exhausted", e);
+        meterRegistry.counter(OPENROUTER_GETCALLOUTS_EXHAUSTED).increment();
+        return Optional.empty();
     }
 }

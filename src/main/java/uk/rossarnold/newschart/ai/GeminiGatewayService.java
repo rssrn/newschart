@@ -37,7 +37,8 @@ public class GeminiGatewayService {
     }
 
     // workaround so the required return format is unambiguous - bare list can confuse the LLM
-    public record LlmCalloutList(List<LlmCallout> items) {}
+    public record LlmCalloutList(List<LlmCallout> items) {
+    }
 
     static final String MAIN_SUMMARY_PROMPT = """
             Given the following list of news stories, return a summary consisting of one summarised header and
@@ -52,14 +53,28 @@ public class GeminiGatewayService {
     static final String MAIN_SUMMARY_MODEL = "gemini-2.5-flash-lite";
     static final String FIND_NEWS_MODEL = "gemini-2.5-flash";
 
-    static final String COUNTER_NAME_EXHAUSTED = "gemini.getcallouts.exhausted";
+    static final String GEMINI_GETCALLOUTS_EXHAUSTED = "gemini.getcallouts.exhausted";
+    static final String GEMINI_SUMMARISESTORIES_EXHAUSTED = "gemini.summarisestories.exhausted";
+
 
     public GeminiGatewayService(GoogleGenAiChatModel chatModel, MeterRegistry meterRegistry) {
         this.chatClient = ChatClient.create(chatModel);
         this.meterRegistry = meterRegistry;
-        meterRegistry.counter(COUNTER_NAME_EXHAUSTED); // pre-register to expose baseline 0 value
+        meterRegistry.counter(GEMINI_GETCALLOUTS_EXHAUSTED); // pre-register to expose baseline 0 value
+        meterRegistry.counter(GEMINI_SUMMARISESTORIES_EXHAUSTED);
     }
 
+    @Retryable(
+            retryFor = {
+                    GenAiIOException.class, // Network/timeout issues
+                    ServerException.class // 500, 502, 503, 504 Server errors
+            },
+            noRetryFor = {
+                    // fail fast on these, no point in retry - caller handles
+                    ClientException.class // 400, 401, 403, 404 Client errors
+            },
+            backoff = @Backoff(delayExpression = "${gemini.retry.delay-ms:30000}", multiplier = 2) // and defaults to 3 attempts
+    )
     public Optional<GeminiGatewayService.StoryOutline> summariseStories(CountryNews countryNews) {
 
         // collate input data for Gemini
@@ -131,9 +146,16 @@ public class GeminiGatewayService {
     }
 
     @Recover
+    public Optional<StoryOutline> summariseStoriesRecovery(Exception e) {
+        log.error("Gemini summariseStories failed after retries exhausted", e);
+        meterRegistry.counter(GEMINI_SUMMARISESTORIES_EXHAUSTED).increment();
+        return Optional.empty();
+    }
+
+    @Recover
     public Optional<List<Callout>> getCalloutsRecovery(Exception e) {
         log.error("Gemini getCallouts failed after retries exhausted", e);
-        meterRegistry.counter(COUNTER_NAME_EXHAUSTED).increment();
+        meterRegistry.counter(GEMINI_GETCALLOUTS_EXHAUSTED).increment();
         return Optional.empty();
     }
 }
