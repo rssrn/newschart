@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -60,12 +61,14 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Build frontend
+        timeout-minutes: 5
         run: |
           cd frontend
           npm ci --legacy-peer-deps
           npm run build
 
       - name: Build backend jar
+        timeout-minutes: 5
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
@@ -75,6 +78,7 @@ jobs:
           fi
 
       - name: Connect to Tailscale
+        timeout-minutes: 2
         uses: tailscale/github-action@v4
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
@@ -82,32 +86,49 @@ jobs:
 
       - name: Back up current jar
         id: backup
+        timeout-minutes: 2
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          set +e
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
             ${{ secrets.DEPLOY_HOST }} \
-            "cp -f /opt/newschart/newschart.jar /opt/newschart/newschart.jar.prev 2>/dev/null || true; \
-             rm -rf /opt/newschart/frontend.prev && cp -r /opt/newschart/frontend /opt/newschart/frontend.prev 2>/dev/null || true"
-          echo "done=true" >> "$GITHUB_OUTPUT"
+            "test -f /opt/newschart/newschart.jar"
+          HAS_EXISTING=$?
+          set -e
+          if [ "$HAS_EXISTING" -eq 0 ]; then
+            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
+              ${{ secrets.DEPLOY_HOST }} \
+              "cp -f /opt/newschart/newschart.jar /opt/newschart/newschart.jar.prev && \
+               rm -rf /opt/newschart/frontend.prev && cp -r /opt/newschart/frontend /opt/newschart/frontend.prev && \
+               test -f /opt/newschart/newschart.jar.prev && test -s /opt/newschart/newschart.jar.prev && \
+               test -d /opt/newschart/frontend.prev"
+            echo "done=true" >> "$GITHUB_OUTPUT"
+          elif [ "$HAS_EXISTING" -eq 1 ]; then
+            echo "No prior artifacts found — skipping backup (first deploy)"
+            echo "done=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "SSH connection failed (exit $HAS_EXISTING) checking for prior artifacts"
+            exit 1
+          fi
 
       - name: Deploy jar and frontend
+        timeout-minutes: 3
         run: |
-          # Deploy fat jar (renamed to fixed filename)
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10" \
             target/newschart-*.jar \
             ${{ secrets.DEPLOY_HOST }}:/opt/newschart/newschart.jar
-
-          # Deploy frontend build
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10" \
             frontend/build/ \
             ${{ secrets.DEPLOY_HOST }}:/opt/newschart/frontend/
 
       - name: Restart service
+        timeout-minutes: 1
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
             ${{ secrets.DEPLOY_HOST }} \
             "sudo systemctl restart newschart && sudo systemctl status newschart --no-pager"
 
       - name: Smoke test
+        timeout-minutes: 1
         run: |
           echo "Waiting for service to be ready..."
           for i in $(seq 1 12); do
@@ -124,9 +145,10 @@ jobs:
 
       - name: Rollback on failure
         if: failure() && steps.backup.outputs.done == 'true'
+        timeout-minutes: 2
         run: |
           echo "Deployment failed — rolling back jar and frontend"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
             ${{ secrets.DEPLOY_HOST }} \
             "cp -f /opt/newschart/newschart.jar.prev /opt/newschart/newschart.jar && \
              rm -rf /opt/newschart/frontend && cp -r /opt/newschart/frontend.prev /opt/newschart/frontend && \
