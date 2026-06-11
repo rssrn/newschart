@@ -32,6 +32,7 @@
         <netty.version>4.2.13.Final</netty.version>
         <!-- Override: fix 3 CRITICAL Tomcat CVEs (CVE-2026-41293, CVE-2026-43512, CVE-2026-43515) patched in 11.0.22 -->
         <tomcat.version>11.0.22</tomcat.version>
+        <micrometer.version>1.17.0</micrometer.version>
         <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
         <ossindex.username>${env.OSS_INDEX_USERNAME}</ossindex.username>
         <ossindex.password>${env.OSS_INDEX_PASSWORD}</ossindex.password>
