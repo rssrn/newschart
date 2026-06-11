@@ -4,10 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.rossarnold.newschart.ai.GeminiGatewayService;
+import uk.rossarnold.newschart.ai.AiSummaryService;
+import uk.rossarnold.newschart.ai.StoryOutline;
+import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.callout.CalloutSource;
 import uk.rossarnold.newschart.callout.CalloutType;
-import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.news.pipeline.PipelineContext;
 import uk.rossarnold.newschart.news.pipeline.PipelineStep;
 
@@ -23,13 +24,13 @@ import java.util.Optional;
 @Service
 public class CalloutBuilderService implements PipelineStep {
 
-    private final GeminiGatewayService geminiGatewayService;
+    private final AiSummaryService aiSummaryService;
 
     private static final Logger log = LogManager.getLogger(CalloutBuilderService.class);
 
     @Autowired
-    public CalloutBuilderService(GeminiGatewayService geminiGatewayService) {
-        this.geminiGatewayService = geminiGatewayService;
+    public CalloutBuilderService(AiSummaryService aiSummaryService) {
+        this.aiSummaryService = aiSummaryService;
     }
 
     public List<Callout> toCalloutList(NewsHighlights newsHighlights,
@@ -39,9 +40,9 @@ public class CalloutBuilderService implements PipelineStep {
         List<Callout> result = new ArrayList<>();
         for (CountryNews countryNews: newsHighlights.getNewsItemsForCountry()) {
 
-            Optional<GeminiGatewayService.StoryOutline> outlineOpt = geminiGatewayService.summariseStories(countryNews);
+            Optional<StoryOutline> outlineOpt = aiSummaryService.summariseStories(countryNews);
             if (outlineOpt.isEmpty()) {
-                log.warn("Gemini returned empty outline for country: {}", countryNews.getCountry().getName());
+                log.warn("Summary service returned empty outline for country: {}", countryNews.getCountry().getName());
                 continue;
             }
 

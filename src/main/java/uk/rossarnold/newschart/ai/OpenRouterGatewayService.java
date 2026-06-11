@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.callout.CalloutType;
 import uk.rossarnold.newschart.callout.LlmCallout;
-
+import uk.rossarnold.newschart.news.highlights.CountryNews;
 
 import java.time.Instant;
 import java.util.List;
@@ -32,16 +32,47 @@ public class OpenRouterGatewayService {
 
     private static final Logger log = LogManager.getLogger(OpenRouterGatewayService.class);
 
+    static final String MAIN_SUMMARY_MODEL = "openai/gpt-oss-120b:free";
+
     static final String OPENROUTER_GETCALLOUTS_EXHAUSTED = "gemini.getcallouts.exhausted";
+    static final String OPENROUTER_SUMMARISESTORIES_EXHAUSTED = "openrouter.summarisestories.exhausted";
 
     public OpenRouterGatewayService(OpenAiChatModel chatModel, MeterRegistry meterRegistry) {
         this.chatClient = ChatClient.create(chatModel);
         this.meterRegistry = meterRegistry;
         meterRegistry.counter(OPENROUTER_GETCALLOUTS_EXHAUSTED); // pre-register to expose baseline 0 value
+        meterRegistry.counter(OPENROUTER_SUMMARISESTORIES_EXHAUSTED);
     }
 
     // workaround so the required return format is unambiguous - bare list can confuse the LLM
     public record LlmCalloutList(List<LlmCallout> items) {
+    }
+
+    @Retryable(
+            retryFor = {
+                    OpenAIIoException.class,       // Network/timeout issues
+                    InternalServerException.class, // 500, 502, 503, 504 Server errors
+                    RateLimitException.class       // 429 Too Many Requests
+            },
+            noRetryFor = {
+                    BadRequestException.class,     // 400 Bad Request
+                    UnauthorizedException.class    // 401 Unauthorized
+            },
+            backoff = @Backoff(delayExpression = "${openrouter.retry.delay-ms:30000}", multiplier = 2)
+    )
+    public Optional<StoryOutline> summariseStories(CountryNews countryNews) {
+        String prompt = AiPrompts.buildSummariseStoriesPrompt(countryNews);
+        log.info("Calling OpenRouter {} to summarise stories", MAIN_SUMMARY_MODEL);
+        log.debug("... with prompt: {}", prompt);
+
+        return Optional.ofNullable(
+                chatClient.prompt()
+                        .user(prompt)
+                        .options(OpenAiChatOptions.builder()
+                                .model(MAIN_SUMMARY_MODEL))
+                        .call()
+                        .entity(StoryOutline.class)
+        );
     }
 
     /**
@@ -123,6 +154,13 @@ public class OpenRouterGatewayService {
     public Optional<List<Callout>> getCalloutsRecovery(Exception e) {
         log.error("OpenRouter getCallouts failed after retries exhausted", e);
         meterRegistry.counter(OPENROUTER_GETCALLOUTS_EXHAUSTED).increment();
+        return Optional.empty();
+    }
+
+    @Recover
+    public Optional<StoryOutline> summariseStoriesRecovery(Exception e) {
+        log.error("OpenRouter summariseStories failed after retries exhausted", e);
+        meterRegistry.counter(OPENROUTER_SUMMARISESTORIES_EXHAUSTED).increment();
         return Optional.empty();
     }
 }

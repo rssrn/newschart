@@ -108,7 +108,7 @@ class GeminiGatewayServiceTest {
     void summariseStoriesRetriesThreeTimesOnServerExceptionThenRecovers() {
         when(googleGenAiChatModel.call(any(Prompt.class))).thenThrow(new ServerException(503, "Service Unavailable", "{}"));
 
-        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
 
         assertTrue(result.isEmpty());
         verify(googleGenAiChatModel, times(3)).call(any(Prompt.class));
@@ -118,7 +118,7 @@ class GeminiGatewayServiceTest {
     void summariseStoriesRetriesThreeTimesOnGenAiIOExceptionThenRecovers() {
         when(googleGenAiChatModel.call(any(Prompt.class))).thenThrow(new GenAiIOException("connection timeout"));
 
-        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
 
         assertTrue(result.isEmpty());
         verify(googleGenAiChatModel, times(3)).call(any(Prompt.class));
@@ -128,7 +128,7 @@ class GeminiGatewayServiceTest {
     void summariseStoriesDoesNotRetryOnClientExceptionAndRecovers() {
         when(googleGenAiChatModel.call(any(Prompt.class))).thenThrow(new ClientException(404, "Not Found", "{}"));
 
-        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = geminiGatewayService.summariseStories(testCountryNews());
 
         assertTrue(result.isEmpty());
         verify(googleGenAiChatModel, times(1)).call(any(Prompt.class));
@@ -138,7 +138,7 @@ class GeminiGatewayServiceTest {
 
     @Test
     void summariseStoriesRecoveryReturnsEmptyOptional() {
-        Optional<GeminiGatewayService.StoryOutline> result = geminiGatewayService.summariseStoriesRecovery(new RuntimeException("exhausted"));
+        Optional<StoryOutline> result = geminiGatewayService.summariseStoriesRecovery(new RuntimeException("exhausted"));
 
         assertTrue(result.isEmpty());
     }

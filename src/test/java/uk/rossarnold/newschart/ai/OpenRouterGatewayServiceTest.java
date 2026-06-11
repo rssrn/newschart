@@ -20,6 +20,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.test.context.TestPropertySource;
 import uk.rossarnold.newschart.callout.Callout;
+import uk.rossarnold.newschart.callout.CalloutSource;
+import uk.rossarnold.newschart.geo.Country;
+import uk.rossarnold.newschart.news.highlights.CountryNews;
+import uk.rossarnold.newschart.news.highlights.NewsItem;
 
 import java.util.List;
 import java.util.Optional;
@@ -120,12 +124,80 @@ class OpenRouterGatewayServiceTest {
         verify(openAiChatModel, times(1)).call(any(Prompt.class));
     }
 
-    // === Recovery method ===
+    // === getCallouts recovery ===
 
     @Test
     void recoveryReturnsEmptyOptional() {
         Optional<List<Callout>> result = openRouterGatewayService.getCalloutsRecovery(new RuntimeException("exhausted"));
 
         assertTrue(result.isEmpty());
+    }
+
+    // === summariseStories retry behaviour ===
+
+    @Test
+    void summariseStoriesRetriesThreeTimesOnInternalServerExceptionThenRecovers() {
+        when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(InternalServerException.class));
+
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(openAiChatModel, times(3)).call(any(Prompt.class));
+    }
+
+    @Test
+    void summariseStoriesRetriesThreeTimesOnOpenAIIoExceptionThenRecovers() {
+        when(openAiChatModel.call(any(Prompt.class))).thenThrow(new OpenAIIoException("connection timeout"));
+
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(openAiChatModel, times(3)).call(any(Prompt.class));
+    }
+
+    @Test
+    void summariseStoriesRetriesThreeTimesOnRateLimitExceptionThenRecovers() {
+        when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(RateLimitException.class));
+
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(openAiChatModel, times(3)).call(any(Prompt.class));
+    }
+
+    @Test
+    void summariseStoriesDoesNotRetryOnBadRequestExceptionAndRecovers() {
+        when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(BadRequestException.class));
+
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(openAiChatModel, times(1)).call(any(Prompt.class));
+    }
+
+    @Test
+    void summariseStoriesDoesNotRetryOnUnauthorizedExceptionAndRecovers() {
+        when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(UnauthorizedException.class));
+
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+
+        assertTrue(result.isEmpty());
+        verify(openAiChatModel, times(1)).call(any(Prompt.class));
+    }
+
+    // === summariseStories recovery ===
+
+    @Test
+    void summariseStoriesRecoveryReturnsEmptyOptional() {
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStoriesRecovery(new RuntimeException("exhausted"));
+
+        assertTrue(result.isEmpty());
+    }
+
+    private CountryNews testCountryNews() {
+        Country country = new Country();
+        country.setName("Test Country");
+        NewsItem item = new NewsItem(CalloutSource.NEW_YORK_TIMES, "Test headline", "http://test", "Test content", List.of());
+        return new CountryNews(country, List.of(item));
     }
 }

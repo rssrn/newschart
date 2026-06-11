@@ -4,23 +4,20 @@ import com.google.genai.errors.ClientException;
 import com.google.genai.errors.GenAiIOException;
 import com.google.genai.errors.ServerException;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.google.genai.GoogleGenAiChatModel;
 import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.ai.chat.client.ChatClient;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.callout.CalloutSource;
 import uk.rossarnold.newschart.callout.CalloutType;
 import uk.rossarnold.newschart.callout.LlmCallout;
 import uk.rossarnold.newschart.news.highlights.CountryNews;
-import uk.rossarnold.newschart.news.highlights.NewsItem;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,22 +30,9 @@ public class GeminiGatewayService {
 
     private static final Logger log = LogManager.getLogger(GeminiGatewayService.class);
 
-    public record StoryOutline(String country, String title, String body, String extendedBody) {
-    }
-
     // workaround so the required return format is unambiguous - bare list can confuse the LLM
     public record LlmCalloutList(List<LlmCallout> items) {
     }
-
-    static final String MAIN_SUMMARY_PROMPT = """
-            Given the following list of news stories, return a summary consisting of one summarised header and
-            one summarised body, and a longer extended detail description.  Do not get any input from web sources, only use the given input.  Some
-            of the input data may be outliers, so if a small number of input items seem less related to the overall
-            theme, they can be ignored.
-            Tone of the summary should be factual and concise, suitable for a general-purpose news feed.
-            The input data includes a field to indicate the main country of interest for the returned summary.
-            The returned title must be 3-7 words.  The returned detail must be 12-20 words.  The returned extended detail can be up to 100 words.
-            """;
 
     static final String MAIN_SUMMARY_MODEL = "gemini-2.5-flash-lite";
     static final String FIND_NEWS_MODEL = "gemini-2.5-flash";
@@ -75,20 +59,9 @@ public class GeminiGatewayService {
             },
             backoff = @Backoff(delayExpression = "${gemini.retry.delay-ms:30000}", multiplier = 2) // and defaults to 3 attempts
     )
-    public Optional<GeminiGatewayService.StoryOutline> summariseStories(CountryNews countryNews) {
+    public Optional<StoryOutline> summariseStories(CountryNews countryNews) {
 
-        // collate input data for Gemini
-        String country = countryNews.getCountry().getName();
-        StringBuilder concatTitle = new StringBuilder();
-        StringBuilder concatBody = new StringBuilder();
-        for (NewsItem newsItem : countryNews.getNewsItems()) {
-            concatTitle.append(newsItem.title()).append(".");
-            concatBody.append(newsItem.text()).append(".");
-        }
-
-        String promptInput = "Country: " + country + "\nTitles: " + concatTitle + "\nContent: " + concatBody;
-        String prompt = MAIN_SUMMARY_PROMPT + promptInput;
-
+        String prompt = AiPrompts.buildSummariseStoriesPrompt(countryNews);
         log.info("Calling Gemini to summarise stories");
         log.debug("... with prompt: {}", prompt);
 
