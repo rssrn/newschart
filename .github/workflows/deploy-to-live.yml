@@ -128,20 +128,71 @@ jobs:
             "sudo systemctl restart newschart && sudo systemctl status newschart --no-pager"
 
       - name: Smoke test
-        timeout-minutes: 1
+        timeout-minutes: 2
         run: |
+          BASE="https://newschart.rossarnold.uk"
           echo "Waiting for service to be ready..."
           for i in $(seq 1 12); do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://newschart.rossarnold.uk/api/news/availableDays?source=NEW_YORK_TIMES")
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/news/availableDays?source=NEW_YORK_TIMES")
             if [ "$STATUS" = "200" ]; then
-              echo "Smoke test passed (HTTP $STATUS)"
-              exit 0
+              echo "Backend up (HTTP $STATUS)"
+              break
             fi
             echo "Attempt $i: HTTP $STATUS — retrying in 3s"
             sleep 3
+            if [ "$i" = "12" ]; then
+              echo "Smoke test failed: /api/news/availableDays did not return 200 after 12 attempts"
+              exit 1
+            fi
           done
-          echo "Smoke test failed: /api/news/availableDays did not return 200 after 12 attempts"
-          exit 1
+
+          # Check frontend index.html
+          echo "Checking frontend index.html..."
+          RESP=$(curl -si "$BASE/")
+          INDEX_STATUS=$(echo "$RESP" | grep -m1 "^HTTP" | awk '{print $2}')
+          INDEX_CT=$(echo "$RESP" | grep -i "^content-type:" | head -1)
+          if [ "$INDEX_STATUS" != "200" ]; then
+            echo "FAIL: / returned HTTP $INDEX_STATUS (expected 200)"
+            exit 1
+          fi
+          if ! echo "$INDEX_CT" | grep -qi "text/html"; then
+            echo "FAIL: / Content-Type is not text/html: $INDEX_CT"
+            exit 1
+          fi
+          echo "index.html OK (HTTP $INDEX_STATUS, $INDEX_CT)"
+
+          # Resolve the hashed JS bundle from index.html and check it loads with a JS content-type
+          echo "Checking hashed JS bundle..."
+          INDEX_BODY=$(curl -s "$BASE/")
+          JS_PATH=$(echo "$INDEX_BODY" | grep -oE '/static/js/main\.[a-f0-9]+\.js' | head -1)
+          if [ -z "$JS_PATH" ]; then
+            echo "FAIL: could not find hashed JS bundle in index.html"
+            exit 1
+          fi
+          echo "Found bundle: $JS_PATH"
+          JS_RESP=$(curl -si "$BASE$JS_PATH")
+          JS_STATUS=$(echo "$JS_RESP" | grep -m1 "^HTTP" | awk '{print $2}')
+          JS_CT=$(echo "$JS_RESP" | grep -i "^content-type:" | head -1)
+          if [ "$JS_STATUS" != "200" ]; then
+            echo "FAIL: $JS_PATH returned HTTP $JS_STATUS (expected 200)"
+            exit 1
+          fi
+          if echo "$JS_CT" | grep -qi "text/html"; then
+            echo "FAIL: JS bundle served as text/html (SPA fallback instead of asset): $JS_CT"
+            exit 1
+          fi
+          echo "JS bundle OK (HTTP $JS_STATUS, $JS_CT)"
+
+          # Second API endpoint: heatmap aggregation
+          echo "Checking statsAllCallouts..."
+          STATS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/news/statsAllCallouts")
+          if [ "$STATS_STATUS" != "200" ]; then
+            echo "FAIL: /api/news/statsAllCallouts returned HTTP $STATS_STATUS (expected 200)"
+            exit 1
+          fi
+          echo "statsAllCallouts OK (HTTP $STATS_STATUS)"
+
+          echo "All smoke tests passed"
 
       - name: Rollback on failure
         if: failure() && steps.backup.outputs.done == 'true'
