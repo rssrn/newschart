@@ -45,9 +45,10 @@ const HeatmapCountryModal = ({ source, iso2, countryName, totalCount, onClose }:
   }, []);
 
   const [page, setPage] = useState(0);
-  const [error, setError] = useState(false);
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [retryCounter, setRetryCounter] = useState(0);
   const cacheKey = `${source}:${iso2}:${page}:${pageSize}`;
+  const error = errorKey === cacheKey;
   const cachedData = pageCache.get(cacheKey) ?? null;
   // Key the fetch result so stale data self-invalidates when cacheKey changes (no effect reset needed)
   const [fetchResult, setFetchResult] = useState<{ key: string; data: SpringPage<SourceCallout> } | null>(null);
@@ -81,19 +82,19 @@ const HeatmapCountryModal = ({ source, iso2, countryName, totalCount, onClose }:
 
   useEffect(() => {
     if (cachedData) return;
-    setError(false);
+    const key = cacheKey;
     fetch(`/api/news/calloutsForSourceAndCountry?source=${encodeURIComponent(source)}&countryCode=${encodeURIComponent(iso2)}&page=${page}&size=${pageSize}`)
       .then(r => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then((result: SpringPage<SourceCallout>) => {
-        pageCache.set(cacheKey, result);
-        setFetchResult({ key: cacheKey, data: result });
+        pageCache.set(key, result);
+        setFetchResult({ key, data: result });
       })
       .catch(err => {
         console.error('Failed to fetch country stories', err);
-        setError(true);
+        setErrorKey(key);
       });
   }, [cacheKey, retryCounter]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -142,7 +143,7 @@ const HeatmapCountryModal = ({ source, iso2, countryName, totalCount, onClose }:
               <button
                 className="heatmap-modal-retry-btn"
                 onClick={() => {
-                  setError(false);
+                  setErrorKey(null);
                   setRetryCounter(c => c + 1);
                   track('heatmap_modal_retry', { source, iso2 });
                 }}
