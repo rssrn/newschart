@@ -240,7 +240,7 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/topojson/topojson-client" target="_blank" rel="noopener noreferrer">topojson-client</a></td>
             <td>TopoJSON to GeoJSON conversion for world map rendering</td>
-            <td><LicenseBadge variant="bsd" label="BSD" href="https://opensource.org/license/BSD-2-Clause" /></td>
+            <td><LicenseBadge variant="isc" label="ISC" href="https://opensource.org/license/ISC" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="d3js.org" alt="" /></td>
@@ -251,7 +251,7 @@ const Credits =(): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener noreferrer">world-atlas</a></td>
-            <td>Pre-built TopoJSON world map geometry used for country rendering</td>
+            <td>Pre-built TopoJSON world map geometry bundled locally for country rendering. Copyright 2013–2019 Michael Bostock.</td>
             <td><LicenseBadge variant="isc" label="ISC" href="https://opensource.org/license/ISC" /></td>
           </tr>
         </tbody>

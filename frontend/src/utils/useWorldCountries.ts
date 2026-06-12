@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { feature } from 'topojson-client';
 import type { FeatureCollection, Feature } from 'geojson';
 
-const TOPO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+const TOPO_URL = '/countries-110m.json';
 let cache: Feature[] | null = null;
 let inflight: Promise<Feature[]> | null = null;
 
