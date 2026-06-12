@@ -19,7 +19,7 @@ describe('HeatmapCountryModal accessibility', () => {
         number: 0,
         size: 10,
       }),
-    });
+    } as unknown as Response);
     await act(async () => {
       render(
         <HeatmapCountryModal
@@ -34,7 +34,7 @@ describe('HeatmapCountryModal accessibility', () => {
     expect(await axe(document.body)).toHaveNoViolations();
   });
 
-  it('has no axe violations in error state and shows retry button', async () => {
+  it('has no axe violations in error state and shows retry button (network error)', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'));
     await act(async () => {
       render(
@@ -43,6 +43,30 @@ describe('HeatmapCountryModal accessibility', () => {
           iso2="JP"
           countryName="Japan"
           totalCount={8}
+          onClose={() => {}}
+        />
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByText('Failed to load stories')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Retry')).toBeInTheDocument();
+    expect(await axe(document.body)).toHaveNoViolations();
+  });
+
+  it('has no axe violations in error state on HTTP error response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: () => Promise.resolve({ error: 'Internal Server Error' }),
+    } as unknown as Response);
+    await act(async () => {
+      render(
+        <HeatmapCountryModal
+          source="NEW_YORK_TIMES"
+          iso2="DE"
+          countryName="Germany"
+          totalCount={3}
           onClose={() => {}}
         />
       );

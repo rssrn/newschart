@@ -83,7 +83,10 @@ const HeatmapCountryModal = ({ source, iso2, countryName, totalCount, onClose }:
     if (cachedData) return;
     setError(false);
     fetch(`/api/news/calloutsForSourceAndCountry?source=${encodeURIComponent(source)}&countryCode=${encodeURIComponent(iso2)}&page=${page}&size=${pageSize}`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((result: SpringPage<SourceCallout>) => {
         pageCache.set(cacheKey, result);
         setFetchResult({ key: cacheKey, data: result });
