@@ -1304,7 +1304,8 @@ svg {
 }
 
 .heatmap-modal-loading,
-.heatmap-modal-empty {
+.heatmap-modal-empty,
+.heatmap-modal-error {
   padding: 32px 16px;
   text-align: center;
   color: #64748b;
@@ -1319,6 +1320,28 @@ svg {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   min-height: 40px;
   box-sizing: border-box;
+}
+
+.heatmap-modal-error-text {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.heatmap-modal-retry-btn {
+  background: rgba(251, 146, 60, 0.08);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  border-radius: 6px;
+  color: #fb923c;
+  font-size: 13px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.heatmap-modal-retry-btn:hover {
+  background: rgba(251, 146, 60, 0.18);
+  border-color: rgba(251, 146, 60, 0.6);
 }
 
 .heatmap-modal-row:last-child {
