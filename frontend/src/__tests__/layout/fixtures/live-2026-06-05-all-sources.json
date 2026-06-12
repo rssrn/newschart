@@ -1,0 +1,80 @@
+{
+  "id": "live-2026-06-05-all-sources",
+  "group": "live",
+  "tags": ["needs-fix", "issue-50", "multi-source", "n10"],
+  "notes": "Worst case found in prod for issue #50 (consensus view): 12 callouts across all 4 sources covering 10 distinct countries on 2026-06-05 UTC. Clustering collapses this to 10 events: Kuwait airport attack (PERPLEXITY+OPENAI) and Hezbollah ceasefire rejection (GOOGLE_GEMINI Israel + OPENAI Lebanon, a two-country event) are the only cross-source events; the other 8 are single-model exclusives. Max consensus on a 10-country day is necessarily 2/4 (12 mentions / 10 countries). WARNING: do NOT run this fixture against the current exhaustive layout algorithm — it has no N cap and the candidate cartesian product at N=12 is intractable (it will hang, not fail). It exists to document the real worst case for the proposed tiered layout (<=4 full callouts + condensed chips); see mockups/issue-50/4-worst-case-tiered.html.",
+  "callouts": [
+    {
+      "headline": "Trump Influences Latin America, Cuba",
+      "detail": "US President Trump impacts Colombia's election and Cuba's economy, while regional tensions rise.",
+      "source": "NEW_YORK_TIMES",
+      "country": { "name": "United States", "iso2": "US", "latitude": 38.8208089190304, "longitude": -96.33161660829639 }
+    },
+    {
+      "headline": "Iran Navigates Sanctions and Regional Tensions",
+      "detail": "Iran faces sanctions and regional tensions amid World Cup efforts.",
+      "source": "NEW_YORK_TIMES",
+      "country": { "name": "Iran", "iso2": "IR", "latitude": 32.906023742890056, "longitude": 54.237077001065444 }
+    },
+    {
+      "headline": "Israel Faces Defense and Domestic Challenges",
+      "detail": "Hezbollah drones expose Israeli defense gaps; ultra-Orthodox protest military draft; Israel-Lebanon cease-fire.",
+      "source": "NEW_YORK_TIMES",
+      "country": { "name": "Israel", "iso2": "IL", "latitude": 31.513542220043195, "longitude": 35.027923472437024 }
+    },
+    {
+      "headline": "Middle East Conflict Deepens, Oil Prices Rise",
+      "detail": "Middle East peace talks stall as Hezbollah rejects ceasefire; global oil concerns rise.",
+      "source": "GOOGLE_GEMINI",
+      "country": { "name": "Israel", "iso2": "IL", "latitude": 31.046051, "longitude": 34.851612 }
+    },
+    {
+      "headline": "Global Economic Outlook Worsens",
+      "detail": "Fitch downgrades global economic growth forecast amid oil crisis; Asian markets decline.",
+      "source": "GOOGLE_GEMINI",
+      "country": { "name": "South Korea", "iso2": "KR", "latitude": 35.907757, "longitude": 127.766922 }
+    },
+    {
+      "headline": "Japan's Demographic and Seismic Challenges",
+      "detail": "Japan faces record-low birth rates and potential major earthquake warnings.",
+      "source": "GOOGLE_GEMINI",
+      "country": { "name": "Japan", "iso2": "JP", "latitude": 36.2048, "longitude": 138.2529 }
+    },
+    {
+      "headline": "China's Xi to visit North Korea",
+      "detail": "Xi’s first Pyongyang visit since 2019 signals tightening China–North Korea alignment with implications for US and regional security.",
+      "source": "PERPLEXITY",
+      "country": { "name": "North Korea", "iso2": "KP", "latitude": 39.0392, "longitude": 125.7625 }
+    },
+    {
+      "headline": "Ukrainian drones strike St. Petersburg oil terminal",
+      "detail": "Long-range Ukrainian drone attack hits major St. Petersburg oil terminal, highlighting expanding reach and economic pressure on Russia.",
+      "source": "PERPLEXITY",
+      "country": { "name": "Russia", "iso2": "RU", "latitude": 59.9386, "longitude": 30.3141 }
+    },
+    {
+      "headline": "Iranian drones strike Kuwait airport",
+      "detail": "Iranian drone attack on Kuwait airport injures dozens, widening regional tensions and threatening Gulf aviation and energy stability.",
+      "source": "PERPLEXITY",
+      "country": { "name": "Kuwait", "iso2": "KW", "latitude": 29.3759, "longitude": 47.9774 }
+    },
+    {
+      "headline": "Hezbollah rejects Lebanon-Israel ceasefire plan",
+      "detail": "Hezbollah has rejected the latest ceasefire proposal between Lebanon and Israel.",
+      "source": "OPENAI",
+      "country": { "name": "Lebanon", "iso2": "LB", "latitude": 33.8547, "longitude": 35.8623 }
+    },
+    {
+      "headline": "Iran attacks Kuwait airport, kills one",
+      "detail": "Iran launched a missile and drone attack on Kuwait's international airport, killing one person.",
+      "source": "OPENAI",
+      "country": { "name": "Kuwait", "iso2": "KW", "latitude": 29.3759, "longitude": 47.9774 }
+    },
+    {
+      "headline": "Rebel attacks in DRC kill 30 people",
+      "detail": "Rebel attacks in eastern DRC have killed 30 people and hindered Ebola response efforts.",
+      "source": "OPENAI",
+      "country": { "name": "Democratic Republic of the Congo", "iso2": "CD", "latitude": -4.0383, "longitude": 21.7587 }
+    }
+  ]
+}

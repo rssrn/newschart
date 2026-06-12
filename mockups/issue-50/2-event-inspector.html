@@ -1,0 +1,122 @@
+<!doctype html>
+<!-- Issue #50 mockup B: Event inspector — clicking a clustered event shows how each
+     model told (or omitted) the story. Static mock. @author Claude Fable 5 Anthropic -->
+<html>
+<head>
+<meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script src="mockup-common.js"></script>
+<style id="base-css"></style>
+<style>
+  .scrim { position: absolute; inset: 0; background: rgba(5, 10, 18, 0.62); z-index: 40; }
+
+  .inspector { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 700px; background: #0d1b2a; border: 1px solid rgba(96,165,250,0.45); border-radius: 12px;
+    z-index: 50; box-shadow: 0 12px 50px rgba(0,0,0,0.6); overflow: hidden; }
+  .insp-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+    background: rgba(29, 78, 216, 0.28); border-bottom: 1px solid rgba(96,165,250,0.25); }
+  .insp-flag { width: 32px; height: 22px; border-radius: 3px; object-fit: cover; }
+  .insp-country { color: #e2e8f0; font-size: 17px; font-weight: 600; }
+  .insp-chip { font-size: 11.5px; font-weight: 700; color: #93c5fd; background: rgba(96,165,250,0.15);
+    border-radius: 10px; padding: 3px 10px; }
+  .insp-date { color: #94a3b8; font-size: 12.5px; margin-left: auto; }
+  .insp-close { color: #94a3b8; font-size: 20px; line-height: 1; padding: 2px 6px; border-radius: 6px;
+    background: rgba(255,255,255,0.07); }
+
+  .insp-event-title { padding: 16px 20px 4px; color: #60a5fa; font-size: 22px; font-weight: 700; }
+  .insp-event-sub { padding: 0 20px 14px; color: #94a3b8; font-size: 13px; }
+
+  .insp-rows { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .insp-row { display: flex; gap: 12px; padding: 12px 14px; border-radius: 9px;
+    background: rgba(96,165,250,0.07); border: 1px solid rgba(96,165,250,0.14); }
+  .insp-row .badge { width: 24px; height: 24px; font-size: 12.5px; margin-top: 1px; }
+  .insp-row-body { flex: 1; }
+  .insp-row-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 3px; }
+  .insp-src-name { color: #e2e8f0; font-size: 13px; font-weight: 700; }
+  .insp-rank { color: #94a3b8; font-size: 11px; background: rgba(148,163,184,0.12);
+    border-radius: 7px; padding: 1px 7px; }
+  .insp-headline { color: #bfdbfe; font-size: 15px; font-weight: 600; line-height: 1.3; margin-bottom: 3px; }
+  .insp-snippet { color: #94a3b8; font-size: 13px; line-height: 1.45; }
+
+  .insp-row--omitted { background: rgba(148,163,184,0.05); border-color: rgba(148,163,184,0.12); }
+  .insp-row--omitted .insp-headline { color: #64748b; font-weight: 500; font-style: italic; }
+
+  .insp-footer { padding: 10px 20px 14px; color: #64748b; font-size: 11.5px;
+    border-top: 1px solid rgba(148,163,184,0.12); }
+</style>
+</head>
+<body>
+<svg id="map"></svg>
+<div id="ui"></div>
+
+<script>
+document.getElementById('base-css').textContent = BASE_CSS;
+
+const ACTIVE = { 804: 0, 364: 1, 608: 0, 729: 0 }; // Iran focused
+
+(async () => {
+  await drawBaseMap(f => {
+    if (!(+f.id in ACTIVE)) return null;
+    if (ACTIVE[+f.id]) return { fill: COLORS.activeFill, stroke: COLORS.activeStroke, strokeWidth: 1.6,
+                                glow: 'rgba(96,165,250,0.5)' };
+    return { fill: '#21436e', stroke: '#3b6ea5', strokeWidth: 1 };
+  });
+
+  const rows = [
+    { src: 'GEMINI', rank: 1, headline: 'Trump Hints at Iran Peace Deal',
+      snippet: "President Trump suggested a peace deal with Iran is imminent, though Iran states the text isn't final." },
+    { src: 'PERPLEXITY', rank: 2, headline: 'US and Iran Near Framework Agreement',
+      snippet: 'Negotiators signalled progress toward a draft framework, with phased sanctions relief on the table.' },
+    { src: 'OPENAI', rank: 1, headline: 'White House Signals Breakthrough in Iran Talks',
+      snippet: "Officials described negotiations as 'closer than ever', while Tehran urged caution on early reports." },
+    { src: 'NYT', omitted: true,
+      headline: "Not in today's top 3",
+      snippet: 'NYT led with Ukraine, the Philippines and a domestic story instead.' },
+  ];
+
+  document.getElementById('ui').innerHTML = logoHtml()
+    + controlPanelHtml([
+        [ radio('Consensus', true), radio('By Source', false), radio('Coverage Map', false) ],
+        [ '<div class="control-label">Highlight</div>',
+          radio('All models', true),
+          radio('Google Gemini', false, SOURCE_META.GEMINI.color),
+          radio('Perplexity Sonar', false, SOURCE_META.PERPLEXITY.color),
+          radio('OpenAI ChatGPT', false, SOURCE_META.OPENAI.color),
+          radio('New York Times', false, SOURCE_META.NYT.color) ],
+        [ radio('Natural Earth', false), radio('Mercator', true) ],
+      ])
+    + timelineHtml()
+    + '<div class="scrim"></div>'
+    + `<div class="inspector">
+        <div class="insp-header">
+          <img class="insp-flag" src="https://flagcdn.com/w40/ir.png">
+          <span class="insp-country">Iran</span>
+          <span class="insp-chip">covered by 3 of 4 models</span>
+          <span class="insp-date">Thursday 12 June 2026</span>
+          <span class="insp-close">✕</span>
+        </div>
+        <div class="insp-event-title">Iran–US peace deal speculation</div>
+        <div class="insp-event-sub">One event, four tellings — how each model reported today's story</div>
+        <div class="insp-rows">
+          ${rows.map(r => `
+            <div class="insp-row ${r.omitted ? 'insp-row--omitted' : ''}">
+              ${badgeHtml(r.src, !r.omitted)}
+              <div class="insp-row-body">
+                <div class="insp-row-top">
+                  <span class="insp-src-name">${SOURCE_META[r.src].name}</span>
+                  ${r.omitted ? '' : `<span class="insp-rank">rank #${r.rank} of 3</span>`}
+                </div>
+                <div class="insp-headline">${r.headline}</div>
+                <div class="insp-snippet">${r.snippet}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="insp-footer">Rank = the story's position in that model's top-3 for the day. Hollow badge = the model did not surface this event.</div>
+      </div>`;
+
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>

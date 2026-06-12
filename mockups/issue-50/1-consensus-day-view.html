@@ -1,0 +1,144 @@
+<!doctype html>
+<!-- Issue #50 mockup A: Consensus Day View — one marker per cross-source event,
+     badges show which models reported it. Static mock. @author Claude Fable 5 Anthropic -->
+<html>
+<head>
+<meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script src="mockup-common.js"></script>
+<style id="base-css"></style>
+<style>
+  .callout { position: absolute; width: 330px; background: rgb(8, 18, 32);
+    border: 1px solid rgba(96,165,250,0.55); border-radius: 9px; z-index: 20;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.45); }
+  .callout-header { display: flex; align-items: center; gap: 9px; padding: 9px 12px;
+    background: rgba(29, 78, 216, 0.28); border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid rgba(96,165,250,0.25); }
+  .callout-flag { width: 26px; height: 18px; border-radius: 2px; object-fit: cover; flex: none; }
+  .callout-country { color: #e2e8f0; font-size: 15.5px; flex: 1; }
+  .callout-badges { display: flex; gap: 4px; align-items: center; }
+  .consensus-chip { margin-left: 2px; font-size: 10.5px; font-weight: 700; color: #93c5fd;
+    background: rgba(96,165,250,0.15); border-radius: 9px; padding: 2px 7px; }
+  .callout-body { padding: 12px 15px 14px; }
+  .callout-title { color: #60a5fa; font-size: 19px; font-weight: 700; line-height: 1.25; margin-bottom: 8px; }
+  .callout-text { color: #cbd5e1; font-size: 14px; line-height: 1.45; }
+
+  .callout--unique { border-color: rgba(45, 212, 191, 0.65); }
+  .callout--unique .callout-header { background: rgba(13, 116, 110, 0.32); border-bottom-color: rgba(45,212,191,0.3); }
+  .callout--unique .callout-title { color: #5eead4; }
+  .callout--unique .consensus-chip { color: #5eead4; background: rgba(45,212,191,0.13); }
+
+  #connectors { position: absolute; inset: 0; z-index: 15; pointer-events: none; }
+
+  .map-legend { position: absolute; left: 85px; bottom: 62px; display: flex; align-items: center; gap: 9px;
+    background: rgba(10,20,35,0.88); border: 1px solid rgba(96,165,250,0.2); border-radius: 8px;
+    padding: 7px 14px; z-index: 25; color: #94a3b8; font-size: 12px; }
+  .map-legend .badge { width: 16px; height: 16px; font-size: 9px; }
+  .legend-sep { color: #334155; }
+  .legend-teal { color: #5eead4; }
+</style>
+</head>
+<body>
+<svg id="map"></svg>
+<svg id="connectors"></svg>
+<div id="ui"></div>
+
+<script>
+document.getElementById('base-css').textContent = BASE_CSS;
+
+// Clustered events for the day: one entry per cross-source story event.
+const EVENTS = [
+  {
+    country: 'Ukraine', flag: 'ua', anchor: [31.5, 49.0], box: { left: 655, top: 168 },
+    coveredBy: ['GEMINI', 'PERPLEXITY', 'OPENAI', 'NYT'],
+    title: 'Ukraine Conflict Outlasts WWI',
+    text: 'The war in Ukraine has now surpassed the length of World War I, with ongoing attacks.',
+    countryId: 804, consensus: 1.0,
+  },
+  {
+    country: 'Iran', flag: 'ir', anchor: [53.5, 32.5], box: { left: 1300, top: 56 },
+    coveredBy: ['GEMINI', 'PERPLEXITY', 'OPENAI'],
+    title: 'Trump Hints at Iran Peace Deal',
+    text: "President Trump suggested a peace deal with Iran is imminent, though Iran states the text isn't final.",
+    countryId: 364, consensus: 0.8,
+  },
+  {
+    country: 'Philippines', flag: 'ph', anchor: [122.5, 12.5], box: { left: 1488, top: 432 },
+    coveredBy: ['OPENAI', 'NYT'],
+    title: 'Philippines Protests China Sea Sanctions',
+    text: "The Philippines condemned China's sanctions on its defense chief amidst escalating South China Sea tensions.",
+    countryId: 608, consensus: 0.6,
+  },
+  {
+    country: 'Sudan', flag: 'sd', anchor: [30.2, 15.5], box: { left: 622, top: 555 },
+    coveredBy: ['PERPLEXITY'],
+    title: 'Sudan Ceasefire Talks Collapse',
+    text: 'Talks in Jeddah broke down as fighting resumed around El Fasher, aid groups warned.',
+    countryId: 729, consensus: -1, unique: true,
+  },
+];
+
+(async () => {
+  const byId = Object.fromEntries(EVENTS.map(e => [e.countryId, e]));
+  const { projection } = await drawBaseMap(f => {
+    const ev = byId[+f.id];
+    if (!ev) return null;
+    if (ev.unique) return { fill: '#0f766e', stroke: '#2dd4bf', strokeWidth: 1.4, glow: 'rgba(45,212,191,0.45)' };
+    return { fill: COLORS.activeFill, stroke: COLORS.activeStroke, strokeWidth: 1.4,
+             glow: 'rgba(96,165,250,0.4)', fillOpacity: ev.consensus };
+  });
+
+  const ui = document.getElementById('ui');
+  ui.innerHTML = logoHtml()
+    + controlPanelHtml([
+        [ radio('Consensus', true), radio('By Source', false), radio('Coverage Map', false) ],
+        [ '<div class="control-label">Highlight</div>',
+          radio('All models', true),
+          radio('Google Gemini', false, SOURCE_META.GEMINI.color),
+          radio('Perplexity Sonar', false, SOURCE_META.PERPLEXITY.color),
+          radio('OpenAI ChatGPT', false, SOURCE_META.OPENAI.color),
+          radio('New York Times', false, SOURCE_META.NYT.color) ],
+        [ radio('Natural Earth', false), radio('Mercator', true) ],
+      ])
+    + timelineHtml()
+    + `<div class="map-legend">
+         ${badgesRow(['GEMINI', 'PERPLEXITY', 'OPENAI', 'NYT'])}
+         <span>models reporting each story</span>
+         <span class="legend-sep">|</span>
+         <span class="legend-teal">teal = single-model exclusive</span>
+       </div>`
+    + EVENTS.map((e, i) => `
+      <div class="callout ${e.unique ? 'callout--unique' : ''}" id="ev${i}"
+           style="left:${e.box.left}px; top:${e.box.top}px">
+        <div class="callout-header">
+          <img class="callout-flag" src="https://flagcdn.com/w40/${e.flag}.png">
+          <span class="callout-country">${e.country}</span>
+          <span class="callout-badges">${badgesRow(e.coveredBy)}
+            <span class="consensus-chip">${e.unique ? 'only Perplexity' : e.coveredBy.length + '/4'}</span>
+          </span>
+        </div>
+        <div class="callout-body">
+          <div class="callout-title">${e.title}</div>
+          <div class="callout-text">${e.text}</div>
+        </div>
+      </div>`).join('');
+
+  // Connectors from each box edge to its country anchor.
+  const conn = d3.select('#connectors').attr('width', W).attr('height', H);
+  EVENTS.forEach((e, i) => {
+    const [ax, ay] = projection(e.anchor);
+    const r = document.getElementById('ev' + i).getBoundingClientRect();
+    const bx = ax < r.left ? r.left : ax > r.right ? r.right : (r.left + r.right) / 2;
+    const by = ay < r.top ? r.top : ay > r.bottom ? r.bottom : (r.top + r.bottom) / 2;
+    conn.append('line').attr('x1', bx).attr('y1', by).attr('x2', ax).attr('y2', ay)
+      .attr('stroke', e.unique ? '#2dd4bf' : '#60a5fa').attr('stroke-width', 2).attr('opacity', 0.85);
+    conn.append('circle').attr('cx', ax).attr('cy', ay).attr('r', 4)
+      .attr('fill', e.unique ? '#2dd4bf' : '#60a5fa');
+  });
+
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>

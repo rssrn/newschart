@@ -1,0 +1,99 @@
+<!doctype html>
+<!-- Issue #50 mockup C: Divergence coverage map — fill encodes total attention across
+     all models; ring treatment encodes consensus vs single-model coverage.
+     Static mock. @author Claude Fable 5 Anthropic -->
+<html>
+<head>
+<meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script src="mockup-common.js"></script>
+<style id="base-css"></style>
+<style>
+  .footer-pill { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px; background: rgba(25, 15, 5, 0.95);
+    border: 1px solid rgba(251, 146, 60, 0.25); border-radius: 9px; padding: 9px 18px;
+    z-index: 30; color: #cbd5e1; font-size: 12.5px; }
+  .fp-sep { color: #57534e; }
+  .fp-strong { color: #fdba74; font-weight: 600; }
+  .grad-wrap { display: flex; align-items: center; gap: 6px; color: #a8a29e; font-size: 11px; }
+  .grad-bar { width: 80px; height: 7px; border-radius: 4px;
+    background: linear-gradient(to right, #5e1f0f, #f08a24); }
+  .ring-key { display: flex; align-items: center; gap: 6px; }
+  .ring { width: 13px; height: 13px; border-radius: 50%; background: #9a3412; flex: none; }
+  .ring--gold { border: 2.5px solid #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.7); }
+  .ring--teal { border: 2.5px solid #2dd4bf; box-shadow: 0 0 6px rgba(45,212,191,0.7); }
+  .ring-label--gold { color: #fcd34d; }
+  .ring-label--teal { color: #5eead4; }
+</style>
+</head>
+<body>
+<svg id="map"></svg>
+<div id="ui"></div>
+
+<script>
+document.getElementById('base-css').textContent = BASE_CSS;
+
+// Total stories per country across all 4 models (mock data, ISO numeric ids).
+const COUNTS = {
+  643:36, 840:34, 156:30, 804:22, 364:20, 376:18, 356:16, 76:14, 826:12, 250:12,
+  276:11, 36:10, 484:9, 124:8, 792:8, 682:7, 566:7, 392:7, 818:6, 586:6, 608:6,
+  729:6, 410:5, 4:5, 710:5, 616:5, 724:5, 380:5, 862:5, 408:4, 368:4, 760:4, 887:4,
+  231:4, 180:4, 104:4, 360:4, 32:4, 170:4, 12:4, 434:3, 404:3, 24:3, 706:3, 332:3,
+  152:3, 422:3, 348:3, 300:3, 704:3, 158:3, 112:2, 642:2, 752:2, 246:2, 528:2,
+  604:2, 192:2, 400:2, 634:2, 784:2, 398:2, 50:2, 504:2, 466:2, 562:2, 148:2,
+  458:2, 764:2, 894:1, 716:1, 508:1, 834:1, 144:1, 788:1, 288:1, 686:1, 554:1,
+  68:1, 450:1, 496:1, 598:1, 578:1, 620:1, 56:1, 203:1, 40:1, 756:1, 208:1, 372:1,
+  795:1, 860:1, 762:1, 417:1, 116:1, 702:1, 524:1,
+};
+const MAX = 36;
+// Ring treatment: gold = 3-4 models converged on this country; teal = single-model exclusive.
+const CONSENSUS = new Set([643, 840, 156, 804, 364, 376, 356]);
+const UNIQUE = new Set([68, 450, 496, 598, 795, 834]);
+
+const heatRamp = d3.interpolateRgb('#451507', '#f08a24');
+const heat = c => heatRamp(Math.pow(c / MAX, 0.62));
+
+(async () => {
+  await drawBaseMap(f => {
+    const id = +f.id;
+    const c = COUNTS[id];
+    const base = c
+      ? { fill: heat(c), stroke: 'rgba(194, 65, 12, 0.38)', strokeWidth: 0.7,
+          glow: 'rgba(234, 88, 12, 0.30)' }
+      : null;
+    if (CONSENSUS.has(id)) return { ...base, stroke: '#fbbf24', strokeWidth: 2.6, glow: 'rgba(251,191,36,0.8)' };
+    if (UNIQUE.has(id)) return { ...(base || { fill: COLORS.land }), stroke: '#2dd4bf', strokeWidth: 2.6,
+                                 glow: 'rgba(45,212,191,0.8)' };
+    return base;
+  });
+
+  document.getElementById('ui').innerHTML = logoHtml()
+    + controlPanelHtml([
+        [ radio('Consensus', false), radio('By Source', false), radio('Coverage Map', true) ],
+        [ '<div class="control-label">Models</div>',
+          radio('All models', true),
+          radio('Google Gemini', false, SOURCE_META.GEMINI.color),
+          radio('Perplexity Sonar', false, SOURCE_META.PERPLEXITY.color),
+          radio('OpenAI ChatGPT', false, SOURCE_META.OPENAI.color),
+          radio('New York Times', false, SOURCE_META.NYT.color) ],
+        [ radio('Natural Earth', false), radio('Mercator', true) ],
+      ])
+    + `<div class="footer-pill">
+        <span><span class="fp-strong">324 stories</span> from 4 models</span>
+        <span class="fp-sep">|</span>
+        <span>7 Apr – 12 Jun 2026</span>
+        <span class="fp-sep">|</span>
+        <span class="grad-wrap">1 <span class="grad-bar"></span> ${MAX}</span>
+        <span class="fp-sep">|</span>
+        <span class="ring-key"><span class="ring ring--gold"></span>
+          <span class="ring-label--gold">3–4 models converge</span></span>
+        <span class="ring-key"><span class="ring ring--teal"></span>
+          <span class="ring-label--teal">single-model exclusive</span></span>
+      </div>`;
+
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>

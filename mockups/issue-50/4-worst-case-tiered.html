@@ -1,0 +1,185 @@
+<!doctype html>
+<!-- Issue #50 mockup D: worst-case real day (2026-06-05, 10 distinct countries, 12 callouts)
+     rendered with tiered consensus view: top 4 events full-size, 6 single-model
+     exclusives as condensed chips. Static mock. @author Claude Fable 5 Anthropic -->
+<html>
+<head>
+<meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+<script src="mockup-common.js"></script>
+<style id="base-css"></style>
+<style>
+  .callout { position: absolute; width: 330px; background: rgb(8, 18, 32);
+    border: 1px solid rgba(96,165,250,0.55); border-radius: 9px; z-index: 20;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.45); }
+  .callout-header { display: flex; align-items: center; gap: 9px; padding: 9px 12px;
+    background: rgba(29, 78, 216, 0.28); border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid rgba(96,165,250,0.25); }
+  .callout-flag { width: 26px; height: 18px; border-radius: 2px; object-fit: cover; flex: none; }
+  .callout-flag--secondary { margin-left: -14px; }
+  .callout-country { color: #e2e8f0; font-size: 14.5px; flex: 1; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; }
+  .callout-badges { display: flex; gap: 4px; align-items: center; }
+  .consensus-chip { margin-left: 2px; font-size: 10.5px; font-weight: 700; color: #93c5fd;
+    background: rgba(96,165,250,0.15); border-radius: 9px; padding: 2px 7px; white-space: nowrap; }
+  .callout-body { padding: 11px 15px 13px; }
+  .callout-title { color: #60a5fa; font-size: 18px; font-weight: 700; line-height: 1.25; margin-bottom: 7px; }
+  .callout-text { color: #cbd5e1; font-size: 13.5px; line-height: 1.45; }
+
+  .callout--unique { border-color: rgba(45, 212, 191, 0.65); }
+  .callout--unique .callout-header { background: rgba(13, 116, 110, 0.32); border-bottom-color: rgba(45,212,191,0.3); }
+  .callout--unique .callout-title { color: #5eead4; }
+  .callout--unique .consensus-chip { color: #5eead4; background: rgba(45,212,191,0.13); }
+
+  .chip-callout { position: absolute; display: flex; align-items: center; gap: 8px; z-index: 20;
+    background: rgb(8, 18, 32); border: 1px solid rgba(45, 212, 191, 0.55); border-radius: 16px;
+    padding: 5px 7px 5px 9px; box-shadow: 0 3px 12px rgba(0,0,0,0.45); }
+  .chip-flag { width: 21px; height: 14px; border-radius: 2px; object-fit: cover; }
+  .chip-country { color: #e2e8f0; font-size: 12.5px; white-space: nowrap; }
+  .chip-callout .badge { width: 17px; height: 17px; font-size: 9.5px; }
+
+  #connectors { position: absolute; inset: 0; z-index: 15; pointer-events: none; }
+
+  .map-legend { position: absolute; left: 85px; bottom: 62px; display: flex; align-items: center; gap: 9px;
+    background: rgba(10,20,35,0.88); border: 1px solid rgba(96,165,250,0.2); border-radius: 8px;
+    padding: 7px 14px; z-index: 25; color: #94a3b8; font-size: 12px; }
+  .map-legend .badge { width: 16px; height: 16px; font-size: 9px; }
+  .legend-sep { color: #334155; }
+  .legend-teal { color: #5eead4; }
+</style>
+</head>
+<body>
+<svg id="map"></svg>
+<svg id="connectors"></svg>
+<div id="ui"></div>
+
+<script>
+document.getElementById('base-css').textContent = BASE_CSS;
+
+/* Real data: 2026-06-05 UTC — 12 callouts, 10 distinct countries, clustered into
+   events. Two genuine cross-source events; the rest are single-model exclusives. */
+
+const FULL_EVENTS = [
+  {
+    countries: [{ name: 'Lebanon', flag: 'lb' }, { name: 'Israel', flag: 'il' }],
+    anchor: [35.86, 33.85], box: { left: 660, top: 180 },
+    coveredBy: ['GEMINI', 'OPENAI'],
+    title: 'Hezbollah Rejects Ceasefire Plan',
+    text: 'Hezbollah rejected the latest Israel–Lebanon ceasefire proposal declared in Washington, raising fears of renewed conflict along the border.',
+    countryIds: [422, 376],
+  },
+  {
+    countries: [{ name: 'Kuwait', flag: 'kw' }],
+    anchor: [47.98, 29.38], box: { left: 1220, top: 620 },
+    coveredBy: ['PERPLEXITY', 'OPENAI'],
+    title: 'Iran Attacks Kuwait Airport',
+    text: "A missile and drone attack on Kuwait's international airport killed one person and injured dozens, straining the fragile US–Iran ceasefire.",
+    countryIds: [414],
+  },
+  {
+    countries: [{ name: 'United States', flag: 'us' }],
+    anchor: [-96.33, 38.82], box: { left: 160, top: 200 },
+    coveredBy: ['NYT'],
+    title: 'Trump Influences Latin America, Cuba',
+    text: "US President Trump impacts Colombia's election and Cuba's economy, while regional tensions rise.",
+    countryIds: [840], unique: true, uniqueLabel: 'NYT #1',
+  },
+  {
+    countries: [{ name: 'North Korea', flag: 'kp' }],
+    anchor: [125.76, 39.04], box: { left: 1390, top: 118 },
+    coveredBy: ['PERPLEXITY'],
+    title: "China's Xi to Visit North Korea",
+    text: "Xi's first Pyongyang visit since 2019 signals tightening China–North Korea alignment, with implications for US and regional security.",
+    countryIds: [408], unique: true, uniqueLabel: 'Perplexity #1',
+  },
+];
+
+const CHIP_EVENTS = [
+  { name: 'Iran',        flag: 'ir', src: 'NYT',        anchor: [54.24, 32.9],   pos: { left: 1250, top: 455 }, countryId: 364 },
+  { name: 'Israel',      flag: 'il', src: 'NYT',        anchor: [34.85, 31.05],  pos: { left: 950,  top: 565 }, countryId: 376 },
+  { name: 'South Korea', flag: 'kr', src: 'GEMINI',     anchor: [127.77, 35.91], pos: { left: 1450, top: 545 }, countryId: 410 },
+  { name: 'Japan',       flag: 'jp', src: 'GEMINI',     anchor: [138.25, 36.2],  pos: { left: 1680, top: 470 }, countryId: 392 },
+  { name: 'Russia',      flag: 'ru', src: 'PERPLEXITY', anchor: [30.31, 59.94],  pos: { left: 1095, top: 245 }, countryId: 643 },
+  { name: 'DR Congo',    flag: 'cd', src: 'OPENAI',     anchor: [21.76, -4.04],  pos: { left: 860,  top: 730 }, countryId: 180 },
+];
+
+(async () => {
+  const fullIds = new Map();
+  FULL_EVENTS.forEach(e => e.countryIds.forEach(id => fullIds.set(id, e.unique)));
+  const chipIds = new Set(CHIP_EVENTS.map(c => c.countryId));
+
+  const { projection } = await drawBaseMap(f => {
+    const id = +f.id;
+    if (fullIds.has(id)) {
+      return fullIds.get(id)
+        ? { fill: '#0e5c50', stroke: '#2dd4bf', strokeWidth: 1.4, glow: 'rgba(45,212,191,0.45)' }
+        : { fill: COLORS.activeFill, stroke: COLORS.activeStroke, strokeWidth: 1.4, glow: 'rgba(96,165,250,0.4)' };
+    }
+    if (chipIds.has(id)) return { fill: '#1b3340', stroke: 'rgba(45,212,191,0.3)', strokeWidth: 1 };
+    return null;
+  });
+
+  const ui = document.getElementById('ui');
+  ui.innerHTML = logoHtml()
+    + controlPanelHtml([
+        [ radio('Consensus', true), radio('By Source', false), radio('Coverage Map', false) ],
+        [ '<div class="control-label">Highlight</div>',
+          radio('All models', true),
+          radio('Google Gemini', false, SOURCE_META.GEMINI.color),
+          radio('Perplexity Sonar', false, SOURCE_META.PERPLEXITY.color),
+          radio('OpenAI ChatGPT', false, SOURCE_META.OPENAI.color),
+          radio('New York Times', false, SOURCE_META.NYT.color) ],
+        [ radio('Natural Earth', false), radio('Mercator', true) ],
+      ])
+    + timelineHtml()
+    + `<div class="map-legend">
+         ${badgesRow(['GEMINI', 'PERPLEXITY', 'OPENAI', 'NYT'])}
+         <span>models reporting each story</span>
+         <span class="legend-sep">|</span>
+         <span class="legend-teal">teal = single-model exclusive · chips expand on click</span>
+       </div>`
+    + FULL_EVENTS.map((e, i) => `
+      <div class="callout ${e.unique ? 'callout--unique' : ''}" id="full${i}"
+           style="left:${e.box.left}px; top:${e.box.top}px">
+        <div class="callout-header">
+          ${e.countries.map((c, j) => `<img class="callout-flag ${j ? 'callout-flag--secondary' : ''}"
+              src="https://flagcdn.com/w40/${c.flag}.png">`).join('')}
+          <span class="callout-country">${e.countries.map(c => c.name).join(' · ')}</span>
+          <span class="callout-badges">${badgesRow(e.coveredBy)}
+            <span class="consensus-chip">${e.unique ? e.uniqueLabel : e.coveredBy.length + '/4'}</span>
+          </span>
+        </div>
+        <div class="callout-body">
+          <div class="callout-title">${e.title}</div>
+          <div class="callout-text">${e.text}</div>
+        </div>
+      </div>`).join('')
+    + CHIP_EVENTS.map((c, i) => `
+      <div class="chip-callout" id="chip${i}" style="left:${c.pos.left}px; top:${c.pos.top}px">
+        <img class="chip-flag" src="https://flagcdn.com/w40/${c.flag}.png">
+        <span class="chip-country">${c.name}</span>
+        ${badgeHtml(c.src, true)}
+      </div>`).join('');
+
+  // Connectors: box/chip edge to country anchor.
+  const conn = d3.select('#connectors').attr('width', W).attr('height', H);
+  function connect(el, lonLat, color, width) {
+    const [ax, ay] = projection(lonLat);
+    const r = el.getBoundingClientRect();
+    const bx = ax < r.left ? r.left : ax > r.right ? r.right : (r.left + r.right) / 2;
+    const by = ay < r.top ? r.top : ay > r.bottom ? r.bottom : (r.top + r.bottom) / 2;
+    conn.append('line').attr('x1', bx).attr('y1', by).attr('x2', ax).attr('y2', ay)
+      .attr('stroke', color).attr('stroke-width', width).attr('opacity', 0.85);
+    conn.append('circle').attr('cx', ax).attr('cy', ay).attr('r', width + 2).attr('fill', color);
+  }
+  FULL_EVENTS.forEach((e, i) =>
+    connect(document.getElementById('full' + i), e.anchor, e.unique ? '#2dd4bf' : '#60a5fa', 2));
+  CHIP_EVENTS.forEach((c, i) =>
+    connect(document.getElementById('chip' + i), c.anchor, '#2dd4bf', 1.5));
+
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>
