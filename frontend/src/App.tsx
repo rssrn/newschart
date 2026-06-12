@@ -50,6 +50,7 @@ function App(): React.ReactElement {
   const [errorDismissed, setErrorDismissed] = useState(false);
   // @author Claude Sonnet 4.6 Anthropic
   const [heatmapClickedCountry, setHeatmapClickedCountry] = useState<{ iso2: string; name: string; count: number } | null>(null);
+  const [heatmapError, setHeatmapError] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
   const [retryKey, incrementRetryKey] = useReducer((n: number) => n + 1, 0);
@@ -63,14 +64,17 @@ function App(): React.ReactElement {
     if (mode === 'heatmap') {
       if (heatmapStatsCache !== null) {
         setHeatmapStats(heatmapStatsCache);
+        setHeatmapError(false);
       } else {
+        setHeatmapError(false);
         fetch('/api/news/statsAllCallouts')
           .then(r => r.json())
           .then((data: CalloutStat[]) => {
             heatmapStatsCache = data;
             setHeatmapStats(data);
+            setHeatmapError(false);
           })
-          .catch(err => console.error('Failed to fetch heatmap stats', err));
+          .catch(() => setHeatmapError(true));
       }
     }
   };
@@ -79,13 +83,15 @@ function App(): React.ReactElement {
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
     if (viewMode !== 'heatmap' || heatmapStatsCache !== null) return;
+    setHeatmapError(false);
     fetch('/api/news/statsAllCallouts')
       .then(r => r.json())
       .then((data: CalloutStat[]) => {
         heatmapStatsCache = data;
         setHeatmapStats(data);
+        setHeatmapError(false);
       })
-      .catch(err => console.error('Failed to fetch heatmap stats', err));
+      .catch(() => setHeatmapError(true));
   // retryKey included so stats reload when the backend recovers
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [retryKey]);
@@ -331,6 +337,22 @@ function App(): React.ReactElement {
             onCalloutsLoaded={setCallouts}
             retryKey={retryKey}
           />
+          {viewMode === 'heatmap' && heatmapError && (
+            <div className="heatmap-error-overlay" role="alert" aria-live="assertive">
+              <svg className="heatmap-error-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span className="heatmap-error-text">Failed to load coverage data</span>
+              <button
+                className="heatmap-error-retry-btn"
+                onClick={() => { incrementRetryKey(); track('heatmap_error_retried'); }}
+              >
+                Retry
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Desktop date timeline – @author Claude Sonnet 4.6 Anthropic */}
