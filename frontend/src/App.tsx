@@ -83,7 +83,6 @@ function App(): React.ReactElement {
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
     if (viewMode !== 'heatmap' || heatmapStatsCache !== null) return;
-    setHeatmapError(false);
     fetch('/api/news/statsAllCallouts')
       .then(r => r.json())
       .then((data: CalloutStat[]) => {
