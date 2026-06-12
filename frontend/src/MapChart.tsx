@@ -212,7 +212,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
               />
             );
           }
-          const isActive = activeIsoNumerics.has(Number(geo.id));
+          const isActive = viewMode !== 'heatmap' && activeIsoNumerics.has(Number(geo.id));
           const activeFill = isHistorical ? ACTIVE_COUNTRY_FILL_HISTORICAL : ACTIVE_COUNTRY_FILL_CURRENT;
           const activeStroke = isHistorical ? ACTIVE_COUNTRY_STROKE_HISTORICAL : ACTIVE_COUNTRY_STROKE_CURRENT;
           return (
