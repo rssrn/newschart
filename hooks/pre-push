@@ -14,8 +14,17 @@ if echo "$PUSHED" | grep -q '^src/'; then
 fi
 
 if echo "$PUSHED" | grep -q '^frontend/'; then
-  echo "Running npm audit in frontend..."
+  echo "Running ESLint..."
   cd frontend
+  npm run lint
+  STATUS=$?
+  if [ $STATUS -ne 0 ]; then
+    echo ""
+    echo "ESLint failed. Run 'npm run lint' in frontend/ for details."
+    exit 1
+  fi
+
+  echo "Running npm audit..."
   npm audit --audit-level=high
   STATUS=$?
   if [ $STATUS -ne 0 ]; then
