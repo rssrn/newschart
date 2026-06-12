@@ -130,13 +130,14 @@ const Credits =(): React.ReactElement => (
       .badge-commercial { background: #f3f4f6; color: #4b5563; }
       .badge-mit        { background: #dcfce7; color: #166534; }
       .badge-apache     { background: #fef3c7; color: #92400e; }
-      .badge-isc        { background: #ccfbf1; color: #0f766e; }
+      .badge-isc        { background: #cffafe; color: #0e7490; }
       .badge-gpl        { background: #fee2e2; color: #991b1b; }
       .badge-epl        { background: #ede9fe; color: #5b21b6; }
       .badge-acm        { background: #f0f9ff; color: #0369a1; }
       .badge-nyt        { background: #fafafa; color: #374151; border: 1px solid #e5e7eb; }
       .badge-mpl        { background: #fff7ed; color: #9a3412; }
       .badge-bsd        { background: #e0f2fe; color: #075985; }
+      .badge-artistic   { background: #fdf2f8; color: #9d174d; }
     `}</style>
     <div className="cr-container">
       <div className="cr-header">
@@ -192,7 +193,7 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="nytimes.com" alt="" /></td>
             <td><a href="https://www.nytimes.com/rss" target="_blank" rel="noopener noreferrer">New York Times RSS</a></td>
             <td>World news RSS feed; used to provide a non-AI-sourced, editorially curated news source for comparison</td>
-            <td><LicenseBadge variant="nyt" label="NYT Terms of Service" href="https://thenewyorktimeshelpcenter.helpjuice.com/115002797688-Policies/115014893428-Terms-of-Service/" /></td>
+            <td><LicenseBadge variant="nyt" label="NYT Terms of Service" href="https://static01.nyt.com/services/xml/rss/termsconditions.html" /></td>
           </tr>
         </tbody>
         <tbody>
@@ -207,7 +208,7 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="npmjs.com" alt="" /></td>
             <td><a href="https://docs.npmjs.com/cli/commands/npm-audit" target="_blank" rel="noopener noreferrer">npm audit</a></td>
             <td>Built-in npm command that checks frontend dependencies against the npm advisory database; runs locally in the pre-push hook and in the Frontend CI GitHub Actions workflow on every push</td>
-            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
+            <td><LicenseBadge variant="artistic" label="Artistic License 2.0" href="https://opensource.org/license/artistic-2-0" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
@@ -422,7 +423,7 @@ const FaviconImg = ({ domain, alt }: { domain: string; alt: string }): React.Rea
   />
 );
 
-type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'epl' | 'acm' | 'nyt' | 'mpl' | 'bsd';
+type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'epl' | 'acm' | 'nyt' | 'mpl' | 'bsd' | 'artistic';
 
 /** @author Claude Sonnet 4.6 Anthropic */
 const LicenseBadge = ({ variant, label, href }: { variant: LicenseVariant; label: string; href?: string }): React.ReactElement => {
