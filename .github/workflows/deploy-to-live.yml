@@ -164,7 +164,7 @@ jobs:
           # Resolve the hashed JS bundle from index.html and check it loads with a JS content-type
           echo "Checking hashed JS bundle..."
           INDEX_BODY=$(curl -s "$BASE/")
-          JS_PATH=$(echo "$INDEX_BODY" | grep -oE '/static/js/main\.[a-f0-9]+\.js' | head -1)
+          JS_PATH=$(echo "$INDEX_BODY" | grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' | head -1)
           if [ -z "$JS_PATH" ]; then
             echo "FAIL: could not find hashed JS bundle in index.html"
             exit 1
