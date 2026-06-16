@@ -287,7 +287,7 @@ const boundingBox = useMemo(() => {
               <div className="map-annotation-header map-annotation-header--consensus">
                 <div className="map-annotation-location">
                   <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
-                  <span>{callout.country.name}</span>
+                  <span>{shortenCountryName(callout.country.name)}</span>
                 </div>
                 {callout.consensus && (
                   <div className="consensus-chip" aria-label={`Filed by ${callout.consensus.count} sources`}>
@@ -330,7 +330,7 @@ const boundingBox = useMemo(() => {
               <div className="map-annotation-header">
                 <div className="map-annotation-location">
                   <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
-                  <span>{callout.country.name}</span>
+                  <span>{shortenCountryName(callout.country.name)}</span>
                 </div>
                 <svg className="map-annotation-expand" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <polyline points="15 3 21 3 21 9"/>
@@ -355,7 +355,7 @@ const boundingBox = useMemo(() => {
 
 }
 
-import { getCountryFlag } from './utils/countryUtils';
+import { getCountryFlag, shortenCountryName } from './utils/countryUtils';
 import { SOURCE_META, SOURCE_ORDER } from './utils/sources';
 
 export default StoryCalloutList;
