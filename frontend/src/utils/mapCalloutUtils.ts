@@ -33,15 +33,19 @@ interface Point {
  * calculateOffsets delegates to calculateOffsetsWithDiagnostics and drops the diagnostics.
  * All existing call sites continue to use this function unchanged.
  *
+ * obstaclePoints: additional SVG-space points (e.g. single-story country markers in consensus
+ * view) that callout boxes must not cover, even though they have no associated callout.
+ *
  * @author Claude Sonnet 4.6 Anthropic
  */
 export function calculateOffsets(
   callouts: StoryCallout[],
   projection: MapProjection,
   visibleSvgHeight: number = 600,
-  bottomPadding: number = 0
+  bottomPadding: number = 0,
+  obstaclePoints: { x: number; y: number }[] = []
 ): PositionedCallout[] {
-  return calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPadding).positioned;
+  return calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints).positioned;
 }
 
 /**
@@ -55,7 +59,8 @@ export function calculateOffsetsWithDiagnostics(
   callouts: StoryCallout[],
   projection: MapProjection,
   visibleSvgHeight: number = 600,
-  bottomPadding: number = 0
+  bottomPadding: number = 0,
+  obstaclePoints: { x: number; y: number }[] = []
 ): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
   const empty = (): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } => ({
     positioned: [],
@@ -64,7 +69,7 @@ export function calculateOffsetsWithDiagnostics(
   if (!Array.isArray(callouts) || !projection) return empty();
   if (callouts.length === 0) return empty();
 
-  const _inner = _calculateOffsets(callouts, projection, visibleSvgHeight, bottomPadding);
+  const _inner = _calculateOffsets(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints);
   return _inner;
 }
 
@@ -73,7 +78,8 @@ function _calculateOffsets(
   callouts: StoryCallout[],
   projection: MapProjection,
   visibleSvgHeight: number,
-  bottomPadding: number
+  bottomPadding: number,
+  obstaclePoints: Point[] = []
 ): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
 
   // --- Coordinate setup ---
@@ -127,6 +133,17 @@ function _calculateOffsets(
            ay + RENDERED_HEIGHT + pad > by;
   }
 
+  // Minimum distance from point p to line segment [a, b].
+  // @author Claude Sonnet 4.6 Anthropic
+  function distancePointToSegment(p: Point, a: Point, b: Point): number {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+    const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq));
+    return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+  }
+
   // --- Step 1: Viewport bounds for candidate filtering ---
   const TOP_PADDING = 20; // smaller than EDGE_PADDING: top of map is open ocean, less risk of clipping
   const boundsMinX = EDGE_PADDING;
@@ -147,6 +164,9 @@ function _calculateOffsets(
 
   // Helper: check if a box position would obscure another callout's origin point.
   // Skips the callout's own origin — its box is expected to be near its own subject point.
+  // Obstacle points (single-story markers) are NOT hard-rejected here — they're small dots
+  // and a hard reject at candidate generation is too aggressive on busy news days with many
+  // highlighted countries. Their avoidance is handled as a soft penalty in scoreOriginProximity.
   // @author Claude Opus 4.6 Anthropic
   function boxObscuresOrigin(boxX: number, boxY: number, selfIndex: number): boolean {
     for (let k = 0; k < nodes.length; k++) {
@@ -252,7 +272,9 @@ function _calculateOffsets(
 
   // Helper: calculate penalty for origin points near a placement.
   // selfIndex is excluded — a box sitting near its own origin is expected and fine,
-  // matching the same exclusion in boxObscuresOrigin. @author Claude Sonnet 4.6 Anthropic
+  // matching the same exclusion in boxObscuresOrigin. Obstacle points (e.g. single-story
+  // country markers in consensus view) are always included with no self-exclusion.
+  // @author Claude Sonnet 4.6 Anthropic
   function scoreOriginProximity(pi: LayoutCandidate, selfIndex: number): number {
     for (let k = 0; k < nodes.length; k++) {
       if (k === selfIndex) continue;
@@ -260,6 +282,14 @@ function _calculateOffsets(
       // Hard reject: another callout's origin literally inside this box
       if (nk.subjectX > pi.boxX && nk.subjectX < pi.boxX + BOX_WIDTH &&
           nk.subjectY > pi.boxY && nk.subjectY < pi.boxY + RENDERED_HEIGHT) {
+        return Infinity;
+      }
+    }
+    // Obstacle points (small country dots): hard-reject only if literally inside the box,
+    // not at the edge — they're smaller markers so the threshold stays tight.
+    for (const pt of obstaclePoints) {
+      if (pt.x > pi.boxX && pt.x < pi.boxX + BOX_WIDTH &&
+          pt.y > pi.boxY && pt.y < pi.boxY + RENDERED_HEIGHT) {
         return Infinity;
       }
     }
@@ -274,6 +304,17 @@ function _calculateOffsets(
       const edgeDist = Math.hypot(nearestX - nk.subjectX, nearestY - nk.subjectY);
       if (edgeDist < 70) {
         penalty += (70 - edgeDist) * 10;
+      }
+    }
+    // Obstacle points get a softer gradient: narrower radius, lower multiplier.
+    // Using the same weight as callout origins on busy news days would push all callouts
+    // into a cluster by eliminating too many candidate directions. @author Claude Sonnet 4.6 Anthropic
+    for (const pt of obstaclePoints) {
+      const nearestX = Math.max(pi.boxX, Math.min(pi.boxX + BOX_WIDTH, pt.x));
+      const nearestY = Math.max(pi.boxY, Math.min(pi.boxY + RENDERED_HEIGHT, pt.y));
+      const edgeDist = Math.hypot(nearestX - pt.x, nearestY - pt.y);
+      if (edgeDist < 35) {
+        penalty += (35 - edgeDist) * 4;
       }
     }
     return penalty;
@@ -311,6 +352,19 @@ function _calculateOffsets(
         return Infinity;
       }
       score += proximityPenalty;
+
+      // Penalty: connector passes close to an obstacle point (e.g. a single-story country
+      // marker in consensus view). Soft graduated penalty only — no hard reject, since on
+      // busy news days there are many obstacle points and a hard reject would eliminate too
+      // many candidate directions. @author Claude Sonnet 4.6 Anthropic
+      if (obstaclePoints.length > 0) {
+        const connStart = { x: ni.subjectX, y: ni.subjectY };
+        const connEnd   = { x: pi.boxX + BOX_WIDTH / 2, y: pi.boxY + ANCHOR_Y };
+        for (const pt of obstaclePoints) {
+          const d = distancePointToSegment(pt, connStart, connEnd);
+          if (d < 15) score += (15 - d) * 8;
+        }
+      }
     }
 
     return score;

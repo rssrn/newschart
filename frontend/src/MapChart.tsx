@@ -173,6 +173,20 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
   }, [viewMode, callouts]);
 
   // @author Claude Sonnet 4.6 Anthropic
+  // Countries not in the full-size tier (single-story, or beyond the cap) still have map
+  // markers; pass one representative callout per such country as obstacles so the layout
+  // algorithm avoids placing consensus callout boxes over their origin points.
+  const obstacleCallouts: StoryCallout[] = useMemo(() => {
+    if (viewMode !== 'consensus') return [];
+    const groups = groupByCountry(callouts);
+    const tier = fullSizeTier(groups, 4);
+    const tierCodes = new Set(tier.map(g => g.country.iso2));
+    return groups
+      .filter(g => !tierCodes.has(g.country.iso2))
+      .map(g => pickDisplayCallout(g));
+  }, [viewMode, callouts]);
+
+  // @author Claude Sonnet 4.6 Anthropic
   const numericToIso2 = useMemo(() => {
     const rev: Record<number, string> = {};
     for (const [code, num] of Object.entries(iso2ToNumeric)) rev[num] = code;
@@ -183,7 +197,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
     <div style={{ position: 'relative' }}>
     <svg viewBox="0 0 800 600" className="geo-svg" style={{ width: '100%', height: 'auto' }}>
       <g style={heatmapData ? undefined : { pointerEvents: 'none' }}>
-        {countries.filter(geo => geo.properties?.name !== 'Antarctica').map(geo => {
+        {countries.filter(geo => geo.properties?.name !== 'Antarctica').map((geo, geoIdx) => {
           if (heatmapData) {
             const count = heatmapData.countByNumeric.get(Number(geo.id)) ?? 0;
             const fill = count > 0 ? heatmapColor(count, heatmapData.globalMax) : DEFAULT_FILL;
@@ -203,7 +217,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
             const geoStyle = { filter: glow, animation };
             return (
               <path
-                key={String(geo.id)}
+                key={String(geo.id ?? geoIdx)}
                 className="geo-country"
                 d={pathGen(geo) ?? undefined}
                 fill={fill}
@@ -233,7 +247,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
           const activeStroke = isHistorical ? ACTIVE_COUNTRY_STROKE_HISTORICAL : ACTIVE_COUNTRY_STROKE_CURRENT;
           return (
             <path
-              key={String(geo.id)}
+              key={String(geo.id ?? geoIdx)}
               className="geo-country"
               d={pathGen(geo) ?? undefined}
               fill={isActive ? activeFill : DEFAULT_FILL}
@@ -246,7 +260,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         })}
       </g>
       {viewMode !== 'heatmap' && (
-        <StoryCalloutList projection={projection} callouts={calloutsInView} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical} consensus={viewMode === 'consensus'}/>
+        <StoryCalloutList projection={projection} callouts={calloutsInView} obstacleCallouts={obstacleCallouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical} consensus={viewMode === 'consensus'}/>
       )}
     </svg>
     {/* @author Claude Sonnet 4.6 Anthropic */}

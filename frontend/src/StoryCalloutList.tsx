@@ -7,6 +7,7 @@ import { track } from './utils/analytics';
 interface StoryCalloutListProps {
   readonly projection: MapProjection;
   readonly callouts: StoryCallout[];
+  readonly obstacleCallouts?: StoryCallout[];
   readonly bottomReservedPx?: number;
   readonly isHistorical?: boolean;
   readonly consensus?: boolean;
@@ -141,7 +142,7 @@ export function StoryDetailModal({ callout, onClose, isHistorical = false }: Sto
   );
 }
 
-function StoryCalloutList({ projection, callouts, bottomReservedPx = 0, isHistorical = false, consensus = false }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -203,9 +204,14 @@ const boundingBox = useMemo(() => {
     // Only run if we have data AND the map context/projection is ready
     if (callouts.length === 0 || !projection) return [];
 
+    const obstacles = obstacleCallouts
+      .map(c => projection([c.country.longitude, c.country.latitude]))
+      .filter((pt): pt is [number, number] => pt !== null)
+      .map(([x, y]) => ({ x, y }));
+
     const bottomPaddingSvg = bottomReservedPx * (SVG_WIDTH / viewportSize.w);
     if (layoutDiagnostics) {
-      const { positioned, diagnostics } = calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPaddingSvg);
+      const { positioned, diagnostics } = calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
       console.group('[layoutDiagnostics] Score breakdown');
       diagnostics.nodes.forEach((node, i) => {
         const label = callouts[i]?.country?.name ?? `node ${i}`;
@@ -226,8 +232,8 @@ const boundingBox = useMemo(() => {
       console.groupEnd();
       return positioned;
     }
-    return calculateOffsets(callouts, projection, visibleSvgHeight, bottomPaddingSvg);
-  }, [callouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w, layoutDiagnostics]);
+    return calculateOffsets(callouts, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
+  }, [callouts, obstacleCallouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w, layoutDiagnostics]);
 
   return (
   <>
