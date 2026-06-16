@@ -9,6 +9,7 @@ interface StoryCalloutListProps {
   readonly callouts: StoryCallout[];
   readonly bottomReservedPx?: number;
   readonly isHistorical?: boolean;
+  readonly consensus?: boolean;
 }
 
 function getShowBoundingBox(): boolean {
@@ -140,7 +141,7 @@ export function StoryDetailModal({ callout, onClose, isHistorical = false }: Sto
   );
 }
 
-function StoryCalloutList({ projection, callouts, bottomReservedPx = 0, isHistorical = false }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, bottomReservedPx = 0, isHistorical = false, consensus = false }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -271,33 +272,71 @@ const boundingBox = useMemo(() => {
         />
         <foreignObject
           x={-67.5}
-          y={-50}
+          y={-70}
           width="135"
-          height="100"
+          height="140"
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
-          <div
-            className={`map-annotation-box map-annotation-box--clickable${isHistorical ? ' map-annotation-box--historical' : ''}`}
-            onClick={() => handleMoreDetails(callout)}
-            role="button"
-            tabIndex={0}
-            aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
-          >
-            <div className="map-annotation-header">
-              <div className="map-annotation-location">
-                <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
-                <span>{callout.country.name}</span>
+          {consensus ? (
+            <div className={`map-annotation-box map-annotation-box--consensus${isHistorical ? ' map-annotation-box--historical' : ''}`}>
+              <div className="map-annotation-header map-annotation-header--consensus">
+                <div className="map-annotation-location">
+                  <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
+                  <span>{callout.country.name}</span>
+                </div>
+                {callout.consensus && (
+                  <div className="consensus-chip" aria-label={`Filed by ${callout.consensus.count} sources`}>
+                    {callout.consensus.count}/?
+                  </div>
+                )}
               </div>
-              <svg className="map-annotation-expand" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <polyline points="15 3 21 3 21 9"/>
-                <polyline points="9 21 3 21 3 15"/>
-                <line x1="21" y1="3" x2="14" y2="10"/>
-                <line x1="3" y1="21" x2="10" y2="14"/>
-              </svg>
+              <div className="consensus-badge-row" aria-label="Source coverage">
+                {SOURCE_ORDER.map(src => {
+                  const meta = SOURCE_META[src];
+                  const filled = callout.consensus?.sourcesFiled.includes(src) ?? false;
+                  return (
+                    <span
+                      key={src}
+                      className={`consensus-badge${filled ? ' consensus-badge--filled' : ' consensus-badge--hollow'}`}
+                      style={{
+                        borderColor: meta.color,
+                        backgroundColor: filled ? meta.color : 'transparent',
+                        color: filled ? '#0f1923' : meta.color,
+                      } as React.CSSProperties}
+                      aria-label={`${meta.shortLabel}: ${filled ? 'filed' : 'not filed'}`}
+                    >
+                      {meta.letter}
+                    </span>
+                  );
+                })}
+              </div>
+              <h4 className="map-annotation-title">{callout.headline}</h4>
+              <p className="map-annotation-text">{callout.detail}</p>
             </div>
-            <h4 className="map-annotation-title">{callout.headline}</h4>
-            <p className="map-annotation-text">{callout.detail}</p>
-          </div>
+          ) : (
+            <div
+              className={`map-annotation-box map-annotation-box--clickable${isHistorical ? ' map-annotation-box--historical' : ''}`}
+              onClick={() => handleMoreDetails(callout)}
+              role="button"
+              tabIndex={0}
+              aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
+            >
+              <div className="map-annotation-header">
+                <div className="map-annotation-location">
+                  <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
+                  <span>{callout.country.name}</span>
+                </div>
+                <svg className="map-annotation-expand" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="15 3 21 3 21 9"/>
+                  <polyline points="9 21 3 21 3 15"/>
+                  <line x1="21" y1="3" x2="14" y2="10"/>
+                  <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+              </div>
+              <h4 className="map-annotation-title">{callout.headline}</h4>
+              <p className="map-annotation-text">{callout.detail}</p>
+            </div>
+          )}
         </foreignObject>
       </g>
     );
@@ -311,5 +350,6 @@ const boundingBox = useMemo(() => {
 }
 
 import { getCountryFlag } from './utils/countryUtils';
+import { SOURCE_META, SOURCE_ORDER } from './utils/sources';
 
 export default StoryCalloutList;

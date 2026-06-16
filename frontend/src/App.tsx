@@ -3,7 +3,7 @@ import './App.css';
 import MapChart from './MapChart';
 import DateTimeline from './DateTimeline';
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
-import { todayIso, isToday, formatShortDate } from './utils/dateUtils';
+import { todayIso, isToday, formatShortDate, nearestAvailableDate } from './utils/dateUtils';
 import { track } from './utils/analytics';
 import { CalloutStat, StoryCallout } from './types/news';
 import { heatmapLegendGradient } from './utils/heatmapUtils';
@@ -12,19 +12,16 @@ import ContactModal from './ContactModal';
 import MobileStoryList from './MobileStoryList';
 import MobileCoverageList from './MobileCoverageList';
 import { ViewMode, VIEW_MODES, NAV } from './constants';
+import { SOURCE_META, SOURCE_ORDER, CalloutSource } from './utils/sources';
 
 // @author Claude Sonnet 4.6 Anthropic
-type NewsSource = 'NEW_YORK_TIMES' | 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI';
+type NewsSource = CalloutSource;
 
 // Module-level cache so stats survive source/projection changes but not page reload
 let heatmapStatsCache: CalloutStat[] | null = null;
 
-const NEWS_SOURCES: { value: NewsSource; label: string; shortLabel: string }[] = [
-  { value: 'GOOGLE_GEMINI', label: 'Google Gemini', shortLabel: 'Gemini' },
-  { value: 'PERPLEXITY', label: 'Perplexity Sonar', shortLabel: 'Perplexity' },
-  { value: 'OPENAI', label: 'OpenAI ChatGPT', shortLabel: 'ChatGPT' },
-  { value: 'NEW_YORK_TIMES', label: 'New York Times', shortLabel: 'NYT' },
-];
+const NEWS_SOURCES: { value: NewsSource; label: string; shortLabel: string }[] =
+  SOURCE_ORDER.map(s => ({ value: s, label: SOURCE_META[s].label, shortLabel: SOURCE_META[s].shortLabel }));
 
 function App(): React.ReactElement {
   const [source, setSource] = useState<NewsSource>(
@@ -37,8 +34,12 @@ function App(): React.ReactElement {
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   // @author Claude Sonnet 4.6 Anthropic
+  // Consensus is the default on desktop (D24), but the mobile consensus UX is
+  // not built yet (CP7), so mobile viewports retain the existing 'day' default.
+  // 640px matches the App.css mobile breakpoint that swaps to the mobile layout.
   const [viewMode, setViewMode] = useState<ViewMode>(
-    () => (localStorage.getItem('viewMode') as ViewMode | null) ?? 'day'
+    () => (localStorage.getItem('viewMode') as ViewMode | null)
+      ?? (window.innerWidth <= 640 ? 'day' : 'consensus')
   );
   const [heatmapStats, setHeatmapStats] = useState<CalloutStat[] | null>(
     () => (localStorage.getItem('viewMode') === 'heatmap' && heatmapStatsCache !== null) ? heatmapStatsCache : null
@@ -130,19 +131,21 @@ function App(): React.ReactElement {
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`/api/news/availableDays?source=${source}`, { signal: controller.signal })
+    const url = viewMode === 'consensus'
+      ? '/api/news/availableDays'
+      : `/api/news/availableDays?source=${source}`;
+    fetch(url, { signal: controller.signal })
       .then(r => r.json())
       .then((dates: string[]) => {
         const sorted = [...dates].sort();
         setAvailableDates(sorted);
-        // If the currently selected date isn't in the new source's list, snap to most recent
-        setSelectedDate(prev => sorted.includes(prev) ? prev : (sorted[sorted.length - 1] ?? todayIso()));
+        setSelectedDate(prev => sorted.includes(prev) ? prev : nearestAvailableDate(prev, sorted));
       })
       .catch(err => { if (err.name !== 'AbortError') console.error('Failed to fetch available dates', err); });
     return () => controller.abort();
   // retryKey included so dates reload when the backend recovers
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [source, retryKey]);
+  }, [source, viewMode, retryKey]);
 
   const showError = fetchStatus === 'error' && !errorDismissed;
   const isLoading = fetchStatus === 'loading';
@@ -190,6 +193,10 @@ function App(): React.ReactElement {
 
   // @author Claude Sonnet 4.6 Anthropic
   const mobilePillLabel = useMemo(() => {
+    if (viewMode === 'consensus') {
+      const dateLabel = isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate);
+      return `Consensus · ${dateLabel} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
+    }
     if (viewMode === 'heatmap') {
       const stats = heatmapStats ?? [];
       const sourceTotal = stats.filter(s => s.source === source).reduce((sum, s) => sum + s.count, 0);
@@ -271,6 +278,7 @@ function App(): React.ReactElement {
               {label}
             </label>
           ))}
+          {viewMode !== 'consensus' && (<>
           <div className="selector-divider" />
           {NEWS_SOURCES.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
@@ -286,6 +294,7 @@ function App(): React.ReactElement {
             </label>
           ))}
           <div className="selector-divider" />
+          </>)}
           {PROJECTION_OPTIONS.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
               <input
@@ -328,7 +337,7 @@ function App(): React.ReactElement {
             projectionType={projectionType}
             onFetchStatus={handleFetchStatus}
             date={selectedDate}
-            bottomReservedPx={viewMode === 'day' && availableDates.length > 1 ? 90 : 0}
+            bottomReservedPx={(viewMode === 'day' || viewMode === 'consensus') && availableDates.length > 1 ? 90 : 0}
             isHistorical={selectedDate !== todayIso()}
             viewMode={viewMode}
             heatmapStats={heatmapStats ?? []}
@@ -355,7 +364,7 @@ function App(): React.ReactElement {
         </div>
 
         {/* Desktop date timeline – @author Claude Sonnet 4.6 Anthropic */}
-        {viewMode === 'day' && (
+        {(viewMode === 'day' || viewMode === 'consensus') && (
           <div className="date-timeline-overlay">
             <DateTimeline
               availableDates={availableDates}
@@ -450,6 +459,7 @@ function App(): React.ReactElement {
             {label}
           </label>
         ))}
+        {viewMode !== 'consensus' && (<>
         <div className="mobile-sheet-divider" />
         <div className="mobile-sheet-section-title">Source</div>
         {NEWS_SOURCES.map(({ value, label }) => (
@@ -466,6 +476,7 @@ function App(): React.ReactElement {
           </label>
         ))}
         <div className="mobile-sheet-divider" />
+        </>)}
         <div className="mobile-sheet-section-title">Projection</div>
         {PROJECTION_OPTIONS.map(({ value, label }) => (
           <label key={value} className="mobile-sheet-radio-label">
@@ -505,7 +516,7 @@ function App(): React.ReactElement {
       )}
 
       {/* Mobile date chip strip (outside map-container to avoid overflow clip) – @author Claude Opus 4.6 Anthropic */}
-      {viewMode === 'day' && availableDates.length > 1 && (
+      {(viewMode === 'day' || viewMode === 'consensus') && availableDates.length > 1 && (
         <div className={`mobile-date-strip-wrapper${isLoading ? ' controls-loading' : ''}`}>
           <div className="mobile-date-strip-overlay">
             {availableDates.map(d => (

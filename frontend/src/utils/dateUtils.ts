@@ -10,3 +10,19 @@ export function todayIso(): string {
 export function isToday(iso: string): boolean {
   return iso === todayIso();
 }
+
+export function nearestAvailableDate(target: string, days: string[]): string {
+  if (days.length === 0) return target;
+  if (days.includes(target)) return target;
+  const targetTime = new Date(target).getTime();
+  let best = days[0];
+  let bestDist = Math.abs(new Date(days[0]).getTime() - targetTime);
+  for (let i = 1; i < days.length; i++) {
+    const dist = Math.abs(new Date(days[i]).getTime() - targetTime);
+    if (dist < bestDist || (dist === bestDist && days[i] > best)) {
+      best = days[i];
+      bestDist = dist;
+    }
+  }
+  return best;
+}

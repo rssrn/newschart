@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { SpringPage, SourceCallout } from './types/news';
 import { track } from './utils/analytics';
+import { formatSourceShort } from './utils/sources';
 
 // @author Claude Sonnet 4.6 Anthropic
 const pageCache = new Map<string, SpringPage<SourceCallout>>();
@@ -19,13 +20,7 @@ function isoToFlag(iso2: string): string {
 }
 
 function formatSource(source: string): string {
-  const map: Record<string, string> = {
-    GOOGLE_GEMINI: 'Gemini',
-    PERPLEXITY: 'Perplexity',
-    OPENAI: 'ChatGPT',
-    NEW_YORK_TIMES: 'NYT',
-  };
-  return map[source] ?? source;
+  return formatSourceShort(source);
 }
 
 function formatGeneratedAt(iso: string): string {

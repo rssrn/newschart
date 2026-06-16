@@ -27,6 +27,7 @@ export interface StoryCallout {
   type?: string;
   source?: string;
   generatedAt?: string;
+  consensus?: { sourcesFiled: string[]; count: number };
 }
 
 /**

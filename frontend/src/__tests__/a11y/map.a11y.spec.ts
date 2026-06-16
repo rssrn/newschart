@@ -168,6 +168,31 @@ test('heatmap country modal open — no axe violations', async ({ page, viewport
   expect(results.violations, 'axe violations in heatmap country modal').toEqual([]);
 });
 
+test('consensus view — no axe violations', async ({ page }) => {
+  // Consensus is the default; override localStorage if a prior test set it
+  await page.addInitScript(() => {
+    localStorage.setItem('viewMode', 'consensus');
+    localStorage.setItem('newsSource', 'GOOGLE_GEMINI');
+  });
+  // Re-navigate so addInitScript takes effect
+  await page.goto('/');
+  await page.waitForSelector('svg.geo-svg', { state: 'visible' });
+  await page.waitForTimeout(500);
+
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+
+  if (results.violations.length > 0) {
+    const summary = results.violations
+      .map(v => `[${v.impact}] ${v.id}: ${v.description}\n  ${v.nodes.map(n => n.target.join(', ')).join('\n  ')}`)
+      .join('\n\n');
+    console.error('Axe violations in consensus view:\n' + summary);
+  }
+
+  expect(results.violations, 'axe violations in consensus view').toEqual([]);
+});
+
 test('mobile sheet open — no axe violations', async ({ page, viewport }) => {
   test.skip(!isMobile(viewport), 'mobile controls sheet only exists on mobile viewports');
 

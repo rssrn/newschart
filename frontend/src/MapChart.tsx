@@ -7,6 +7,7 @@ import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/project
 import { track } from './utils/analytics';
 import iso2ToNumeric from './utils/iso2ToNumeric';
 import { heatmapColor } from './utils/heatmapUtils';
+import { groupByCountry, fullSizeTier, pickDisplayCallout } from './utils/consensus';
 
 export type { ProjectionType, FetchStatus };
 
@@ -25,7 +26,7 @@ interface MapChartProps {
   readonly date: string;
   readonly bottomReservedPx?: number;
   readonly isHistorical?: boolean;
-  readonly viewMode?: 'day' | 'heatmap';
+  readonly viewMode?: 'day' | 'heatmap' | 'consensus';
   readonly heatmapStats?: CalloutStat[];
   readonly onCountryClick?: (iso2: string, name: string, count: number) => void;
   readonly onCalloutsLoaded?: (callouts: StoryCallout[]) => void;
@@ -86,8 +87,11 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
     const params = new URLSearchParams(window.location.search); // NOSONAR
     const testCase = params.get('testCase');
 
+    const isConsensus = viewMode === 'consensus';
     const url = testCase === null
-      ? `/api/news/calloutsForDay/${date}?source=${source}`
+      ? isConsensus
+        ? `/api/news/calloutsForDay/${date}`
+        : `/api/news/calloutsForDay/${date}?source=${source}`
       : `/api/news/sampleCallouts?testCase=${testCase}`;
 
     const cached = calloutsCache.get(url);
@@ -130,7 +134,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       });
 
     return () => controller.abort();
-  }, [source, date, retryKey]);
+  }, [source, date, retryKey, viewMode]);
 
   // Build set of ISO numeric codes (as numbers) for active callouts
   const activeIsoNumerics: Set<number> = useMemo(() => {
@@ -155,6 +159,18 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       });
     return { countByNumeric, globalMax };
   }, [viewMode, heatmapStats, source]);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const calloutsInView: StoryCallout[] = useMemo(() => {
+    if (viewMode !== 'consensus') return callouts;
+    const groups = groupByCountry(callouts);
+    const tier = fullSizeTier(groups, 4);
+    return tier.map(group => {
+      const display = { ...pickDisplayCallout(group) };
+      display.consensus = { sourcesFiled: [...group.sourcesFiled], count: group.consensusCount };
+      return display;
+    });
+  }, [viewMode, callouts]);
 
   // @author Claude Sonnet 4.6 Anthropic
   const numericToIso2 = useMemo(() => {
@@ -230,7 +246,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         })}
       </g>
       {viewMode !== 'heatmap' && (
-        <StoryCalloutList projection={projection} callouts={callouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical}/>
+        <StoryCalloutList projection={projection} callouts={calloutsInView} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical} consensus={viewMode === 'consensus'}/>
       )}
     </svg>
     {/* @author Claude Sonnet 4.6 Anthropic */}

@@ -1,7 +1,8 @@
-export type ViewMode = 'day' | 'heatmap';
+export type ViewMode = 'day' | 'heatmap' | 'consensus';
 
 export const VIEW_MODES: { value: ViewMode; label: string }[] = [
-  { value: 'day', label: 'Day View' },
+  { value: 'consensus', label: 'Consensus' },
+  { value: 'day', label: 'By Source' },
   { value: 'heatmap', label: 'Coverage Map' },
 ];
 
