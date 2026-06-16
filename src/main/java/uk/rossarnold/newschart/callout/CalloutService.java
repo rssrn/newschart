@@ -63,7 +63,7 @@ public class CalloutService implements PipelineStep {
         return firstMatch.isPresent();
     }
 
-    @Cacheable(value="callouts", key="#date.toString() + '_' + #source.name()", unless="#result.isEmpty()")
+    @Cacheable(value="callouts", key="#date.toString() + '_' + (#source?.name() ?: 'ALLSOURCES')", unless="#result.isEmpty()")
     public List<Callout> calloutsForDay(LocalDate date, CalloutSource source) {
         log.info("Cache miss for {} {} - fetching callouts from repository", date, source);
 
@@ -73,7 +73,7 @@ public class CalloutService implements PipelineStep {
         Date startDate = Date.from(startOfDay.toInstant());
         Date endDate = Date.from(endOfDay.toInstant());
 
-        return calloutRepository.findByGeneratedAtBetweenAndSource(startDate, endDate, source);
+        return calloutRepository.findCalloutsFiltered(startDate, endDate, source);
     }
 
     public List<CalloutStats> calloutStatsAllCallouts() {
@@ -82,7 +82,7 @@ public class CalloutService implements PipelineStep {
     }
 
     public List<LocalDate> availableDays(CalloutSource source) {
-      return calloutRepository.findDistinctDaysBySource(source)
+      return calloutRepository.findDistinctDaysWithCallouts(source)
           .stream()
           .map(LocalDate::parse)
           .toList();

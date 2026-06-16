@@ -132,6 +132,34 @@ class CalloutServiceTest {
         assertEquals(1, afterData.size());
     }
 
+    @Test
+    void calloutsForDayWithNullSourceReturnsAllSources() {
+        calloutRepository.saveAll(List.of(
+                callout(Instant.parse("2020-07-01T12:00:00Z"), CalloutSource.NEW_YORK_TIMES),
+                callout(Instant.parse("2020-07-01T13:00:00Z"), CalloutSource.GOOGLE_GEMINI)
+        ));
+
+        List<Callout> result = calloutService.calloutsForDay(LocalDate.of(2020, 7, 1), null);
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void calloutsForDayNullSourceCacheDoesNotPolluteSpecificSourceCache() {
+        // null-source and specific-source results must be cached under different keys
+        calloutRepository.saveAll(List.of(
+                callout(Instant.parse("2020-08-01T12:00:00Z"), CalloutSource.NEW_YORK_TIMES),
+                callout(Instant.parse("2020-08-01T13:00:00Z"), CalloutSource.GOOGLE_GEMINI)
+        ));
+
+        List<Callout> allSources = calloutService.calloutsForDay(LocalDate.of(2020, 8, 1), null);
+        List<Callout> nytOnly = calloutService.calloutsForDay(LocalDate.of(2020, 8, 1), CalloutSource.NEW_YORK_TIMES);
+
+        assertEquals(2, allSources.size());
+        assertEquals(1, nytOnly.size());
+        assertEquals(CalloutSource.NEW_YORK_TIMES, nytOnly.getFirst().getSource());
+    }
+
     // === availableDays ===
 
     @Test
@@ -157,6 +185,19 @@ class CalloutServiceTest {
         List<LocalDate> days = calloutService.availableDays(CalloutSource.NEW_YORK_TIMES);
 
         assertEquals(List.of(LocalDate.of(2020, 6, 10)), days);
+    }
+
+    @Test
+    void availableDaysWithNullSourceReturnsAllSources() {
+        calloutRepository.saveAll(List.of(
+                callout(Instant.parse("2020-07-10T10:00:00Z"), CalloutSource.NEW_YORK_TIMES),
+                callout(Instant.parse("2020-07-11T10:00:00Z"), CalloutSource.GOOGLE_GEMINI),
+                callout(Instant.parse("2020-07-11T15:00:00Z"), CalloutSource.NEW_YORK_TIMES) // same day, different source
+        ));
+
+        List<LocalDate> days = calloutService.availableDays(null);
+
+        assertEquals(List.of(LocalDate.of(2020, 7, 10), LocalDate.of(2020, 7, 11)), days);
     }
 
     // === execute (pipeline step) ===

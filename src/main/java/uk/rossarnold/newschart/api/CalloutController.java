@@ -39,13 +39,13 @@ public class CalloutController {
     @GetMapping("calloutsForDay/{date}")
     public List<Callout> calloutsForDay (
         @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-        @RequestParam(required = false, defaultValue = "NEW_YORK_TIMES") CalloutSource source) {
+        @RequestParam(required = false) CalloutSource source) {
         log.info("calloutsForDay {} {}", date, source);
 
         return calloutService.calloutsForDay(date, source);
     }
 
-    record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages) {
+    public record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages) {
         static <T> PageResponse<T> of(Page<T> p) {
             return new PageResponse<>(p.getContent(), p.getNumber(), p.getSize(), p.getTotalElements(), p.getTotalPages());
         }
@@ -67,7 +67,7 @@ public class CalloutController {
 
     @GetMapping("availableDays")
     public List<LocalDate> availableDays (
-            @RequestParam(required = true) CalloutSource source) {
+            @RequestParam(required = false) CalloutSource source) {
         log.info("availableDays {}", source);
 
         return calloutService.availableDays(source);
