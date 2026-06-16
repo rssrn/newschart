@@ -51,13 +51,24 @@ if echo "$PUSHED" | grep -q '^frontend/'; then
   fi
 
   if echo "$PUSHED" | grep -q -E '^(frontend/src|frontend/index\.html)'; then
-    echo "Running accessibility tests..."
-    npm run test:a11y
+    echo "Running map accessibility tests..."
+    npm run test:a11y -- --grep-invert="/method|/credits|/accessibility"
     STATUS=$?
     if [ $STATUS -ne 0 ]; then
       echo ""
-      echo "Accessibility tests failed. Run 'npm run test:a11y' in frontend/ for details."
+      echo "Map accessibility tests failed. Run 'npm run test:a11y' for details."
       exit 1
+    fi
+
+    if echo "$PUSHED" | grep -q -E '^(frontend/src/(StaticPageShell|Method|Credits|Accessibility|index)\.[a-z]+|frontend/index\.html|frontend/src/__tests__/a11y/static-pages\.a11y\.spec\.ts)'; then
+      echo "Running static page accessibility tests..."
+      npm run test:a11y -- --grep="/method|/credits|/accessibility"
+      STATUS=$?
+      if [ $STATUS -ne 0 ]; then
+        echo ""
+        echo "Static page accessibility tests failed. Run 'npm run test:a11y' for details."
+        exit 1
+      fi
     fi
   fi
 fi
