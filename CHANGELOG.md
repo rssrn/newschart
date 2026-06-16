@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2026-06-16
+
+Map engine replacement, heatmap resilience, performance improvements, and API groundwork for the consensus view.
+
+### Added
+- **Heatmap error state** — the heatmap view now surfaces an error message when the `statsAllCallouts` fetch fails, instead of silently showing an empty map (#51)
+- **HeatmapCountryModal: error state and retry** — the modal shows an error with a retry button if its callout fetch fails (#49)
+- **API: source-optional callouts** — `calloutsForDay` and `availableDays` now accept an optional `source` filter; omitting it returns data across all sources. Backwards-compatible with existing usage. Groundwork for consensus view (#52)
+- **CI: daily release-due check** — automated daily workflow flags when unreleased changes have been pending too long
+- **CI: gate preflight on deploy** — deploy workflow now validates CI status before proceeding
+
+### Changed
+- **Map engine: react-simple-maps → d3-geo + topojson-client** — replaces the react-simple-maps wrapper with direct use of d3-geo and topojson-client; removes one dependency layer and gives full control over projection and rendering
+- **Bundled world topology** — `countries-110m.json` is now served locally, eliminating the jsDelivr CDN dependency (#53)
+- **Resilience: story summary retries** — Gemini gateway and OpenRouter gateway both now retry on transient failure during story summarisation and callout fetch
+- **Deploy workflow hardened** — step timeouts and backup verification added; smoke test expanded to verify the frontend response, not just one API endpoint
+- **Method page** — NYT country selection logic described in detail; specific AI model version removed from docs
+- **Credits page** — OpenRouter moved to the Backend section; Cloudflare added; license attributions corrected (npm audit → Artistic 2.0, NYT RSS link, ISC badge color)
+
+### Performance
+- **Map code splitting** — map bundle split into a separate chunk; CDN fonts preconnected; `font-display: optional` applied to reduce render-blocking
+- **Lazy-loaded static pages** — Credits, Method, and Accessibility pages are now lazy-loaded; favicon reduced 257 KB → 15 KB
+
+### Accessibility
+- `<main>` landmark elements replace `<div>` wrappers across all pages
+
+### Fixed
+- Day-view country highlights no longer appear during heatmap error/loading state
+
+### Security
+- Micrometer version pinned to address CVE-2026-40983
+
+### Build
+- Vite 8.0.14 → 8.0.16, Vitest 4.1.7 → 4.1.8
+- CI: link-check exclusions for vitest.dev and eslint.org (connection resets)
+- CI: fall back to latest `v*` git tag when no GitHub Release exists
+
 ## [0.16.0] - 2026-06-05
 
 Resilience improvements: Gemini retries with backoff, frontend auto-recovery on backend outage, and a new Grafana retry exhaustion panel.
