@@ -25,6 +25,7 @@ After cloning, run once to install git hooks:
 ### Frontend (React)
 ```bash
 npm start        # dev server, proxies to localhost:8080
+BACKEND=https://newschart.rossarnold.uk npm start  # proxy to live backend instead
 CI=true npm test
 npm run build
 ```

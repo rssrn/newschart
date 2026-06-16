@@ -10,7 +10,7 @@ export default defineConfig({
     port: 3000,
     open: true,
     proxy: {
-      '/api': 'http://localhost:8080',
+      '/api': process.env.BACKEND ?? 'http://localhost:8080',
     },
   },
   // `vite preview` (used by the layout-test screenshot harness) otherwise inherits
