@@ -283,7 +283,12 @@ const boundingBox = useMemo(() => {
           height="140"
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
           {consensus ? (
-            <div className={`map-annotation-box map-annotation-box--consensus${isHistorical ? ' map-annotation-box--historical' : ''}`}>
+            <div
+              className={`map-annotation-box map-annotation-box--consensus${isHistorical ? ' map-annotation-box--historical' : ''}`}
+              role="article"
+              tabIndex={0}
+              aria-label={`${callout.country.name}: ${callout.headline}`}
+            >
               <div className="map-annotation-header map-annotation-header--consensus">
                 <div className="map-annotation-location">
                   <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
@@ -295,22 +300,31 @@ const boundingBox = useMemo(() => {
                   </div>
                 )}
               </div>
-              <div className="consensus-badge-row" aria-label="Source coverage">
+              <div className="consensus-badge-row" role="group" aria-label="Source coverage">
                 {SOURCE_ORDER.map(src => {
                   const meta = SOURCE_META[src];
                   const filled = callout.consensus?.sourcesFiled.includes(src) ?? false;
                   return (
                     <span
                       key={src}
-                      className={`consensus-badge${filled ? ' consensus-badge--filled' : ' consensus-badge--hollow'}`}
+                      role="img"
+                      className="consensus-badge"
                       style={{
-                        borderColor: meta.color,
-                        backgroundColor: filled ? meta.color : 'transparent',
-                        color: filled ? '#0f1923' : meta.color,
+                        borderColor: '#ffffff',
+                        backgroundColor: '#ffffff',
+                        color: meta.color,
+                        opacity: filled ? 1 : 0.04,
                       } as React.CSSProperties}
-                      aria-label={`${meta.shortLabel}: ${filled ? 'filed' : 'not filed'}`}
+                      title={meta.label}
+                      aria-label={`${meta.shortLabel}: ${filled ? 'covered' : 'not covered'}`}
                     >
-                      {meta.letter}
+                      {meta.svgPath ? (
+                        <svg viewBox={meta.svgViewBox ?? '0 0 24 24'} width="9" height="9" fill="currentColor" aria-hidden="true">
+                          <path d={meta.svgPath} />
+                        </svg>
+                      ) : (
+                        meta.letter
+                      )}
                     </span>
                   );
                 })}
