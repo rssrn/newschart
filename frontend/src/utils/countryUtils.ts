@@ -6,6 +6,7 @@ const SHORT_COUNTRY_NAMES: Record<string, string> = {
   'Central African Rep.': 'C. African Rep.',
   'Trinidad and Tobago': 'Trinidad & Tobago',
   'Bosnia and Herz.': 'Bosnia & Herz.',
+  'Democratic Republic of the Congo': 'Dem. Rep. Congo',
 };
 
 export function shortenCountryName(name: string): string {
