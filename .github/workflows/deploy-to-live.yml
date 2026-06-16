@@ -22,7 +22,7 @@ jobs:
           echo "Checking CI status for commit $SHA"
 
           RUNS=$(gh api "repos/${{ github.repository }}/commits/$SHA/check-runs" \
-            --paginate --jq '.check_runs[]')
+            --paginate --jq '.check_runs[] | select(.name != "build-and-deploy")')
 
           TOTAL=$(echo "$RUNS" | jq -s 'length')
           if [ "$TOTAL" -eq 0 ]; then
