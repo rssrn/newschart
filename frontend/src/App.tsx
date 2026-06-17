@@ -152,7 +152,6 @@ function App(): React.ReactElement {
       .catch(err => { if (err.name !== 'AbortError') console.error('Failed to fetch available dates', err); });
     return () => controller.abort();
   // retryKey included so dates reload when the backend recovers
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source, viewMode, retryKey]);
 
   const showError = fetchStatus === 'error' && !errorDismissed;
@@ -162,6 +161,11 @@ function App(): React.ReactElement {
   const presentSources: CalloutSource[] = useMemo(() =>
     SOURCE_ORDER.filter(src => callouts.some(c => c.source === src)),
   [callouts]);
+
+  // Treat the stored selection as inactive when the source has no data for this day (D25)
+  // @author Claude Sonnet 4.6 Anthropic
+  const effectiveHighlightSource: CalloutSource | null =
+    highlightSource !== null && presentSources.includes(highlightSource) ? highlightSource : null;
 
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
@@ -185,14 +189,6 @@ function App(): React.ReactElement {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [availableDates, isLoading, selectedDate]);
-
-  // Auto-reset highlight when the highlighted source has no data on the viewed day
-  // @author Claude Sonnet 4.6 Anthropic
-  useEffect(() => {
-    if (highlightSource !== null && !presentSources.includes(highlightSource)) {
-      setHighlightSource(null);
-    }
-  }, [presentSources, highlightSource]);
 
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
@@ -323,7 +319,7 @@ function App(): React.ReactElement {
               type="radio"
               name="highlight-source"
               value=""
-              checked={highlightSource === null}
+              checked={effectiveHighlightSource === null}
               onChange={() => handleHighlightChange(null)}
             />
             All Sources
@@ -337,7 +333,7 @@ function App(): React.ReactElement {
                   type="radio"
                   name="highlight-source"
                   value={value}
-                  checked={highlightSource === value}
+                  checked={effectiveHighlightSource === value}
                   onChange={() => handleHighlightChange(value)}
                   disabled={notPresent}
                 />
@@ -396,7 +392,7 @@ function App(): React.ReactElement {
             onCountryClick={(iso2, name, count) => setHeatmapClickedCountry({ iso2, name, count })}
             onCalloutsLoaded={setCallouts}
             retryKey={retryKey}
-            highlightSource={highlightSource}
+            highlightSource={effectiveHighlightSource}
           />
           {viewMode === 'heatmap' && heatmapError && (
             <div className="heatmap-error-overlay" role="alert" aria-live="assertive">
@@ -449,10 +445,10 @@ function App(): React.ReactElement {
         {viewMode === 'consensus' && callouts.length > 0 && (() => {
           const groups = groupByCountry(callouts);
           const fullSize = fullSizeTier(groups, 4);
-          if (highlightSource !== null) {
+          if (effectiveHighlightSource !== null) {
             return (
               <div className="consensus-context-banner" role="status" aria-live="polite">
-                Showing {SOURCE_META[highlightSource].label}'s coverage — greyed = not picked by {SOURCE_META[highlightSource].shortLabel}
+                Showing {SOURCE_META[effectiveHighlightSource].label}'s coverage — greyed = not picked by {SOURCE_META[effectiveHighlightSource].shortLabel}
               </div>
             );
           }

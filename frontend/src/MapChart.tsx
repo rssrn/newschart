@@ -2,14 +2,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import { GeoProjection, geoPath } from "d3-geo";
 import StoryCalloutList from './StoryCalloutList';
 import { ConsensusChip } from './components/ConsensusChip';
-import { StoryCallout, CalloutStat, ViewportSize, PositionedCallout } from './types/news';
+import { StoryCallout, CalloutStat, ViewportSize } from './types/news';
 import { useWorldCountries } from './utils/useWorldCountries';
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 import { track } from './utils/analytics';
 import iso2ToNumeric from './utils/iso2ToNumeric';
 import { heatmapColor } from './utils/heatmapUtils';
 import { groupByCountry, fullSizeTier, pickDisplayCallout, chipTier, resolveDisplay, ConsensusGroup, ConsensusRenderCallout } from './utils/consensus';
-import { placeChips, PositionedChip } from './utils/chipLayout';
+import { placeChips } from './utils/chipLayout';
 import { calculateOffsets, BOX_WIDTH, BOX_VISUAL_TOP } from './utils/mapCalloutUtils';
 import { EventInspectorModal } from './components/EventInspectorModal';
 import type { CalloutSource } from './utils/sources';
@@ -260,10 +260,6 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
 
   const placedChips = useMemo(() => {
     if (viewMode !== 'consensus') return [];
-    const obstacles = obstacleCallouts
-      .map(c => projection([c.country.longitude, c.country.latitude]))
-      .filter((pt): pt is [number, number] => pt !== null)
-      .map(([x, y]) => ({ x, y }));
 
     const fullSizeBoxes = calloutsInView.map((c, i) => {
       const [px, py] = projection([c.country.longitude, c.country.latitude]) ?? [0, 0];
@@ -278,7 +274,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
     }).filter((conn): conn is NonNullable<typeof conn> => conn !== null);
 
     return placeChips(chipGroups, projection, fullSizeBoxes, connectors, 800, visibleSvgHeight);
-  }, [viewMode, calloutsInView, chipGroups, obstacleCallouts, projection, fullSizePositions, visibleSvgHeight]);
+  }, [viewMode, calloutsInView, chipGroups, projection, fullSizePositions, visibleSvgHeight]);
 
   // @author Claude Sonnet 4.6 Anthropic
   const numericToIso2 = useMemo(() => {
