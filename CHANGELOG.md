@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2026-06-17
+
+Consensus view — see how multiple news sources cover the same story.
+
+### Added
+- **Consensus view** — new map mode showing stories reported across multiple sources; callouts display source badges (filled = present, grey = omitted) with a consensus score ranking (#52 CP2)
+- **Tiered consensus layout** — single-source exclusives shown as chips to complement consensus callouts; single-story country markers treated as obstacles to prevent overlap (#52 CP3)
+- **Brand icons in consensus callouts** — source letter badges replaced with recognisable brand icons (#52 CP4)
+- **Event Inspector modal** — click a consensus callout or chip to see per-source headlines for that story (#52 CP5)
+- **Consensus context banner** — highlight-active cue and high-divergence framing shown when a source highlight is active (#52 CP6)
+- **Absent-source handling** — sources not present on the selected day show a disabled highlight radio with a date tooltip; highlight auto-resets (#52 CP6)
+- **`BACKEND` env var** — override dev server proxy target for local development against the live backend
+
+### Changed
+- **Method page** — new consensus-view subsection explaining multi-source grouping and ranking
+- **Country name shortening** — long country names (e.g. "Democratic Republic of the Congo") shortened in callout box titles and markers
+
+### Fixed
+- Lint errors (unused imports, effect setState, stale dependencies)
+
+### Security
+- `@babel/core` updated to 7.29.6+ to address GHSA-4x5r-pxfx-6jf8 (#56)
+- OWASP dep-check fail threshold raised from 7 to 9
+
+### CI / Test
+- a11y suite always builds fresh (`reuseExistingServer=false`)
+- a11y tests split: map tests always run; static-page tests only when relevant files change
+- Pre-push hook optimised: `vitest --changed` and conditional a11y
+- CI preflight waits for pending checks instead of failing immediately; excludes own check run
+
 ## [0.17.0] - 2026-06-16
 
 Map engine replacement, heatmap resilience, performance improvements, and API groundwork for the consensus view.
