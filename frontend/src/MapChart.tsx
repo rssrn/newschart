@@ -10,7 +10,7 @@ import iso2ToNumeric from './utils/iso2ToNumeric';
 import { heatmapColor } from './utils/heatmapUtils';
 import { groupByCountry, fullSizeTier, pickDisplayCallout, chipTier, ConsensusGroup } from './utils/consensus';
 import { placeChips, PositionedChip } from './utils/chipLayout';
-import { calculateOffsets, BOX_WIDTH, ANCHOR_Y, BOX_VISUAL_TOP } from './utils/mapCalloutUtils';
+import { calculateOffsets, BOX_WIDTH, BOX_VISUAL_TOP } from './utils/mapCalloutUtils';
 
 export type { ProjectionType, FetchStatus };
 
