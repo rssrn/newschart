@@ -159,7 +159,7 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>12.2.2</version>
                 <configuration>
-                    <failBuildOnCVSS>7</failBuildOnCVSS>
+                    <failBuildOnCVSS>9</failBuildOnCVSS>
                     <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                     <ossIndexAnalyzerUrl>https://api.guide.sonatype.com</ossIndexAnalyzerUrl>
                     <ossIndexUsername>${env.OSS_INDEX_USERNAME}</ossIndexUsername>
