@@ -14,6 +14,7 @@ interface StoryCalloutListProps {
   readonly consensus?: boolean;
   readonly precomputedOffsets?: PositionedCallout[];
   readonly highlightSource?: CalloutSource | null;
+  readonly presentSources?: CalloutSource[];
   readonly onConsensusBoxClick?: (callout: StoryCallout) => void;
 }
 
@@ -146,7 +147,7 @@ export function StoryDetailModal({ callout, onClose, isHistorical = false }: Sto
   );
 }
 
-function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false, precomputedOffsets, highlightSource = null, onConsensusBoxClick }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false, precomputedOffsets, highlightSource = null, presentSources, onConsensusBoxClick }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -277,11 +278,14 @@ const boundingBox = useMemo(() => {
     // box's accessible name so screen-reader users aren't left with a colour-only signal.
     const { highlightFiled, voiceSource } = callout as ConsensusRenderCallout;
     const baseLabel = `${callout.country.name}: ${callout.headline}`;
+    const countSuffix = consensus && callout.consensus
+      ? ` Reported by ${callout.consensus.count} of ${presentSources?.length ?? 0} sources`
+      : '';
     const consensusAriaLabel = consensus && highlightSource
       ? highlightFiled === false
-        ? `${baseLabel}. ${SOURCE_META[highlightSource].shortLabel} did not file here; showing ${voiceSource ? SOURCE_META[voiceSource].shortLabel : 'another source'}'s coverage`
-        : `${baseLabel}. Showing ${SOURCE_META[highlightSource].shortLabel}'s coverage`
-      : baseLabel;
+        ? `${baseLabel}. ${SOURCE_META[highlightSource].shortLabel} did not file here; showing ${voiceSource ? SOURCE_META[voiceSource].shortLabel : 'another source'}'s coverage${countSuffix}`
+        : `${baseLabel}. Showing ${SOURCE_META[highlightSource].shortLabel}'s coverage${countSuffix}`
+      : baseLabel + countSuffix;
     return (
       <g
         key={`${callout.country.name}-${callout.headline}`}
@@ -310,19 +314,14 @@ const boundingBox = useMemo(() => {
               onClick={() => onConsensusBoxClick?.(callout)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onConsensusBoxClick?.(callout); } }}
             >
-              <div className="map-annotation-header map-annotation-header--consensus">
-                <div className="map-annotation-location">
-                  <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
-                  <span>{shortenCountryName(callout.country.name)}</span>
-                </div>
-                {callout.consensus && (
-                  <div className="consensus-chip" aria-label={`Filed by ${callout.consensus.count} sources`}>
-                    {callout.consensus.count}/?
+                <div className="map-annotation-header map-annotation-header--consensus">
+                  <div className="map-annotation-location">
+                    <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
+                    <span>{shortenCountryName(callout.country.name)}</span>
                   </div>
-                )}
-              </div>
-              <div className="consensus-badge-row" role="group" aria-label="Source coverage">
-                {SOURCE_ORDER.map(src => (
+                </div>
+                <div className="consensus-badge-row" role="group" aria-label="Source coverage">
+                  {SOURCE_ORDER.filter(s => presentSources?.includes(s)).map(src => (
                   <SourceBadgeHtml
                     key={src}
                     source={src}

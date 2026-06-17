@@ -13,6 +13,7 @@ import MobileStoryList from './MobileStoryList';
 import MobileCoverageList from './MobileCoverageList';
 import { ViewMode, VIEW_MODES, NAV } from './constants';
 import { SOURCE_META, SOURCE_ORDER, CalloutSource } from './utils/sources';
+import { groupByCountry, fullSizeTier } from './utils/consensus';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = CalloutSource;
@@ -158,6 +159,11 @@ function App(): React.ReactElement {
   const isLoading = fetchStatus === 'loading';
 
   // @author Claude Sonnet 4.6 Anthropic
+  const presentSources: CalloutSource[] = useMemo(() =>
+    SOURCE_ORDER.filter(src => callouts.some(c => c.source === src)),
+  [callouts]);
+
+  // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
@@ -179,6 +185,14 @@ function App(): React.ReactElement {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [availableDates, isLoading, selectedDate]);
+
+  // Auto-reset highlight when the highlighted source has no data on the viewed day
+  // @author Claude Sonnet 4.6 Anthropic
+  useEffect(() => {
+    if (highlightSource !== null && !presentSources.includes(highlightSource)) {
+      setHighlightSource(null);
+    }
+  }, [presentSources, highlightSource]);
 
   // @author Claude Sonnet 4.6 Anthropic
   useEffect(() => {
@@ -312,20 +326,25 @@ function App(): React.ReactElement {
               checked={highlightSource === null}
               onChange={() => handleHighlightChange(null)}
             />
-            All models
+            All Sources
           </label>
-          {NEWS_SOURCES.map(({ value, label }) => (
-            <label key={value} className="source-radio-label">
-              <input
-                type="radio"
-                name="highlight-source"
-                value={value}
-                checked={highlightSource === value}
-                onChange={() => handleHighlightChange(value)}
-              />
-              {label}
-            </label>
-          ))}
+          {NEWS_SOURCES.map(({ value, label }) => {
+            const notPresent = !presentSources.includes(value);
+            const dateLabel = isToday(selectedDate) ? 'today' : formatShortDate(selectedDate);
+            return (
+              <label key={value} className="source-radio-label" title={notPresent ? `${label} not collected on ${dateLabel}` : undefined}>
+                <input
+                  type="radio"
+                  name="highlight-source"
+                  value={value}
+                  checked={highlightSource === value}
+                  onChange={() => handleHighlightChange(value)}
+                  disabled={notPresent}
+                />
+                {label}
+              </label>
+            );
+          })}
           <div className="selector-divider" />
           </>)}
           {PROJECTION_OPTIONS.map(({ value, label }) => (
@@ -425,6 +444,28 @@ function App(): React.ReactElement {
             </div>
           </div>
         )}
+
+        {/* Consensus context banner – @author Claude Sonnet 4.6 Anthropic */}
+        {viewMode === 'consensus' && callouts.length > 0 && (() => {
+          const groups = groupByCountry(callouts);
+          const fullSize = fullSizeTier(groups, 4);
+          if (highlightSource !== null) {
+            return (
+              <div className="consensus-context-banner" role="status" aria-live="polite">
+                Showing {SOURCE_META[highlightSource].label}'s coverage — greyed = not picked by {SOURCE_META[highlightSource].shortLabel}
+              </div>
+            );
+          }
+          if (fullSize.length === 0) {
+            const dateLabel = isToday(selectedDate) ? 'today' : formatShortDate(selectedDate);
+            return (
+              <div className="consensus-context-banner" role="status" aria-live="polite">
+                All sources picked diverging stories on {dateLabel} — no consensus
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         <div className="map-footer-overlay">
           <a href="/method" onClick={() => track('nav_link_clicked', { target: 'method' })}>{NAV.HOW_IT_WORKS}</a>

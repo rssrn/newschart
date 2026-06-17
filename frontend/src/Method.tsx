@@ -200,6 +200,33 @@ const Method = (): React.ReactElement => (
           </li>
         </ul>
 
+        <h3>Consensus view: comparing all models at once</h3>
+        <p>
+          Consensus view shows all sources on the same map, one marker per country.
+          Each marker has a row of source badges — a visible badge means that source
+          picked a story in that country; a faded one means it didn't. Hover a badge
+          to see which country that source picked. Countries where two or more sources
+          agree get a full-size callout box. Countries covered by only one source
+          appear as a small clickable chip.
+        </p>
+        <ul>
+          <li>
+            <strong>Highlight a single model</strong> with the highlight radio
+            buttons. The map greys everything that model didn't cover, so you can
+            see at a glance where its story selection overlaps with the others and
+            where it diverges.
+          </li>
+          <li>
+            <strong>Click any callout or chip</strong> to open the event inspector,
+            which shows every source's story for that country side by side.
+          </li>
+          <li>
+            <strong>Badges reflect only sources that ran</strong> on the selected
+            day. If a source didn't collect data that day (e.g. mid-ingestion), its
+            badge is absent and its highlight radio is disabled.
+          </li>
+        </ul>
+
         <h3>On a phone vs. on a desktop</h3>
         <p>
           On a desktop the controls sit alongside the map and everything is visible

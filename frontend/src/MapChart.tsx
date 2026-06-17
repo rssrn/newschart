@@ -249,32 +249,36 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
   }, [viewMode, callouts]);
 
   // @author Claude Sonnet 4.6 Anthropic
-  const { fullSizePositions, placedChips } = useMemo(() => {
-    if (viewMode !== 'consensus' || !calloutsInView.length) {
-      return { fullSizePositions: [] as PositionedCallout[], placedChips: [] as PositionedChip[] };
-    }
+  const fullSizePositions = useMemo(() => {
+    if (viewMode !== 'consensus' || !calloutsInView.length) return [];
+    const obstacles = obstacleCallouts
+      .map(c => projection([c.country.longitude, c.country.latitude]))
+      .filter((pt): pt is [number, number] => pt !== null)
+      .map(([x, y]) => ({ x, y }));
+    return calculateOffsets(calloutsInView, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
+  }, [viewMode, calloutsInView, obstacleCallouts, projection, visibleSvgHeight, bottomPaddingSvg]);
+
+  const placedChips = useMemo(() => {
+    if (viewMode !== 'consensus') return [];
     const obstacles = obstacleCallouts
       .map(c => projection([c.country.longitude, c.country.latitude]))
       .filter((pt): pt is [number, number] => pt !== null)
       .map(([x, y]) => ({ x, y }));
 
-    const fullSizePositions = calculateOffsets(calloutsInView, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
-
     const fullSizeBoxes = calloutsInView.map((c, i) => {
       const [px, py] = projection([c.country.longitude, c.country.latitude]) ?? [0, 0];
-      return { x: px + fullSizePositions[i].dx - BOX_WIDTH / 2, y: py + fullSizePositions[i].dy - BOX_VISUAL_TOP };
+      return { x: px + (fullSizePositions[i]?.dx ?? 0) - BOX_WIDTH / 2, y: py + (fullSizePositions[i]?.dy ?? 0) - BOX_VISUAL_TOP };
     });
 
     const connectors = calloutsInView.map((c, i) => {
       const proj = projection([c.country.longitude, c.country.latitude]);
       if (!proj) return null;
       const [ox, oy] = proj;
-      return { x0: ox + fullSizePositions[i].dx, y0: oy + fullSizePositions[i].dy, x1: ox, y1: oy };
+      return { x0: ox + (fullSizePositions[i]?.dx ?? 0), y0: oy + (fullSizePositions[i]?.dy ?? 0), x1: ox, y1: oy };
     }).filter((conn): conn is NonNullable<typeof conn> => conn !== null);
 
-    const placedChips = placeChips(chipGroups, projection, fullSizeBoxes, connectors, 800, visibleSvgHeight);
-    return { fullSizePositions, placedChips };
-  }, [viewMode, calloutsInView, chipGroups, obstacleCallouts, projection, visibleSvgHeight, bottomPaddingSvg]);
+    return placeChips(chipGroups, projection, fullSizeBoxes, connectors, 800, visibleSvgHeight);
+  }, [viewMode, calloutsInView, chipGroups, obstacleCallouts, projection, fullSizePositions, visibleSvgHeight]);
 
   // @author Claude Sonnet 4.6 Anthropic
   const numericToIso2 = useMemo(() => {
@@ -359,6 +363,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
           consensus={viewMode === 'consensus'}
           precomputedOffsets={viewMode === 'consensus' ? fullSizePositions : undefined}
           highlightSource={viewMode === 'consensus' ? highlightSource : null}
+          presentSources={viewMode === 'consensus' ? presentSources : undefined}
           onConsensusBoxClick={(callout) => {
             const g = consensusGroupMap.get(callout.country.iso2);
             if (g) { setInspectorTrigger('callout_box'); setInspectorGroup(g); }

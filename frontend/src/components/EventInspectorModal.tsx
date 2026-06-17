@@ -171,10 +171,10 @@ export function EventInspectorModal({
               <div
                 key={source}
                 className="inspector-row inspector-row--omission"
-                aria-label={`${meta.label}: didn't file here`}
+                aria-label={`${meta.label}: not covered here`}
               >
                 <span className="inspector-row-omission-line">
-                  {meta.shortLabel}{flags ? ` · Covered ${flags} instead` : ''}
+                  {meta.shortLabel}{flags ? ` · Picked ${flags} instead` : ''}
                 </span>
               </div>
             );

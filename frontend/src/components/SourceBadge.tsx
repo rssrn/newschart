@@ -38,7 +38,7 @@ export function SourceBadgeHtml({
         ['--badge-base-opacity']: filled ? 1 : 0.04,
         opacity: 'var(--badge-base-opacity)',
       } as React.CSSProperties}
-      title={title ?? meta.label}
+      title={title ?? (filled ? `${meta.shortLabel} picked this country` : `${meta.shortLabel} did not pick this country`)}
       aria-label={`${meta.shortLabel}: ${filled ? 'covered' : 'not covered'}`}
     >
       <span className="consensus-badge-fill" style={{ backgroundColor: '#ffffff' }} aria-hidden="true" />
