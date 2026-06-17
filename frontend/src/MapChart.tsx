@@ -11,6 +11,9 @@ import { heatmapColor } from './utils/heatmapUtils';
 import { groupByCountry, fullSizeTier, pickDisplayCallout, chipTier, ConsensusGroup } from './utils/consensus';
 import { placeChips, PositionedChip } from './utils/chipLayout';
 import { calculateOffsets, BOX_WIDTH, BOX_VISUAL_TOP } from './utils/mapCalloutUtils';
+import { EventInspectorModal } from './components/EventInspectorModal';
+import type { CalloutSource } from './utils/sources';
+import { SOURCE_ORDER } from './utils/sources';
 
 export type { ProjectionType, FetchStatus };
 
@@ -190,6 +193,22 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
   }, [viewMode, callouts]);
 
   // @author Claude Sonnet 4.6 Anthropic
+  const [inspectorGroup, setInspectorGroup] = useState<ConsensusGroup | null>(null);
+  const [inspectorTrigger, setInspectorTrigger] = useState<'callout_box' | 'chip'>('callout_box');
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const presentSources: CalloutSource[] = useMemo(() =>
+    SOURCE_ORDER.filter(src => callouts.some(c => c.source === src)),
+  [callouts]);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const consensusGroupMap = useMemo(() => {
+    const map = new Map<string, ConsensusGroup>();
+    if (viewMode === 'consensus') groupByCountry(callouts).forEach(g => map.set(g.country.iso2, g));
+    return map;
+  }, [callouts, viewMode]);
+
+  // @author Claude Sonnet 4.6 Anthropic
   const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 
   useEffect(() => {
@@ -312,7 +331,19 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         })}
       </g>
       {viewMode !== 'heatmap' && (
-        <StoryCalloutList projection={projection} callouts={calloutsInView} obstacleCallouts={obstacleCallouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical} consensus={viewMode === 'consensus'} precomputedOffsets={viewMode === 'consensus' ? fullSizePositions : undefined}/>
+        <StoryCalloutList
+          projection={projection}
+          callouts={calloutsInView}
+          obstacleCallouts={obstacleCallouts}
+          bottomReservedPx={bottomReservedPx}
+          isHistorical={isHistorical}
+          consensus={viewMode === 'consensus'}
+          precomputedOffsets={viewMode === 'consensus' ? fullSizePositions : undefined}
+          onConsensusBoxClick={(callout) => {
+            const g = consensusGroupMap.get(callout.country.iso2);
+            if (g) { setInspectorTrigger('callout_box'); setInspectorGroup(g); }
+          }}
+        />
       )}
       {viewMode === 'consensus' && placedChips.map(chip => (
         <ConsensusChip
@@ -321,6 +352,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
           x={chip.x}
           y={chip.y}
           isHistorical={isHistorical}
+          onClick={(group) => { setInspectorTrigger('chip'); setInspectorGroup(group); }}
         />
       ))}
     </svg>
@@ -361,6 +393,16 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         </div>
       );
     })()}
+    {inspectorGroup && (
+      <EventInspectorModal
+        group={inspectorGroup}
+        allCallouts={callouts}
+        presentSources={presentSources}
+        isHistorical={isHistorical}
+        trigger={inspectorTrigger}
+        onClose={() => setInspectorGroup(null)}
+      />
+    )}
     </div>
   );
 };

@@ -8,15 +8,19 @@ import type { CalloutSource } from '../utils/sources';
 export function SourceBadgeHtml({
   source,
   filled,
+  size = 9,
+  className,
 }: {
   source: CalloutSource;
   filled: boolean;
+  size?: number;
+  className?: string;
 }): React.ReactElement {
   const meta = SOURCE_META[source];
   return (
     <span
       role="img"
-      className="consensus-badge"
+      className={`consensus-badge${className ? ` ${className}` : ''}`}
       style={{
         borderColor: '#ffffff',
         backgroundColor: '#ffffff',
@@ -27,10 +31,10 @@ export function SourceBadgeHtml({
       aria-label={`${meta.shortLabel}: ${filled ? 'covered' : 'not covered'}`}
     >
       {meta.svgPath ? (
-        <svg viewBox={meta.svgViewBox ?? '0 0 24 24'} width="9" height="9" fill="currentColor" aria-hidden="true">
+        <svg viewBox={meta.svgViewBox ?? '0 0 24 24'} width={size} height={size} fill="currentColor" aria-hidden="true">
           <path d={meta.svgPath} />
         </svg>
-      ) : meta.letter}
+      ) : (<span style={{ fontSize: Math.round(size * 1.4) }} aria-hidden="true">{meta.letter}</span>)}
     </span>
   );
 }

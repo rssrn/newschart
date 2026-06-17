@@ -12,6 +12,7 @@ interface StoryCalloutListProps {
   readonly isHistorical?: boolean;
   readonly consensus?: boolean;
   readonly precomputedOffsets?: PositionedCallout[];
+  readonly onConsensusBoxClick?: (callout: StoryCallout) => void;
 }
 
 function getShowBoundingBox(): boolean {
@@ -143,7 +144,7 @@ export function StoryDetailModal({ callout, onClose, isHistorical = false }: Sto
   );
 }
 
-function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false, precomputedOffsets }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false, precomputedOffsets, onConsensusBoxClick }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -289,6 +290,8 @@ const boundingBox = useMemo(() => {
               role="article"
               tabIndex={0}
               aria-label={`${callout.country.name}: ${callout.headline}`}
+              onClick={() => onConsensusBoxClick?.(callout)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onConsensusBoxClick?.(callout); } }}
             >
               <div className="map-annotation-header map-annotation-header--consensus">
                 <div className="map-annotation-location">
