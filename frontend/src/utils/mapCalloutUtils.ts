@@ -21,7 +21,11 @@
 
 import { StoryCallout, PositionedCallout, LayoutNode, LayoutCandidate, MapProjection, LayoutDiagnostics, CandidateDiag, NodeDiagnostics, ScoreBreakdown } from '../types/news';
 
-const BOX_WIDTH = 135;
+export const BOX_WIDTH = 135;
+export const ANCHOR_Y = 50;
+// Actual top edge of the foreignObject relative to the translate point (foreignObject y=-70).
+// ANCHOR_Y is 50px below the visual top, leaving 20px of box above the connector anchor.
+export const BOX_VISUAL_TOP = 70;
 const EDGE_PADDING = 40;
 
 interface Point {
@@ -101,7 +105,7 @@ function _calculateOffsets(
   // so the rendered box is taller than declared. Use RENDERED_HEIGHT for collision
   // detection, and ANCHOR_Y for the annotation point offset from box top.
   const RENDERED_HEIGHT = 140; // measured: 133-144 SVG units (varies with text length)
-  const ANCHOR_Y = 50; // foreignObject y=-50: annotation point is 50px below box top
+  // ANCHOR_Y is declared at module level (see above) — used here for box positioning
 
   // --- Geometry helpers ---
 

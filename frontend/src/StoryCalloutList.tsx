@@ -11,6 +11,7 @@ interface StoryCalloutListProps {
   readonly bottomReservedPx?: number;
   readonly isHistorical?: boolean;
   readonly consensus?: boolean;
+  readonly precomputedOffsets?: PositionedCallout[];
 }
 
 function getShowBoundingBox(): boolean {
@@ -142,7 +143,7 @@ export function StoryDetailModal({ callout, onClose, isHistorical = false }: Sto
   );
 }
 
-function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false, precomputedOffsets }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -201,7 +202,7 @@ const boundingBox = useMemo(() => {
 }, [showBoundingBox, visibleSvgHeight, bottomReservedPx, viewportSize.w]);
 
   const processedCallouts: PositionedCallout[] = useMemo(() => {
-    // Only run if we have data AND the map context/projection is ready
+    if (precomputedOffsets) return precomputedOffsets;
     if (callouts.length === 0 || !projection) return [];
 
     const obstacles = obstacleCallouts
@@ -233,7 +234,7 @@ const boundingBox = useMemo(() => {
       return positioned;
     }
     return calculateOffsets(callouts, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
-  }, [callouts, obstacleCallouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w, layoutDiagnostics]);
+  }, [callouts, obstacleCallouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w, layoutDiagnostics, precomputedOffsets]);
 
   return (
   <>
@@ -301,33 +302,13 @@ const boundingBox = useMemo(() => {
                 )}
               </div>
               <div className="consensus-badge-row" role="group" aria-label="Source coverage">
-                {SOURCE_ORDER.map(src => {
-                  const meta = SOURCE_META[src];
-                  const filled = callout.consensus?.sourcesFiled.includes(src) ?? false;
-                  return (
-                    <span
-                      key={src}
-                      role="img"
-                      className="consensus-badge"
-                      style={{
-                        borderColor: '#ffffff',
-                        backgroundColor: '#ffffff',
-                        color: meta.color,
-                        opacity: filled ? 1 : 0.04,
-                      } as React.CSSProperties}
-                      title={meta.label}
-                      aria-label={`${meta.shortLabel}: ${filled ? 'covered' : 'not covered'}`}
-                    >
-                      {meta.svgPath ? (
-                        <svg viewBox={meta.svgViewBox ?? '0 0 24 24'} width="9" height="9" fill="currentColor" aria-hidden="true">
-                          <path d={meta.svgPath} />
-                        </svg>
-                      ) : (
-                        meta.letter
-                      )}
-                    </span>
-                  );
-                })}
+                {SOURCE_ORDER.map(src => (
+                  <SourceBadgeHtml
+                    key={src}
+                    source={src}
+                    filled={callout.consensus?.sourcesFiled.includes(src) ?? false}
+                  />
+                ))}
               </div>
               <h4 className="map-annotation-title">{callout.headline}</h4>
               <p className="map-annotation-text">{callout.detail}</p>
@@ -370,6 +351,7 @@ const boundingBox = useMemo(() => {
 }
 
 import { getCountryFlag, shortenCountryName } from './utils/countryUtils';
-import { SOURCE_META, SOURCE_ORDER } from './utils/sources';
+import { SOURCE_ORDER } from './utils/sources';
+import { SourceBadgeHtml } from './components/SourceBadge';
 
 export default StoryCalloutList;

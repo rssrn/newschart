@@ -120,12 +120,13 @@ function runAllViaBatchedViteNode(runs) {
 // Redirect console.log to stderr so algorithm debug output doesn't pollute results.
 console.log = (...a) => process.stderr.write(a.join(' ') + '\\n');
 import { writeFileSync } from 'node:fs';
-import { runLayout } from '${runnerPath}';
+import { runLayout, runTieredLayout } from '${runnerPath}';
 import { PROJECTIONS } from '${projPath}';
 const runs = ${JSON.stringify(runs.map(r => ({ fixture: r.fixture, projectionName: r.projection.name, viewport: r.viewport })))};
 const results = runs.map(({ fixture, projectionName, viewport }) => {
   const proj = PROJECTIONS.find(p => p.name === projectionName);
-  return runLayout(fixture, viewport, proj);
+  const isTiered = fixture.tags?.includes('tiered');
+  return isTiered ? runTieredLayout(fixture, viewport, proj) : runLayout(fixture, viewport, proj);
 });
 writeFileSync(${JSON.stringify(tmpOut)}, JSON.stringify(results));
 `;

@@ -1,8 +1,8 @@
 {
   "id": "live-2026-06-05-all-sources",
   "group": "live",
-  "tags": ["needs-fix", "issue-50", "multi-source", "n10"],
-  "notes": "Worst case found in prod for issue #50 (consensus view): 12 callouts across all 4 sources covering 10 distinct countries on 2026-06-05 UTC. Clustering collapses this to 10 events: Kuwait airport attack (PERPLEXITY+OPENAI) and Hezbollah ceasefire rejection (GOOGLE_GEMINI Israel + OPENAI Lebanon, a two-country event) are the only cross-source events; the other 8 are single-model exclusives. Max consensus on a 10-country day is necessarily 2/4 (12 mentions / 10 countries). WARNING: do NOT run this fixture against the current exhaustive layout algorithm — it has no N cap and the candidate cartesian product at N=12 is intractable (it will hang, not fail). It exists to document the real worst case for the proposed tiered layout (<=4 full callouts + condensed chips); see mockups/issue-50/4-worst-case-tiered.html.",
+  "tags": ["tiered", "issue-50", "multi-source", "n10"],
+  "notes": "CP3: worst-case fixture for tiered layout. 12 callouts across 4 sources covering 10 countries. 2 full-size (Israel, Kuwait — 2 sources each) + 8 chips. Runs the tiered layout path (fullSizeTier + calculateOffsets on ≤4 + placeChips on remainder) instead of the exhaustive algorithm.",
   "callouts": [
     {
       "headline": "Trump Influences Latin America, Cuba",

@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { GeoProjection, geoPath } from "d3-geo";
 import StoryCalloutList from './StoryCalloutList';
-import { StoryCallout, CalloutStat } from './types/news';
+import { ConsensusChip } from './components/ConsensusChip';
+import { StoryCallout, CalloutStat, ViewportSize, PositionedCallout } from './types/news';
 import { useWorldCountries } from './utils/useWorldCountries';
 import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/projectionOptions';
 import { track } from './utils/analytics';
 import iso2ToNumeric from './utils/iso2ToNumeric';
 import { heatmapColor } from './utils/heatmapUtils';
-import { groupByCountry, fullSizeTier, pickDisplayCallout } from './utils/consensus';
+import { groupByCountry, fullSizeTier, pickDisplayCallout, chipTier, ConsensusGroup } from './utils/consensus';
+import { placeChips, PositionedChip } from './utils/chipLayout';
+import { calculateOffsets, BOX_WIDTH, ANCHOR_Y, BOX_VISUAL_TOP } from './utils/mapCalloutUtils';
 
 export type { ProjectionType, FetchStatus };
 
@@ -187,6 +190,55 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
   }, [viewMode, callouts]);
 
   // @author Claude Sonnet 4.6 Anthropic
+  const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
+
+  useEffect(() => {
+    const handleResize = () => setViewportSize({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const SVG_WIDTH = 800;
+  const visibleSvgHeight = Math.min(600, SVG_WIDTH * (viewportSize.h / viewportSize.w));
+  const bottomPaddingSvg = bottomReservedPx * (SVG_WIDTH / viewportSize.w);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const chipGroups: ConsensusGroup[] = useMemo(() => {
+    if (viewMode !== 'consensus') return [];
+    const groups = groupByCountry(callouts);
+    const tier = fullSizeTier(groups, 4);
+    return chipTier(groups, tier);
+  }, [viewMode, callouts]);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const { fullSizePositions, placedChips } = useMemo(() => {
+    if (viewMode !== 'consensus' || !calloutsInView.length) {
+      return { fullSizePositions: [] as PositionedCallout[], placedChips: [] as PositionedChip[] };
+    }
+    const obstacles = obstacleCallouts
+      .map(c => projection([c.country.longitude, c.country.latitude]))
+      .filter((pt): pt is [number, number] => pt !== null)
+      .map(([x, y]) => ({ x, y }));
+
+    const fullSizePositions = calculateOffsets(calloutsInView, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
+
+    const fullSizeBoxes = calloutsInView.map((c, i) => {
+      const [px, py] = projection([c.country.longitude, c.country.latitude]) ?? [0, 0];
+      return { x: px + fullSizePositions[i].dx - BOX_WIDTH / 2, y: py + fullSizePositions[i].dy - BOX_VISUAL_TOP };
+    });
+
+    const connectors = calloutsInView.map((c, i) => {
+      const proj = projection([c.country.longitude, c.country.latitude]);
+      if (!proj) return null;
+      const [ox, oy] = proj;
+      return { x0: ox + fullSizePositions[i].dx, y0: oy + fullSizePositions[i].dy, x1: ox, y1: oy };
+    }).filter((conn): conn is NonNullable<typeof conn> => conn !== null);
+
+    const placedChips = placeChips(chipGroups, projection, fullSizeBoxes, connectors, 800, visibleSvgHeight);
+    return { fullSizePositions, placedChips };
+  }, [viewMode, calloutsInView, chipGroups, obstacleCallouts, projection, visibleSvgHeight, bottomPaddingSvg]);
+
+  // @author Claude Sonnet 4.6 Anthropic
   const numericToIso2 = useMemo(() => {
     const rev: Record<number, string> = {};
     for (const [code, num] of Object.entries(iso2ToNumeric)) rev[num] = code;
@@ -260,8 +312,17 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         })}
       </g>
       {viewMode !== 'heatmap' && (
-        <StoryCalloutList projection={projection} callouts={calloutsInView} obstacleCallouts={obstacleCallouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical} consensus={viewMode === 'consensus'}/>
+        <StoryCalloutList projection={projection} callouts={calloutsInView} obstacleCallouts={obstacleCallouts} bottomReservedPx={bottomReservedPx} isHistorical={isHistorical} consensus={viewMode === 'consensus'} precomputedOffsets={viewMode === 'consensus' ? fullSizePositions : undefined}/>
       )}
+      {viewMode === 'consensus' && placedChips.map(chip => (
+        <ConsensusChip
+          key={chip.group.country.iso2}
+          group={chip.group}
+          x={chip.x}
+          y={chip.y}
+          isHistorical={isHistorical}
+        />
+      ))}
     </svg>
     {/* @author Claude Sonnet 4.6 Anthropic */}
     {hoveredTooltip && (() => {

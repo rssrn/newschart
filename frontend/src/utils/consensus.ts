@@ -40,6 +40,14 @@ export function fullSizeTier(
   return filtered.slice(0, cap);
 }
 
+export function chipTier(
+  groups: ConsensusGroup[],
+  fullSizeGroups: ConsensusGroup[]
+): ConsensusGroup[] {
+  const tierCodes = new Set(fullSizeGroups.map(g => g.country.iso2));
+  return groups.filter(g => !tierCodes.has(g.country.iso2));
+}
+
 export function pickDisplayCallout(group: ConsensusGroup): StoryCallout {
   for (const source of SOURCE_ORDER) {
     const found = group.callouts.find(c => c.source === source);

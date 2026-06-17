@@ -6,7 +6,7 @@
 // @author Claude Sonnet 4.6 Anthropic
 
 import { describe, test, expect } from 'vitest';
-import { runLayout, FixtureData } from './runner';
+import { runLayout, runTieredLayout, FixtureData } from './runner';
 import { VIEWPORTS } from './viewports';
 import { PROJECTIONS } from './projections';
 
@@ -16,7 +16,31 @@ const FIXTURES: FixtureData[] = Object.values(fixtureModules).map(m => (m as Rec
 
 describe('callout layout algorithm', () => {
   for (const fixture of FIXTURES) {
+    const isTiered = fixture.tags?.includes('tiered');
+
     const needsFix = fixture.tags?.includes('needs-fix');
+
+    if (isTiered) {
+      describe(fixture.id, () => {
+        for (const proj of PROJECTIONS) {
+          describe(proj.name, () => {
+            for (const viewport of VIEWPORTS) {
+              const run = needsFix ? test.skip : test;
+              run(viewport.name, () => {
+                const result = runTieredLayout(fixture, viewport, proj);
+                if (result.violations.length > 0) {
+                  const v = result.violations[0];
+                  const msg = `${v.type}: ${v.calloutA}${v.calloutB ? ` / ${v.calloutB}` : ''} — ${v.detail}`;
+                  expect.fail(msg);
+                }
+                expect(result.pass).toBe(true);
+              });
+            }
+          });
+        }
+      });
+      continue;
+    }
     describe(fixture.id, () => {
       for (const proj of PROJECTIONS) {
         describe(proj.name, () => {
