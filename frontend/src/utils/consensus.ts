@@ -1,5 +1,6 @@
 import { StoryCallout } from '../types/news';
 import { SOURCE_ORDER } from './sources';
+import type { CalloutSource } from './sources';
 
 export interface ConsensusGroup {
   country: StoryCallout['country'];
@@ -54,4 +55,37 @@ export function pickDisplayCallout(group: ConsensusGroup): StoryCallout {
     if (found) return found;
   }
   return group.callouts[0];
+}
+
+export interface HighlightedDisplay {
+  callout: StoryCallout;
+  voiceSource: CalloutSource;
+  highlightFiled: boolean;
+}
+
+/**
+ * A consensus callout prepared for rendering: the display callout plus the
+ * resolved highlight state (whose voice is shown, and whether the highlighted
+ * source filed here). Carried through layout so the renderer can grey/emphasise
+ * and label without re-deriving from the group.
+ */
+export interface ConsensusRenderCallout extends StoryCallout {
+  voiceSource?: CalloutSource;
+  highlightFiled?: boolean;
+}
+
+export function resolveDisplay(
+  group: ConsensusGroup,
+  highlight: CalloutSource | null
+): HighlightedDisplay {
+  if (highlight === null) {
+    const callout = pickDisplayCallout(group);
+    return { callout, voiceSource: callout.source as CalloutSource, highlightFiled: true };
+  }
+  const highlighted = group.callouts.find(c => c.source === highlight);
+  if (highlighted) {
+    return { callout: highlighted, voiceSource: highlight, highlightFiled: true };
+  }
+  const fallback = pickDisplayCallout(group);
+  return { callout: fallback, voiceSource: fallback.source as CalloutSource, highlightFiled: false };
 }

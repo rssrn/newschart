@@ -8,7 +8,7 @@ import { ProjectionType, FetchStatus, PROJECTION_OPTIONS } from './utils/project
 import { track } from './utils/analytics';
 import iso2ToNumeric from './utils/iso2ToNumeric';
 import { heatmapColor } from './utils/heatmapUtils';
-import { groupByCountry, fullSizeTier, pickDisplayCallout, chipTier, ConsensusGroup } from './utils/consensus';
+import { groupByCountry, fullSizeTier, pickDisplayCallout, chipTier, resolveDisplay, ConsensusGroup, ConsensusRenderCallout } from './utils/consensus';
 import { placeChips, PositionedChip } from './utils/chipLayout';
 import { calculateOffsets, BOX_WIDTH, BOX_VISUAL_TOP } from './utils/mapCalloutUtils';
 import { EventInspectorModal } from './components/EventInspectorModal';
@@ -37,6 +37,7 @@ interface MapChartProps {
   readonly onCountryClick?: (iso2: string, name: string, count: number) => void;
   readonly onCalloutsLoaded?: (callouts: StoryCallout[]) => void;
   readonly retryKey?: number;
+  readonly highlightSource?: CalloutSource | null;
 }
 
 
@@ -44,7 +45,7 @@ interface MapChartProps {
 const calloutsCache = new Map<string, StoryCallout[]>();
 
 // @author Claude Sonnet 4.6 Anthropic
-const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [], onCountryClick, onCalloutsLoaded, retryKey }: MapChartProps): React.ReactElement => {
+const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedPx = 0, isHistorical = false, viewMode = 'day', heatmapStats = [], onCountryClick, onCalloutsLoaded, retryKey, highlightSource = null }: MapChartProps): React.ReactElement => {
 
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
   const [hoveredGeoKey, setHoveredGeoKey] = useState<string | null>(null);
@@ -177,6 +178,24 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       return display;
     });
   }, [viewMode, callouts]);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  // Highlight-aware render callouts — swaps headline/detail per the active highlight.
+  // Re-computed on highlight change but NOT used for layout (positions stay stable).
+  const consensusRenderCallouts: ConsensusRenderCallout[] = useMemo(() => {
+    if (viewMode !== 'consensus') return [];
+    const groups = groupByCountry(callouts);
+    const tier = fullSizeTier(groups, 4);
+    return tier.map(group => {
+      const { callout, voiceSource, highlightFiled } = resolveDisplay(group, highlightSource);
+      return {
+        ...callout,
+        consensus: { sourcesFiled: [...group.sourcesFiled], count: group.consensusCount },
+        voiceSource,
+        highlightFiled,
+      };
+    });
+  }, [callouts, viewMode, highlightSource]);
 
   // @author Claude Sonnet 4.6 Anthropic
   // Countries not in the full-size tier (single-story, or beyond the cap) still have map
@@ -333,12 +352,13 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       {viewMode !== 'heatmap' && (
         <StoryCalloutList
           projection={projection}
-          callouts={calloutsInView}
+          callouts={viewMode === 'consensus' ? consensusRenderCallouts : calloutsInView}
           obstacleCallouts={obstacleCallouts}
           bottomReservedPx={bottomReservedPx}
           isHistorical={isHistorical}
           consensus={viewMode === 'consensus'}
           precomputedOffsets={viewMode === 'consensus' ? fullSizePositions : undefined}
+          highlightSource={viewMode === 'consensus' ? highlightSource : null}
           onConsensusBoxClick={(callout) => {
             const g = consensusGroupMap.get(callout.country.iso2);
             if (g) { setInspectorTrigger('callout_box'); setInspectorGroup(g); }
@@ -352,6 +372,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
           x={chip.x}
           y={chip.y}
           isHistorical={isHistorical}
+          highlight={highlightSource}
           onClick={(group) => { setInspectorTrigger('chip'); setInspectorGroup(group); }}
         />
       ))}

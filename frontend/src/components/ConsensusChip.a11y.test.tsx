@@ -36,4 +36,22 @@ describe('ConsensusChip accessibility', () => {
     );
     expect(await axe(document.body)).toHaveNoViolations();
   });
+
+  it('has no axe violations in emphasis state (filed by highlighted source)', async () => {
+    render(
+      <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+        <ConsensusChip group={group} x={100} y={100} highlight="GOOGLE_GEMINI" />
+      </svg>
+    );
+    expect(await axe(document.body)).toHaveNoViolations();
+  });
+
+  it('has no axe violations in greyed state (highlighted source omitted)', async () => {
+    render(
+      <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+        <ConsensusChip group={group} x={100} y={100} highlight="PERPLEXITY" />
+      </svg>
+    );
+    expect(await axe(document.body)).toHaveNoViolations();
+  });
 });

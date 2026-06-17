@@ -14,14 +14,18 @@ interface ConsensusChipProps {
   y: number;
   isHistorical?: boolean;
   onClick?: (group: ConsensusGroup) => void;
+  highlight?: CalloutSource | null;
 }
 
-export function ConsensusChip({ group, x, y, isHistorical = false, onClick }: ConsensusChipProps): React.ReactElement {
+export function ConsensusChip({ group, x, y, isHistorical = false, onClick, highlight }: ConsensusChipProps): React.ReactElement {
   const flag = getCountryFlag(group.country.iso2);
   const sources = group.sourcesFiled as CalloutSource[];
   const headline = pickDisplayCallout(group).headline;
   const sourceNames = sources.map(s => SOURCE_META[s]?.label ?? s).join(', ');
   const ariaLabel = `${group.country.name} — ${sourceNames}`;
+
+  const highlightFiled = highlight != null && sources.includes(highlight);
+  const highlightOmitted = highlight != null && !sources.includes(highlight);
 
   const handleClick = () => {
     onClick?.(group);
@@ -35,12 +39,19 @@ export function ConsensusChip({ group, x, y, isHistorical = false, onClick }: Co
     }
   };
 
+  const pillClasses = [
+    'consensus-chip-pill',
+    isHistorical ? 'consensus-chip-pill--historical' : '',
+    highlightFiled ? 'consensus-chip-pill--emphasis' : '',
+    highlightOmitted ? 'consensus-chip-pill--dimmed' : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <g transform={`translate(${x}, ${y})`}>
       <title>{headline}</title>
       <foreignObject x={0} y={0} width={CHIP_WIDTH} height={CHIP_HEIGHT} style={{ overflow: 'visible' }}>
         <div
-          className={`consensus-chip-pill${isHistorical ? ' consensus-chip-pill--historical' : ''}`}
+          className={pillClasses}
           role="button"
           tabIndex={0}
           aria-label={ariaLabel}
@@ -50,7 +61,7 @@ export function ConsensusChip({ group, x, y, isHistorical = false, onClick }: Co
           <span className="consensus-chip-flag" aria-hidden="true">{flag}</span>
           <div className="consensus-badge-row consensus-chip-badges" role="group" aria-label="Sources">
             {sources.map(src => (
-              <SourceBadgeHtml key={src} source={src} filled={true} />
+              <SourceBadgeHtml key={src} source={src} filled={true} highlight={highlightFiled ? highlight : null} title={headline} />
             ))}
           </div>
         </div>

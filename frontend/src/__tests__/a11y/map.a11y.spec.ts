@@ -193,6 +193,38 @@ test('consensus view — no axe violations', async ({ page }) => {
   expect(results.violations, 'axe violations in consensus view').toEqual([]);
 });
 
+test('consensus view with highlight active — no axe violations', async ({ page, viewport }) => {
+  test.skip(isMobile(viewport), 'consensus highlight test is desktop-only');
+
+  const allSourcesFix = fix('callouts-all-sources.json');
+  await page.route('**/api/news/calloutsForDay/**', route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(allSourcesFix) })
+  );
+  await page.addInitScript(() => { localStorage.setItem('viewMode', 'consensus'); });
+  await page.goto('/');
+  await page.waitForSelector('svg.geo-svg', { state: 'visible' });
+  await page.waitForTimeout(500);
+
+  // Select the first Highlight radio (first non-"All models" source)
+  const highlightRadio = page.locator('input[name="highlight-source"]').nth(1);
+  await highlightRadio.waitFor({ state: 'visible' });
+  await highlightRadio.click();
+  await page.waitForTimeout(300);
+
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze();
+
+  if (results.violations.length > 0) {
+    const summary = results.violations
+      .map(v => `[${v.impact}] ${v.id}: ${v.description}\n  ${v.nodes.map(n => n.target.join(', ')).join('\n  ')}`)
+      .join('\n\n');
+    console.error('Axe violations in consensus view with highlight:\n' + summary);
+  }
+
+  expect(results.violations, 'axe violations in consensus view with highlight').toEqual([]);
+});
+
 test('consensus chip click → inspector modal — no axe violations', async ({ page, viewport }) => {
   test.skip(isMobile(viewport), 'consensus chip test is desktop-only');
 

@@ -250,14 +250,31 @@ svg {
   font-weight: 700;
   line-height: 1;
   flex-shrink: 0;
-  transform: translateZ(0);
+  position: relative;
   transition: opacity 0.15s;
+}
+
+.consensus-badge-fill {
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.consensus-badge > svg,
+.consensus-badge-letter {
+  position: relative;
+  z-index: 1;
 }
 
 .consensus-badge--lg {
   width: 26px;
   height: 26px;
   font-size: 12px;
+}
+
+.consensus-badge--lg .consensus-badge-fill {
+  inset: -1.5px;
 }
 
 .consensus-chip-pill {
@@ -288,6 +305,13 @@ svg {
   gap: 3px;
 }
 
+/* Badges are content-box (14px + 1.5px border = 17px tall). In the taller chip
+   pill that odd height can't pixel-centre (5px free space → 2.5px each side).
+   border-box makes the chip badge 14px so the free space splits evenly. */
+.consensus-chip-badges .consensus-badge {
+  box-sizing: border-box;
+}
+
 .consensus-chip {
   display: inline-flex;
   align-items: center;
@@ -303,6 +327,48 @@ svg {
   color: #94a3b8;
   line-height: 1;
   flex-shrink: 0;
+}
+
+/* ── Highlight emphasis / dimmed states (CP5) ────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+
+.consensus-badge--emphasis .consensus-badge-fill {
+  /* Persistent gold ring marking the highlighted source. Placed on the fill (the
+     visible white circle) so it stays concentric and tight against it. Present
+     from the moment the class is applied, so it also survives prefers-reduced-motion.
+     box-shadow, not border-color: the inner white fill overlays the real border. */
+  box-shadow: 0 0 0 1.5px #fbbf24, 0 0 5px rgba(251, 191, 36, 0.55);
+  animation: badgePulse 0.7s ease-out 1;
+}
+
+.consensus-badge--dimmed {
+  filter: saturate(0.3) brightness(0.8);
+  /* Multiply the base opacity rather than clamping it, so omitted (hollow)
+     badges stay near-invisible instead of being promoted to a fixed value. */
+  opacity: calc(var(--badge-base-opacity, 1) * 0.45) !important;
+}
+
+.map-annotation-box--highlight-missed {
+  filter: saturate(0.4) brightness(0.75);
+}
+
+.consensus-chip-pill--emphasis {
+  border-color: rgba(34, 197, 94, 0.9);
+  background: rgba(8, 18, 32, 0.96);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.25);
+}
+
+.consensus-chip-pill--dimmed {
+  /* Match the full-size callout's de-emphasis (filter only, no opacity) so chips
+     dim consistently and stay opaque rather than going transparent. */
+  filter: saturate(0.4) brightness(0.75);
+}
+
+/* @keyframes badgePulse: one-shot scale-only pulse on highlight selection */
+@keyframes badgePulse {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.3); }
+  100% { transform: scale(1); }
 }
 
 /* ── Mobile callout: headline-only, larger text ──────────────────────────── */
@@ -2005,5 +2071,29 @@ svg {
     color: #475569;
     text-align: center;
     border-top: 1px solid rgba(251, 146, 60, 0.06);
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+@media (prefers-reduced-motion: reduce) {
+  .consensus-badge--emphasis .consensus-badge-fill {
+    animation: none;
+  }
+
+  .geo-country {
+    animation: none !important;
+  }
+
+  .story-detail-backdrop {
+    animation: none !important;
+  }
+
+  .story-detail-card {
+    animation: none !important;
+  }
+
+  .mobile-controls-sheet {
+    animation: none !important;
   }
 }

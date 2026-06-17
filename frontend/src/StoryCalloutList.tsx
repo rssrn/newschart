@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import ReactDOM from "react-dom";
 import { calculateOffsets, calculateOffsetsWithDiagnostics } from "./utils/mapCalloutUtils";
 import { StoryCallout, PositionedCallout, ViewportSize, MapProjection } from "./types/news";
+import { ConsensusRenderCallout } from "./utils/consensus";
 import { track } from './utils/analytics';
 
 interface StoryCalloutListProps {
@@ -12,6 +13,7 @@ interface StoryCalloutListProps {
   readonly isHistorical?: boolean;
   readonly consensus?: boolean;
   readonly precomputedOffsets?: PositionedCallout[];
+  readonly highlightSource?: CalloutSource | null;
   readonly onConsensusBoxClick?: (callout: StoryCallout) => void;
 }
 
@@ -144,7 +146,7 @@ export function StoryDetailModal({ callout, onClose, isHistorical = false }: Sto
   );
 }
 
-function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false, precomputedOffsets, onConsensusBoxClick }: StoryCalloutListProps): React.ReactElement {
+function StoryCalloutList({ projection, callouts, obstacleCallouts = [], bottomReservedPx = 0, isHistorical = false, consensus = false, precomputedOffsets, highlightSource = null, onConsensusBoxClick }: StoryCalloutListProps): React.ReactElement {
 
 const [viewportSize, setViewportSize] = useState<ViewportSize>({ w: window.innerWidth, h: window.innerHeight });
 const showBoundingBox = getShowBoundingBox();
@@ -203,7 +205,13 @@ const boundingBox = useMemo(() => {
 }, [showBoundingBox, visibleSvgHeight, bottomReservedPx, viewportSize.w]);
 
   const processedCallouts: PositionedCallout[] = useMemo(() => {
-    if (precomputedOffsets) return precomputedOffsets;
+    if (precomputedOffsets) {
+      return callouts.map((c, i) => ({
+        ...c,
+        dx: precomputedOffsets[i]?.dx ?? 0,
+        dy: precomputedOffsets[i]?.dy ?? 0,
+      }));
+    }
     if (callouts.length === 0 || !projection) return [];
 
     const obstacles = obstacleCallouts
@@ -265,6 +273,15 @@ const boundingBox = useMemo(() => {
     if (!origin) return null;
     const [ox, oy] = origin;
     const { dx, dy } = callout;
+    // Highlight state is conveyed visually by greying/emphasis; mirror it into the
+    // box's accessible name so screen-reader users aren't left with a colour-only signal.
+    const { highlightFiled, voiceSource } = callout as ConsensusRenderCallout;
+    const baseLabel = `${callout.country.name}: ${callout.headline}`;
+    const consensusAriaLabel = consensus && highlightSource
+      ? highlightFiled === false
+        ? `${baseLabel}. ${SOURCE_META[highlightSource].shortLabel} did not file here; showing ${voiceSource ? SOURCE_META[voiceSource].shortLabel : 'another source'}'s coverage`
+        : `${baseLabel}. Showing ${SOURCE_META[highlightSource].shortLabel}'s coverage`
+      : baseLabel;
     return (
       <g
         key={`${callout.country.name}-${callout.headline}`}
@@ -286,10 +303,10 @@ const boundingBox = useMemo(() => {
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
           {consensus ? (
             <div
-              className={`map-annotation-box map-annotation-box--consensus${isHistorical ? ' map-annotation-box--historical' : ''}`}
+              className={`map-annotation-box map-annotation-box--consensus${isHistorical ? ' map-annotation-box--historical' : ''}${highlightFiled === false ? ' map-annotation-box--highlight-missed' : ''}`}
               role="article"
               tabIndex={0}
-              aria-label={`${callout.country.name}: ${callout.headline}`}
+              aria-label={consensusAriaLabel}
               onClick={() => onConsensusBoxClick?.(callout)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onConsensusBoxClick?.(callout); } }}
             >
@@ -310,9 +327,11 @@ const boundingBox = useMemo(() => {
                     key={src}
                     source={src}
                     filled={callout.consensus?.sourcesFiled.includes(src) ?? false}
+                    highlight={highlightFiled === false ? null : highlightSource}
                   />
                 ))}
               </div>
+
               <h4 className="map-annotation-title">{callout.headline}</h4>
               <p className="map-annotation-text">{callout.detail}</p>
             </div>
@@ -354,7 +373,7 @@ const boundingBox = useMemo(() => {
 }
 
 import { getCountryFlag, shortenCountryName } from './utils/countryUtils';
-import { SOURCE_ORDER } from './utils/sources';
+import { SOURCE_ORDER, SOURCE_META, CalloutSource } from './utils/sources';
 import { SourceBadgeHtml } from './components/SourceBadge';
 
 export default StoryCalloutList;

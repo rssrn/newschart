@@ -10,31 +10,43 @@ export function SourceBadgeHtml({
   filled,
   size = 9,
   className,
+  highlight,
+  title,
 }: {
   source: CalloutSource;
   filled: boolean;
   size?: number;
   className?: string;
+  highlight?: CalloutSource | null;
+  /** Hover tooltip text. Defaults to the source label; override (e.g. in a chip)
+   *  so hovering a badge shows the chip's headline rather than the model name. */
+  title?: string;
 }): React.ReactElement {
   const meta = SOURCE_META[source];
+  const hlClass = highlight != null
+    ? (source === highlight ? 'consensus-badge--emphasis' : 'consensus-badge--dimmed')
+    : '';
   return (
     <span
       role="img"
-      className={`consensus-badge${className ? ` ${className}` : ''}`}
+      className={`consensus-badge${className ? ` ${className}` : ''}${hlClass ? ` ${hlClass}` : ''}`}
       style={{
         borderColor: '#ffffff',
-        backgroundColor: '#ffffff',
         color: meta.color,
-        opacity: filled ? 1 : 0.04,
-      }}
-      title={meta.label}
+        // Base opacity drives the filed/omitted signal; --dimmed multiplies this
+        // var so dimming stays relative (omitted badges stay near-invisible).
+        ['--badge-base-opacity']: filled ? 1 : 0.04,
+        opacity: 'var(--badge-base-opacity)',
+      } as React.CSSProperties}
+      title={title ?? meta.label}
       aria-label={`${meta.shortLabel}: ${filled ? 'covered' : 'not covered'}`}
     >
+      <span className="consensus-badge-fill" style={{ backgroundColor: '#ffffff' }} aria-hidden="true" />
       {meta.svgPath ? (
         <svg viewBox={meta.svgViewBox ?? '0 0 24 24'} width={size} height={size} fill="currentColor" aria-hidden="true">
           <path d={meta.svgPath} />
         </svg>
-      ) : (<span style={{ fontSize: Math.round(size * 1.4) }} aria-hidden="true">{meta.letter}</span>)}
+      ) : (<span className="consensus-badge-letter" style={{ fontSize: Math.round(size * 1.4) }} aria-hidden="true">{meta.letter}</span>)}
     </span>
   );
 }

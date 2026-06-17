@@ -45,6 +45,8 @@ function App(): React.ReactElement {
     () => (localStorage.getItem('viewMode') === 'heatmap' && heatmapStatsCache !== null) ? heatmapStatsCache : null
   );
   // @author Claude Sonnet 4.6 Anthropic
+  const [highlightSource, setHighlightSource] = useState<CalloutSource | null>(null);
+  // @author Claude Sonnet 4.6 Anthropic
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   // @author Claude Sonnet 4.6 Anthropic
   const [fetchStatus, setFetchStatus] = useState<FetchStatus | null>(null);
@@ -101,6 +103,11 @@ function App(): React.ReactElement {
     setSource(value);
     localStorage.setItem('newsSource', value);
     track('source_changed', { source: value });
+  };
+
+  const handleHighlightChange = (value: CalloutSource | null) => {
+    setHighlightSource(value);
+    track('highlight_changed', { source: value ?? 'all' });
   };
 
   const handleProjectionChange = (value: ProjectionType) => {
@@ -295,6 +302,32 @@ function App(): React.ReactElement {
           ))}
           <div className="selector-divider" />
           </>)}
+          {viewMode === 'consensus' && (<>
+          <div className="selector-divider" />
+          <label className="source-radio-label">
+            <input
+              type="radio"
+              name="highlight-source"
+              value=""
+              checked={highlightSource === null}
+              onChange={() => handleHighlightChange(null)}
+            />
+            All models
+          </label>
+          {NEWS_SOURCES.map(({ value, label }) => (
+            <label key={value} className="source-radio-label">
+              <input
+                type="radio"
+                name="highlight-source"
+                value={value}
+                checked={highlightSource === value}
+                onChange={() => handleHighlightChange(value)}
+              />
+              {label}
+            </label>
+          ))}
+          <div className="selector-divider" />
+          </>)}
           {PROJECTION_OPTIONS.map(({ value, label }) => (
             <label key={value} className="source-radio-label">
               <input
@@ -344,6 +377,7 @@ function App(): React.ReactElement {
             onCountryClick={(iso2, name, count) => setHeatmapClickedCountry({ iso2, name, count })}
             onCalloutsLoaded={setCallouts}
             retryKey={retryKey}
+            highlightSource={highlightSource}
           />
           {viewMode === 'heatmap' && heatmapError && (
             <div className="heatmap-error-overlay" role="alert" aria-live="assertive">
