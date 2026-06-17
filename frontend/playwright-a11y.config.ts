@@ -13,7 +13,9 @@ export default defineConfig({
   webServer: {
     command: 'npm run build && npm run preview -- --port 4174 --host',
     url: 'http://localhost:4174',
-    reuseExistingServer: !process.env['CI'],
+    // Always build+serve fresh: reusing a stale preview server silently tests an old
+    // bundle and produces phantom failures. The extra build is worth the correctness.
+    reuseExistingServer: false,
     timeout: 120_000,
   },
   projects: [
