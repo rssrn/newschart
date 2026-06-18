@@ -258,7 +258,10 @@ function App(): React.ReactElement {
       {/* Mobile-only brand banner – sits above the map canvas */}
       <div className="mobile-brand-banner">
         <img src="/logo48.webp" className="brand-badge-icon" alt="" aria-hidden="true" />
-        <span className="brand-badge-text">NewsChart</span>
+        <div className="brand-badge-label">
+          <span className="brand-badge-text">NewsChart</span>
+          <span className="brand-badge-date">{isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
+        </div>
         <button
           className="mobile-banner-hamburger"
           onClick={() => setMobileSheetOpen(true)}
@@ -278,7 +281,10 @@ function App(): React.ReactElement {
         {/* Brand badge – top-left, desktop only */}
         <div className="brand-badge" aria-label="NewsChart">
           <img src="/logo48.webp" className="brand-badge-icon" alt="" aria-hidden="true" />
-          <span className="brand-badge-text">NewsChart</span>
+          <div className="brand-badge-label">
+            <span className="brand-badge-text">NewsChart</span>
+            <span className="brand-badge-date">{isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
+          </div>
         </div>
 
         {/* Desktop controls overlay */}

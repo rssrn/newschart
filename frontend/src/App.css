@@ -72,12 +72,26 @@ svg {
   display: block;
 }
 
+.brand-badge-label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
 .brand-badge-text {
   font-size: 24px;
   font-weight: 600;
   color: #e2e8f0;
   white-space: nowrap;
   letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.brand-badge-date {
+  font-size: 16px;
+  color: #94a3b8;
+  letter-spacing: 0.03em;
+  line-height: 1;
 }
 
 .source-selector-overlay {
@@ -745,6 +759,10 @@ svg {
     font-size: 16px;
     font-weight: 600;
     color: #e2e8f0;
+  }
+
+  .mobile-brand-banner .brand-badge-date {
+    font-size: 10px;
   }
 
   .mobile-banner-hamburger {
