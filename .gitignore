@@ -38,6 +38,7 @@ tools/screenshots/
 *.png
 !frontend/public/og-preview.png
 !mockups/**/*.png
+!screenshots/**/*.png
 
 ### Layout test output ###
 frontend/test-output/

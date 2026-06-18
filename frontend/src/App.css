@@ -9,7 +9,7 @@ html {
 
 body {
   margin: 0;
-  background-color: #0f1923;
+  background-color: var(--bg-base);
 }
 
 svg {
@@ -30,7 +30,7 @@ svg {
 .map-container {
   max-height: 100vh;
   overflow: hidden;
-  background-color: #0f1923;
+  background-color: var(--bg-base);
   position: relative;
 }
 
@@ -52,9 +52,9 @@ svg {
   top: 12px;
   left: 12px;
   z-index: 2;
-  background: rgba(10, 20, 35, 0.88);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(96, 165, 250, 0.2);
+  border: 1px solid var(--blue-border);
   border-radius: 8px;
   padding: 10px 20px 10px 12px;
   display: flex;
@@ -81,7 +81,7 @@ svg {
 .brand-badge-text {
   font-size: 24px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
   white-space: nowrap;
   letter-spacing: 0.01em;
   line-height: 1;
@@ -89,7 +89,7 @@ svg {
 
 .brand-badge-date {
   font-size: 16px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   letter-spacing: 0.03em;
   line-height: 1;
 }
@@ -99,9 +99,9 @@ svg {
   top: 12px;
   right: 12px;
   z-index: 10;
-  background: rgba(10, 20, 35, 0.88);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(96, 165, 250, 0.2);
+  border: 1px solid var(--blue-border);
   border-radius: 6px;
   padding: 6px 10px;
   display: flex;
@@ -115,13 +115,13 @@ svg {
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: #cbd5e1;
+  color: var(--text-body);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .source-radio-label input[type="radio"] {
-  accent-color: #8b5cf6;
+  accent-color: var(--purple);
   cursor: pointer;
 }
 
@@ -162,7 +162,7 @@ svg {
   border: 1px solid rgba(96, 165, 250, 0.4);
   border-radius: 4px;
   padding: 0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--blue-bg-tint);
   width: 135px; /* Reduced from 200px (200 * 0.67) */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   overflow: hidden;
@@ -172,7 +172,7 @@ svg {
 .map-annotation-header {
   padding: 4px 8px;
   background: rgba(29, 78, 216, 0.28);
-  border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+  border-bottom: 1px solid var(--blue-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -185,8 +185,8 @@ svg {
 }
 
 .map-annotation-box--clickable:hover {
-  border-color: rgba(96, 165, 250, 0.75);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2);
+  border-color: var(--blue-border-hover);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--blue-border);
   background: rgb(12, 24, 42);
 }
 
@@ -209,7 +209,7 @@ svg {
   margin: 0;
   padding: 3px 8px 4px 8px;
   font-size: 10px; /* Reduced from 13px */
-  color: #93c5fd;
+  color: var(--blue-lt);
   font-weight: 700;
   line-height: 1.3;
   text-align: left;
@@ -220,7 +220,7 @@ svg {
   margin: 0;
   padding: 0 8px 6px 8px;
   font-size: 8px; /* Reduced from 10px */
-  color: #cbd5e1;
+  color: var(--text-body);
   line-height: 1.35;
   text-align: left;
 }
@@ -228,7 +228,7 @@ svg {
 
 .map-annotation-location {
   font-size: 8px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-weight: 500;
   text-align: left;
   display: flex;
@@ -249,7 +249,7 @@ svg {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(96, 165, 250, 0.4);
   border-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--blue-bg-tint);
   width: 135px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   overflow: hidden;
@@ -258,8 +258,8 @@ svg {
 }
 
 .map-annotation-box--consensus:hover {
-  border-color: rgba(96, 165, 250, 0.75);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2);
+  border-color: var(--blue-border-hover);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--blue-border);
   background: rgb(12, 24, 42);
 }
 
@@ -268,14 +268,14 @@ svg {
 }
 
 .map-annotation-box--consensus:focus {
-  outline: 2px solid rgba(96, 165, 250, 0.9);
+  outline: 2px solid var(--blue-strong);
   outline-offset: 2px;
 }
 
 .map-annotation-header--consensus {
   padding: 4px 6px 4px 8px;
   background: rgba(29, 78, 216, 0.28);
-  border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+  border-bottom: 1px solid var(--blue-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -357,7 +357,7 @@ svg {
 }
 
 .consensus-chip-pill:hover::after {
-  color: rgba(96, 165, 250, 0.9);
+  color: var(--blue-strong);
 }
 
 .consensus-chip-pill--historical::after {
@@ -369,7 +369,7 @@ svg {
 }
 
 .consensus-chip-pill:hover {
-  border-color: rgba(96, 165, 250, 0.75);
+  border-color: var(--blue-border-hover);
   background: rgba(10, 20, 35, 0.96);
 }
 
@@ -408,7 +408,7 @@ svg {
      visible white circle) so it stays concentric and tight against it. Present
      from the moment the class is applied, so it also survives prefers-reduced-motion.
      box-shadow, not border-color: the inner white fill overlays the real border. */
-  box-shadow: 0 0 0 1.5px #fbbf24, 0 0 5px rgba(251, 191, 36, 0.55);
+  box-shadow: 0 0 0 1.5px var(--amber), 0 0 5px rgba(251, 191, 36, 0.55);
   animation: badgePulse 0.7s ease-out 1;
 }
 
@@ -424,7 +424,7 @@ svg {
 }
 
 .consensus-chip-pill--emphasis {
-  border-color: rgba(96, 165, 250, 0.9);
+  border-color: var(--blue-strong);
   background: rgba(8, 18, 32, 0.96);
   box-shadow: 0 0 8px rgba(96, 165, 250, 0.25);
 }
@@ -478,13 +478,13 @@ svg {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(251, 191, 36, 0.2);
 }
 .map-annotation-box--historical .map-annotation-expand {
-  color: #fbbf24;
+  color: var(--amber);
 }
 .map-annotation-box--historical.map-annotation-box--clickable:hover .map-annotation-expand {
-  color: #fde68a;
+  color: var(--amber-lt);
 }
 .map-annotation-box--historical .map-annotation-title {
-  color: #fde68a;
+  color: var(--amber-lt);
 }
 .map-annotation-box--historical .map-annotation-text {
   color: #d6b896;
@@ -522,7 +522,7 @@ svg {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(10, 20, 35, 0.88);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
@@ -580,20 +580,20 @@ svg {
 
 .heatmap-error-text {
   font-size: 14px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .heatmap-error-icon {
-  color: #fb923c;
+  color: var(--orange);
   flex-shrink: 0;
 }
 
 .heatmap-error-retry-btn {
-  background: rgba(251, 146, 60, 0.08);
-  border: 1px solid rgba(251, 146, 60, 0.3);
+  background: var(--orange-bg-tint);
+  border: 1px solid var(--orange-border);
   border-radius: 6px;
-  color: #fb923c;
+  color: var(--orange);
   font-size: 13px;
   padding: 6px 16px;
   cursor: pointer;
@@ -602,8 +602,8 @@ svg {
 }
 
 .heatmap-error-retry-btn:hover {
-  background: rgba(251, 146, 60, 0.18);
-  border-color: rgba(251, 146, 60, 0.6);
+  background: var(--orange-bg-hover);
+  border-color: var(--orange-border-hover);
 }
 
 @media (max-width: 640px) {
@@ -620,9 +620,9 @@ svg {
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
-  background: rgba(10, 20, 35, 0.88);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(96, 165, 250, 0.2);
+  border: 1px solid var(--blue-border);
   border-radius: 9999px;
   padding: 6px 18px;
   font-size: 11px;
@@ -681,13 +681,13 @@ svg {
 }
 
 .fetch-error-icon {
-  color: #d97706;
+  color: var(--amber-dk);
   flex-shrink: 0;
 }
 
 .fetch-error-text {
   font-size: 11px;
-  color: #fde68a;
+  color: var(--amber-lt);
   font-weight: 500;
 }
 
@@ -698,7 +698,7 @@ svg {
   background: none;
   border: none;
   cursor: pointer;
-  color: #fbbf24;
+  color: var(--amber);
   padding: 2px;
   border-radius: 3px;
   flex-shrink: 0;
@@ -708,7 +708,7 @@ svg {
 
 .fetch-error-dismiss:hover {
   background: rgba(251, 191, 36, 0.15);
-  color: #fde68a;
+  color: var(--amber-lt);
 }
 
 .map-footer-overlay {
@@ -728,13 +728,13 @@ svg {
 }
 
 .map-footer-overlay a {
-  color: #60a5fa;
+  color: var(--blue);
   text-decoration: none;
 }
 
 .map-footer-overlay a:hover,
 .map-footer-overlay a:focus {
-  color: #93c5fd;
+  color: var(--blue-lt);
   text-decoration: underline;
 }
 
@@ -746,18 +746,18 @@ svg {
   cursor: pointer;
   font: inherit;
   font-size: inherit;
-  color: #60a5fa;
+  color: var(--blue);
   text-decoration: none;
 }
 
 .map-footer-btn:hover,
 .map-footer-btn:focus {
-  color: #93c5fd;
+  color: var(--blue-lt);
   text-decoration: underline;
 }
 
 .map-footer-sep {
-  color: #475569;
+  color: var(--text-dim);
 }
 
 /* ── Mobile controls (bottom sheet pattern) ──────────────────────────────── */
@@ -800,7 +800,7 @@ svg {
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: #0f1923;
+    background: var(--bg-base);
   }
 
   .mobile-brand-banner .brand-badge-icon {
@@ -811,7 +811,7 @@ svg {
   .mobile-brand-banner .brand-badge-text {
     font-size: 16px;
     font-weight: 600;
-    color: #e2e8f0;
+    color: var(--text-primary);
   }
 
   .mobile-brand-banner .brand-badge-date {
@@ -826,13 +826,13 @@ svg {
     background: none;
     border: none;
     padding: 4px;
-    color: #94a3b8;
+    color: var(--text-secondary);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
 
   .mobile-banner-hamburger:active {
-    color: #e2e8f0;
+    color: var(--text-primary);
   }
 
   /* Hide the in-map badge on mobile */
@@ -876,7 +876,7 @@ svg {
     align-items: center;
     justify-content: flex-end;
     padding: 6px 12px;
-    background: #0f1923;
+    background: var(--bg-base);
     margin-top: -52px;
     position: relative; /* keep it above the SVG in paint order */
     z-index: 5;
@@ -896,21 +896,21 @@ svg {
     z-index: 20;
     padding: 8px 8px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
-    background: #0a1420;
-    border-top: 1px solid rgba(96, 165, 250, 0.08);
+    background: var(--bg-surface);
+    border-top: 1px solid var(--blue-bg-tint);
     font-size: 11px;
     white-space: nowrap;
   }
 
   .mobile-nav-footer a,
   .mobile-nav-footer .map-footer-btn {
-    color: #60a5fa;
+    color: var(--blue);
     text-decoration: none;
   }
 
   .mobile-nav-footer a:hover,
   .mobile-nav-footer .map-footer-btn:hover {
-    color: #93c5fd;
+    color: var(--blue-lt);
     text-decoration: underline;
   }
 
@@ -925,13 +925,13 @@ svg {
     display: flex;
     align-items: center;
     gap: 5px;
-    background: rgba(10, 20, 35, 0.88);
+    background: var(--bg-overlay);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(96, 165, 250, 0.25);
     border-radius: 20px;
     padding: 6px 11px 6px 8px;
     font-size: 11px;
-    color: #cbd5e1;
+    color: var(--text-body);
     cursor: pointer;
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
     font-family: inherit;
@@ -969,7 +969,7 @@ svg {
     left: 0;
     right: 0;
     z-index: 101;
-    background: #0d1b2a;
+    background: var(--bg-deep);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.6);
     transform: translateY(100%);
@@ -985,7 +985,7 @@ svg {
   .mobile-sheet-handle {
     width: 36px;
     height: 4px;
-    background: rgba(96, 165, 250, 0.2);
+    background: var(--blue-border);
     border-radius: 2px;
     margin: 10px auto 14px;
   }
@@ -994,7 +994,7 @@ svg {
   .mobile-sheet-section-title {
     font-size: 10px;
     font-weight: 600;
-    color: #94a3b8; /* was #475569 — lightened for WCAG AA contrast on dark bg */
+    color: var(--text-secondary); /* was #475569 — lightened for WCAG AA contrast on dark bg */
     text-transform: uppercase;
     letter-spacing: 0.07em;
     padding: 0 20px 2px;
@@ -1006,7 +1006,7 @@ svg {
     align-items: center;
     gap: 10px;
     font-size: 15px;
-    color: #e2e8f0;
+    color: var(--text-primary);
     cursor: pointer;
     padding: 10px 20px;
     min-height: 44px;
@@ -1019,7 +1019,7 @@ svg {
   }
 
   .mobile-sheet-radio-label input[type="radio"] {
-    accent-color: #8b5cf6;
+    accent-color: var(--purple);
     width: 18px;
     height: 18px;
     cursor: pointer;
@@ -1058,7 +1058,7 @@ svg {
   .mobile-date-strip-wrapper {
     display: block;
     position: relative;
-    background: #0f1923;
+    background: var(--bg-base);
   }
 
   /* Edge fade gradients — hint that content continues off-screen */
@@ -1075,12 +1075,12 @@ svg {
 
   .mobile-date-strip-wrapper::before {
     left: 0;
-    background: linear-gradient(to right, #0f1923 0%, transparent 100%);
+    background: linear-gradient(to right, var(--bg-base) 0%, transparent 100%);
   }
 
   .mobile-date-strip-wrapper::after {
     right: 0;
-    background: linear-gradient(to left, #0f1923 0%, transparent 100%);
+    background: linear-gradient(to left, var(--bg-base) 0%, transparent 100%);
   }
 
   .mobile-date-strip-overlay {
@@ -1126,7 +1126,7 @@ svg {
   transform: translate(-50%, -50%);
   width: min(680px, calc(100vw - 32px));
   max-height: min(88vh, 640px);
-  background: #0d1b2a;
+  background: var(--bg-deep);
   /* Border scales with SVG: callout is 2px×scale, use 3× for "a bit thicker" */
   border: 0.375vw solid rgba(96, 165, 250, 0.5);
   border-radius: 0.5vw;
@@ -1147,7 +1147,7 @@ svg {
   gap: 8px;
   padding: 6px 8px 6px 10px;
   background: rgba(29, 78, 216, 0.25);
-  border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+  border-bottom: 1px solid var(--blue-border);
   flex-shrink: 0;
 }
 
@@ -1170,14 +1170,14 @@ svg {
   /* 8px SVG × (100vw/800) */
   font-size: 1vw;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
 .story-detail-header-meta {
   /* 8px SVG × (100vw/800) */
   font-size: 1vw;
-  color: #64748b;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1188,8 +1188,8 @@ svg {
   height: 22px;
   border-radius: 50%;
   border: 1px solid rgba(96, 165, 250, 0.3);
-  background: rgba(96, 165, 250, 0.08);
-  color: #94a3b8;
+  background: var(--blue-bg-tint);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1201,7 +1201,7 @@ svg {
 
 .story-detail-close:hover {
   background: rgba(29, 78, 216, 0.4);
-  color: #93c5fd;
+  color: var(--blue-lt);
 }
 
 .story-detail-body {
@@ -1214,7 +1214,7 @@ svg {
   margin: 0 0 0.5vw 0;
   font-size: 1.25vw;
   font-weight: 700;
-  color: #93c5fd;
+  color: var(--blue-lt);
   line-height: 1.3;
 }
 
@@ -1224,7 +1224,7 @@ svg {
   font-size: 1vw;
   font-weight: 600;
   line-height: 1.35;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .story-detail-extended-divider {
@@ -1238,7 +1238,7 @@ svg {
   margin: 0;
   font-size: 0.875vw;
   line-height: 1.5;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .story-detail-meta {
@@ -1265,7 +1265,7 @@ svg {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #475569;
+  color: var(--text-dim);
   flex-shrink: 0;
   padding-top: 0.1vw;
 }
@@ -1273,7 +1273,7 @@ svg {
 .story-detail-meta-value {
   /* 8px SVG × (100vw/800) */
   font-size: 1vw;
-  color: #94a3b8;
+  color: var(--text-secondary);
   line-height: 1.4;
 }
 
@@ -1288,11 +1288,11 @@ svg {
   border-bottom-color: rgba(251, 191, 36, 0.2);
 }
 .story-detail-card--historical .story-detail-headline {
-  color: #fde68a;
+  color: var(--amber-lt);
 }
 .story-detail-card--historical .story-detail-close:hover {
   background: rgba(120, 53, 15, 0.5);
-  color: #fde68a;
+  color: var(--amber-lt);
 }
 
 /* Mobile: bottom sheet — switch back to fixed px since vw is tiny on narrow screens */
@@ -1312,7 +1312,7 @@ svg {
     max-height: 86vh;
     border-radius: 16px 16px 0 0;
     border-bottom: none;
-    background: #0d1b2a;
+    background: var(--bg-deep);
     animation: storyCardUpMobile 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -1347,7 +1347,7 @@ svg {
   transform: translate(-50%, -50%);
   width: min(480px, calc(100vw - 32px));
   max-height: min(80vh, 560px);
-  background: #0d1b2a;
+  background: var(--bg-deep);
   border: 1px solid rgba(139, 92, 246, 0.5);
   border-radius: 12px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(139, 92, 246, 0.1);
@@ -1387,7 +1387,7 @@ svg {
 .inspector-header-date {
   font-size: 16px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
@@ -1410,7 +1410,7 @@ svg {
   border-radius: 50%;
   border: 1px solid rgba(139, 92, 246, 0.35);
   background: rgba(139, 92, 246, 0.08);
-  color: #94a3b8;
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1422,14 +1422,14 @@ svg {
 .inspector-close:hover {
   background: rgba(139, 92, 246, 0.25);
   border-color: rgba(139, 92, 246, 0.6);
-  color: #a78bfa;
+  color: var(--purple-mid);
 }
 
 .inspector-body {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+  scrollbar-color: var(--purple-border) transparent;
 }
 
 .inspector-row {
@@ -1458,7 +1458,7 @@ svg {
 }
 
 .inspector-row--filed:focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid var(--purple-mid);
   outline-offset: -2px;
 }
 
@@ -1471,7 +1471,7 @@ svg {
 
 .inspector-row-omission-line {
   font-size: 13px;
-  color: #7e8ba1; /* WCAG AA: 5.1:1 on #0d1b2a card background */
+  color: #7e8ba1; /* WCAG AA: 5.1:1 on var(--bg-deep) card background */
   line-height: 1.4;
 }
 
@@ -1494,13 +1494,13 @@ svg {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .inspector-row-headline {
   font-size: 15px;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
@@ -1544,9 +1544,9 @@ svg {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(10, 20, 35, 0.88);
+  background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--purple-border);
   border-radius: 6px;
   padding: 6px 10px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
@@ -1562,9 +1562,9 @@ svg {
 /* ‹ / › arrow buttons */
 .date-timeline-arrow {
   background: rgba(139, 92, 246, 0.15);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--purple-border);
   border-radius: 6px;
-  color: #a78bfa;
+  color: var(--purple-mid);
   font-size: 18px;
   line-height: 1;
   width: 28px;
@@ -1586,9 +1586,9 @@ svg {
 }
 
 .date-timeline-arrow:not(:disabled):hover {
-  background: rgba(139, 92, 246, 0.3);
+  background: var(--purple-border);
   border-color: rgba(139, 92, 246, 0.5);
-  color: #c4b5fd;
+  color: var(--purple-lt);
 }
 
 /* Track area with floating label above */
@@ -1606,7 +1606,7 @@ svg {
   transform: translateX(-50%);
   font-size: 10px;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--text-body);
   white-space: nowrap;
   pointer-events: none;
   letter-spacing: 0.02em;
@@ -1621,7 +1621,7 @@ svg {
 }
 
 .date-timeline-track:focus-visible {
-  outline: 2px solid #c4b5fd;
+  outline: 2px solid var(--purple-lt);
   border-radius: 4px;
 }
 
@@ -1631,7 +1631,7 @@ svg {
   top: 50%;
   height: 2px;
   transform: translateY(-50%);
-  background: #c4b5fd;
+  background: var(--purple-lt);
   border-radius: 1px;
   z-index: 1;
 }
@@ -1645,7 +1645,7 @@ svg {
   border-radius: 50%;
   transform: translate(-50%, -50%);
   background: #ddd6fe;
-  border: 1px solid #c4b5fd;
+  border: 1px solid var(--purple-lt);
   z-index: 2;
 }
 
@@ -1663,7 +1663,7 @@ svg {
   height: 13px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  background: #8b5cf6;
+  background: var(--purple);
   border: 2px solid #ffffff;
   box-shadow: 0 1px 4px rgba(139, 92, 246, 0.35);
   z-index: 3;
@@ -1687,11 +1687,11 @@ svg {
   flex-shrink: 0;
   padding: 6px 10px;
   border-radius: 16px;
-  border: 1px solid rgba(96, 165, 250, 0.2);
+  border: 1px solid var(--blue-border);
   background: rgba(15, 25, 42, 0.8);
   font-size: 13px;
   font-family: inherit;
-  color: #cbd5e1;
+  color: var(--text-body);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
@@ -1702,8 +1702,8 @@ svg {
 }
 
 .mobile-date-chip.active {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
+  background: var(--purple);
+  border-color: var(--purple);
   color: white;
 }
 /* ── Heatmap country modal – @author Claude Sonnet 4.6 Anthropic ────────── */
@@ -1768,19 +1768,19 @@ svg {
 }
 
 .heatmap-modal-sep {
-  color: #475569;
+  color: var(--text-dim);
   font-size: 13px;
 }
 
 .heatmap-modal-source {
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
 .heatmap-modal-count {
   font-size: 13px;
-  color: #fb923c;
+  color: var(--orange);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -1790,8 +1790,8 @@ svg {
   height: 24px;
   border-radius: 50%;
   border: 1px solid rgba(251, 146, 60, 0.35);
-  background: rgba(251, 146, 60, 0.08);
-  color: #94a3b8;
+  background: var(--orange-bg-tint);
+  color: var(--text-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1801,16 +1801,16 @@ svg {
 }
 
 .heatmap-modal-close:hover {
-  background: rgba(251, 146, 60, 0.18);
-  border-color: rgba(251, 146, 60, 0.6);
-  color: #fb923c;
+  background: var(--orange-bg-hover);
+  border-color: var(--orange-border-hover);
+  color: var(--orange);
 }
 
 .heatmap-modal-body {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(251, 146, 60, 0.3) transparent;
+  scrollbar-color: var(--orange-border) transparent;
 }
 
 .heatmap-modal-loading,
@@ -1818,7 +1818,7 @@ svg {
 .heatmap-modal-error {
   padding: 32px 16px;
   text-align: center;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
@@ -1838,10 +1838,10 @@ svg {
 }
 
 .heatmap-modal-retry-btn {
-  background: rgba(251, 146, 60, 0.08);
-  border: 1px solid rgba(251, 146, 60, 0.3);
+  background: var(--orange-bg-tint);
+  border: 1px solid var(--orange-border);
   border-radius: 6px;
-  color: #fb923c;
+  color: var(--orange);
   font-size: 13px;
   padding: 5px 12px;
   cursor: pointer;
@@ -1850,8 +1850,8 @@ svg {
 }
 
 .heatmap-modal-retry-btn:hover {
-  background: rgba(251, 146, 60, 0.18);
-  border-color: rgba(251, 146, 60, 0.6);
+  background: var(--orange-bg-hover);
+  border-color: var(--orange-border-hover);
 }
 
 .heatmap-modal-row:last-child {
@@ -1860,7 +1860,7 @@ svg {
 
 .heatmap-modal-date {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
   min-width: 90px;
@@ -1868,7 +1868,7 @@ svg {
 
 .heatmap-modal-headline {
   font-size: 13px;
-  color: #e2e8f0;
+  color: var(--text-primary);
   line-height: 1.5;
 }
 
@@ -1883,10 +1883,10 @@ svg {
 }
 
 .heatmap-modal-page-btn {
-  background: rgba(251, 146, 60, 0.08);
-  border: 1px solid rgba(251, 146, 60, 0.3);
+  background: var(--orange-bg-tint);
+  border: 1px solid var(--orange-border);
   border-radius: 6px;
-  color: #fb923c;
+  color: var(--orange);
   font-size: 13px;
   padding: 5px 12px;
   cursor: pointer;
@@ -1895,8 +1895,8 @@ svg {
 }
 
 .heatmap-modal-page-btn:hover:not(:disabled) {
-  background: rgba(251, 146, 60, 0.18);
-  border-color: rgba(251, 146, 60, 0.6);
+  background: var(--orange-bg-hover);
+  border-color: var(--orange-border-hover);
 }
 
 .heatmap-modal-page-btn:disabled {
@@ -1906,7 +1906,7 @@ svg {
 
 .heatmap-modal-page-info {
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   min-width: 90px;
   text-align: center;
 }
@@ -1952,7 +1952,7 @@ svg {
 .contact-modal-intro {
   margin: 0;
   font-size: 14px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
@@ -1979,7 +1979,7 @@ svg {
 
 .contact-modal-link:hover,
 .contact-modal-link:focus {
-  background: rgba(96, 165, 250, 0.08);
+  background: var(--blue-bg-tint);
   border-color: rgba(96, 165, 250, 0.3);
 }
 
@@ -1988,20 +1988,20 @@ svg {
   width: 20px;
   height: 20px;
   margin-top: 1px;
-  color: #60a5fa;
+  color: var(--blue);
   flex-shrink: 0;
 }
 
 .contact-modal-link-label {
   font-size: 14px;
   font-weight: 500;
-  color: #e2e8f0;
+  color: var(--text-primary);
   line-height: 1.3;
 }
 
 .contact-modal-link-sub {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   line-height: 1.3;
 }
 
@@ -2026,7 +2026,7 @@ svg {
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: #0f1923;
+    background: var(--bg-base);
     border-top: 1px solid rgba(96, 165, 250, 0.1);
   }
 
@@ -2071,14 +2071,14 @@ svg {
   .mobile-story-country {
     font-size: 11px;
     font-weight: 600;
-    color: #60a5fa;
+    color: var(--blue);
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
 
   .mobile-story-headline {
     font-size: 13px;
-    color: #e2e8f0;
+    color: var(--text-primary);
     line-height: 1.35;
     overflow: hidden;
     display: -webkit-box;
@@ -2088,7 +2088,7 @@ svg {
 
   .mobile-story-chevron {
     flex-shrink: 0;
-    color: #475569;
+    color: var(--text-dim);
   }
 }
 
@@ -2123,7 +2123,7 @@ svg {
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: #0f1923;
+    background: var(--bg-base);
     border-top: 1px solid rgba(251, 146, 60, 0.15);
     position: relative;
     z-index: 6;
@@ -2135,7 +2135,7 @@ svg {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: #94a3b8; /* was #64748b — lightened for WCAG AA contrast on dark bg */
+    color: var(--text-secondary); /* was #64748b — lightened for WCAG AA contrast on dark bg */
   }
 
   .mobile-coverage-item {
@@ -2171,20 +2171,20 @@ svg {
   .mobile-coverage-name {
     flex: 1;
     font-size: 13px;
-    color: #e2e8f0;
+    color: var(--text-primary);
   }
 
   .mobile-coverage-count {
     font-size: 12px;
     font-weight: 600;
-    color: #fb923c;
+    color: var(--orange);
     flex-shrink: 0;
   }
 
   .mobile-coverage-list-footer {
     padding: 10px 14px;
     font-size: 12px;
-    color: #475569;
+    color: var(--text-dim);
     text-align: center;
     border-top: 1px solid rgba(251, 146, 60, 0.06);
   }
