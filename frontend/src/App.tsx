@@ -283,79 +283,87 @@ function App(): React.ReactElement {
 
         {/* Desktop controls overlay */}
         <div className={`source-selector-overlay${isLoading ? ' controls-loading' : ''}`}>
-          {VIEW_MODES.map(({ value, label }) => (
-            <label key={value} className="source-radio-label">
-              <input
-                type="radio"
-                name="view-mode"
-                value={value}
-                checked={viewMode === value}
-                onChange={() => handleViewModeChange(value)}
-              />
-              {label}
-            </label>
-          ))}
-          {viewMode !== 'consensus' && (<>
-          <div className="selector-divider" />
-          {NEWS_SOURCES.map(({ value, label }) => (
-            <label key={value} className="source-radio-label">
-              <input
-                type="radio"
-                name="news-source"
-                value={value}
-                checked={source === value}
-                onChange={() => handleSourceChange(value)}
-                disabled={isLoading}
-              />
-              {label}
-            </label>
-          ))}
-          <div className="selector-divider" />
-          </>)}
-          {viewMode === 'consensus' && (<>
-          <div className="selector-divider" />
-          <label className="source-radio-label">
-            <input
-              type="radio"
-              name="highlight-source"
-              value=""
-              checked={effectiveHighlightSource === null}
-              onChange={() => handleHighlightChange(null)}
-            />
-            All Sources
-          </label>
-          {NEWS_SOURCES.map(({ value, label }) => {
-            const notPresent = !presentSources.includes(value);
-            const dateLabel = isToday(selectedDate) ? 'today' : formatShortDate(selectedDate);
-            return (
-              <label key={value} className="source-radio-label" title={notPresent ? `${label} not collected on ${dateLabel}` : undefined}>
+          <div className="selector-group">
+            <span className="selector-group-title">View</span>
+            {VIEW_MODES.map(({ value, label }) => (
+              <label key={value} className="source-radio-label">
                 <input
                   type="radio"
-                  name="highlight-source"
+                  name="view-mode"
                   value={value}
-                  checked={effectiveHighlightSource === value}
-                  onChange={() => handleHighlightChange(value)}
-                  disabled={notPresent}
+                  checked={viewMode === value}
+                  onChange={() => handleViewModeChange(value)}
                 />
                 {label}
               </label>
-            );
-          })}
-          <div className="selector-divider" />
-          </>)}
-          {PROJECTION_OPTIONS.map(({ value, label }) => (
-            <label key={value} className="source-radio-label">
+            ))}
+          </div>
+          {viewMode !== 'consensus' && (
+          <div className="selector-group">
+            <span className="selector-group-title">Source</span>
+            {NEWS_SOURCES.map(({ value, label }) => (
+              <label key={value} className="source-radio-label">
+                <input
+                  type="radio"
+                  name="news-source"
+                  value={value}
+                  checked={source === value}
+                  onChange={() => handleSourceChange(value)}
+                  disabled={isLoading}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          )}
+          {viewMode === 'consensus' && (
+          <div className="selector-group">
+            <span className="selector-group-title">Highlight</span>
+            <label className="source-radio-label">
               <input
                 type="radio"
-                name="projection"
-                value={value}
-                checked={projectionType === value}
-                onChange={() => handleProjectionChange(value)}
-                disabled={isLoading}
+                name="highlight-source"
+                value=""
+                checked={effectiveHighlightSource === null}
+                onChange={() => handleHighlightChange(null)}
               />
-              {label}
+              All Sources
             </label>
-          ))}
+            {NEWS_SOURCES.map(({ value, label }) => {
+              const notPresent = !presentSources.includes(value);
+              const dateLabel = isToday(selectedDate) ? 'today' : formatShortDate(selectedDate);
+              return (
+                <label key={value} className="source-radio-label" title={notPresent ? `${label} not collected on ${dateLabel}` : undefined}>
+                  <input
+                    type="radio"
+                    name="highlight-source"
+                    value={value}
+                    checked={effectiveHighlightSource === value}
+                    onChange={() => handleHighlightChange(value)}
+                    disabled={notPresent}
+                  />
+                  {label}
+                </label>
+              );
+            })}
+          </div>
+          )}
+          <div className="selector-group">
+            <span className="selector-group-title">Map</span>
+            {PROJECTION_OPTIONS.map(({ value, label }) => (
+              <label key={value} className="source-radio-label">
+                <input
+                  type="radio"
+                  name="projection"
+                  value={value}
+                  checked={projectionType === value}
+                  onChange={() => handleProjectionChange(value)}
+                  disabled={isLoading}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* Error toast – @author Claude Sonnet 4.6 Anthropic */}
