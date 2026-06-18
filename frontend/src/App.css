@@ -187,14 +187,18 @@ svg {
 .map-annotation-box--clickable:hover {
   border-color: rgba(96, 165, 250, 0.75);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(96, 165, 250, 0.2);
+  background: rgb(12, 24, 42);
 }
 
 .map-annotation-box--clickable:hover .map-annotation-expand {
-  color: #93c5fd;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .map-annotation-expand {
-  color: #60a5fa;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.35);
   flex-shrink: 0;
   transition: color 0.15s;
 }
@@ -249,6 +253,21 @@ svg {
   width: 135px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   overflow: hidden;
+}
+
+.map-annotation-box--consensus {
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.map-annotation-box--consensus:hover {
+  border-color: rgba(34, 197, 94, 0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(34, 197, 94, 0.2);
+  background: rgb(8, 22, 14);
+}
+
+.map-annotation-box--consensus:hover .map-annotation-expand {
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .map-annotation-box--consensus:focus {
@@ -320,11 +339,48 @@ svg {
   height: 24px;
   background: rgba(8, 18, 32, 0.92);
   border: 1px solid rgba(34, 197, 94, 0.6);
-  border-radius: 12px;
+  border-radius: 4px;
   cursor: pointer;
   box-sizing: border-box;
   width: fit-content;
+  position: relative;
 }
+
+.consensus-chip-pill::after {
+  content: '+';
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 7px;
+  font-weight: 700;
+  color: rgba(34, 197, 94, 0.45);
+  line-height: 1;
+  pointer-events: none;
+  transition: color 0.15s;
+}
+
+.consensus-chip-pill:hover::after {
+  color: rgba(34, 197, 94, 0.9);
+}
+
+.consensus-chip-pill--historical::after {
+  color: rgba(251, 191, 36, 0.45);
+}
+
+.consensus-chip-pill--historical:hover::after {
+  color: rgba(251, 191, 36, 0.9);
+}
+
+.consensus-chip-pill:hover {
+  border-color: rgba(34, 197, 94, 0.9);
+  background: rgba(8, 22, 14, 0.96);
+}
+
+.consensus-chip-pill--historical:hover {
+  border-color: rgba(251, 191, 36, 0.9);
+  background: rgba(22, 14, 4, 0.96);
+}
+
 
 .consensus-chip-pill--historical {
   border-color: rgba(251, 191, 36, 0.45);

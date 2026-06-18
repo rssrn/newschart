@@ -305,60 +305,56 @@ const boundingBox = useMemo(() => {
           width="135"
           height="140"
           style={{ overflow: 'visible', pointerEvents: 'all' }}>
-          {consensus ? (
-            <div
-              className={`map-annotation-box map-annotation-box--consensus${isHistorical ? ' map-annotation-box--historical' : ''}${highlightFiled === false ? ' map-annotation-box--highlight-missed' : ''}`}
-              role="article"
-              tabIndex={0}
-              aria-label={consensusAriaLabel}
-              onClick={() => onConsensusBoxClick?.(callout)}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onConsensusBoxClick?.(callout); } }}
-            >
-                <div className="map-annotation-header map-annotation-header--consensus">
+          {(() => {
+            const isHighlightMissed = consensus && highlightFiled === false;
+            const boxClassName = [
+              'map-annotation-box',
+              consensus ? 'map-annotation-box--consensus' : 'map-annotation-box--clickable',
+              isHistorical ? 'map-annotation-box--historical' : '',
+              isHighlightMissed ? 'map-annotation-box--highlight-missed' : '',
+            ].filter(Boolean).join(' ');
+            const ariaLabel = consensus
+              ? consensusAriaLabel
+              : `${callout.country.name}: ${callout.headline}. Press Enter to expand.`;
+            const handleClick = consensus
+              ? () => onConsensusBoxClick?.(callout)
+              : () => handleMoreDetails(callout);
+            const handleKeyDown = (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); }
+            };
+            return (
+              <div
+                className={boxClassName}
+                role="button"
+                tabIndex={0}
+                aria-label={ariaLabel}
+                onClick={handleClick}
+                onKeyDown={handleKeyDown}
+              >
+                <div className={`map-annotation-header${consensus ? ' map-annotation-header--consensus' : ''}`}>
                   <div className="map-annotation-location">
                     <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
                     <span>{shortenCountryName(callout.country.name)}</span>
                   </div>
+                  <span className="map-annotation-expand" aria-hidden="true">+</span>
                 </div>
-                <div className="consensus-badge-row" role="group" aria-label="Source coverage">
-                  {SOURCE_ORDER.filter(s => presentSources?.includes(s)).map(src => (
-                  <SourceBadgeHtml
-                    key={src}
-                    source={src}
-                    filled={callout.consensus?.sourcesFiled.includes(src) ?? false}
-                    highlight={highlightFiled === false ? null : highlightSource}
-                  />
-                ))}
+                {consensus && (
+                  <div className="consensus-badge-row" role="group" aria-label="Source coverage">
+                    {SOURCE_ORDER.filter(s => presentSources?.includes(s)).map(src => (
+                      <SourceBadgeHtml
+                        key={src}
+                        source={src}
+                        filled={callout.consensus?.sourcesFiled.includes(src) ?? false}
+                        highlight={isHighlightMissed ? null : highlightSource}
+                      />
+                    ))}
+                  </div>
+                )}
+                <h4 className="map-annotation-title">{callout.headline}</h4>
+                <p className="map-annotation-text">{callout.detail}</p>
               </div>
-
-              <h4 className="map-annotation-title">{callout.headline}</h4>
-              <p className="map-annotation-text">{callout.detail}</p>
-            </div>
-          ) : (
-            <div
-              className={`map-annotation-box map-annotation-box--clickable${isHistorical ? ' map-annotation-box--historical' : ''}`}
-              onClick={() => handleMoreDetails(callout)}
-              role="button"
-              tabIndex={0}
-              aria-label={`${callout.country.name}: ${callout.headline}. Press Enter to expand.`}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleMoreDetails(callout); } }}
-            >
-              <div className="map-annotation-header">
-                <div className="map-annotation-location">
-                  <span className="location-flag">{getCountryFlag(callout.country.iso2)}</span>
-                  <span>{shortenCountryName(callout.country.name)}</span>
-                </div>
-                <svg className="map-annotation-expand" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="15 3 21 3 21 9"/>
-                  <polyline points="9 21 3 21 3 15"/>
-                  <line x1="21" y1="3" x2="14" y2="10"/>
-                  <line x1="3" y1="21" x2="10" y2="14"/>
-                </svg>
-              </div>
-              <h4 className="map-annotation-title">{callout.headline}</h4>
-              <p className="map-annotation-text">{callout.detail}</p>
-            </div>
-          )}
+            );
+          })()}
         </foreignObject>
       </g>
     );
