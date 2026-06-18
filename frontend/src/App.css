@@ -350,14 +350,14 @@ svg {
   right: 3px;
   font-size: 7px;
   font-weight: 700;
-  color: rgba(96, 165, 250, 0.45);
+  color: rgba(255, 255, 255, 0.35);
   line-height: 1;
   pointer-events: none;
   transition: color 0.15s;
 }
 
 .consensus-chip-pill:hover::after {
-  color: var(--blue-strong);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .consensus-chip-pill--historical::after {
