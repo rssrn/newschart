@@ -62,7 +62,7 @@ describe('EventInspectorModal accessibility', () => {
           group={group}
           allCallouts={allCallouts}
           presentSources={presentSources}
-          trigger="callout_box"
+          date="2026-06-18" trigger="callout_box"
           onClose={() => {}}
         />
       );
@@ -78,7 +78,7 @@ describe('EventInspectorModal accessibility', () => {
           allCallouts={allCallouts}
           presentSources={presentSources}
           isHistorical={true}
-          trigger="chip"
+          date="2026-06-05" trigger="chip"
           onClose={() => {}}
         />
       );
@@ -125,7 +125,7 @@ describe('EventInspectorModal accessibility', () => {
           group={allFiledGroup}
           allCallouts={allCallouts}
           presentSources={presentSources}
-          trigger="callout_box"
+          date="2026-06-18" trigger="callout_box"
           onClose={() => {}}
         />
       );

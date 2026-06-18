@@ -8,6 +8,7 @@ import { SourceBadgeHtml } from './SourceBadge';
 import { StoryDetailModal } from '../StoryCalloutList';
 import { track } from '../utils/analytics';
 import { getCountryFlag } from '../utils/countryUtils';
+import { isToday, formatShortDate } from '../utils/dateUtils';
 
 interface EventInspectorModalProps {
   group: ConsensusGroup;
@@ -15,6 +16,7 @@ interface EventInspectorModalProps {
   presentSources: CalloutSource[];
   isHistorical?: boolean;
   trigger: 'callout_box' | 'chip';
+  date: string;
   onClose: () => void;
 }
 
@@ -37,6 +39,7 @@ export function EventInspectorModal({
   presentSources,
   isHistorical = false,
   trigger,
+  date,
   onClose,
 }: EventInspectorModalProps): React.ReactElement {
   const [detailCallout, setDetailCallout] = useState<StoryCallout | null>(null);
@@ -48,6 +51,7 @@ export function EventInspectorModal({
   useEffect(() => { detailCalloutRef.current = detailCallout; });
 
   const flag = getCountryFlag(group.country.iso2);
+  const dateLabel = isToday(date) ? 'Today' : formatShortDate(date);
   const filteredSources = useMemo(
     () => SOURCE_ORDER.filter(s => presentSources.includes(s)),
     [presentSources]
@@ -129,6 +133,8 @@ export function EventInspectorModal({
             <span className="inspector-flag" aria-hidden="true">{flag}</span>
             <span className="inspector-country">{group.country.name}</span>
           </div>
+          <div className="inspector-header-right">
+            <span className="inspector-header-date">{dateLabel}</span>
           <button
             ref={firstFocusRef}
             className="inspector-close"
@@ -140,6 +146,7 @@ export function EventInspectorModal({
               <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
+          </div>
         </div>
 
         <div className="inspector-body">

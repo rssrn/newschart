@@ -422,6 +422,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         presentSources={presentSources}
         isHistorical={isHistorical}
         trigger={inspectorTrigger}
+        date={date}
         onClose={() => setInspectorGroup(null)}
       />
     )}
