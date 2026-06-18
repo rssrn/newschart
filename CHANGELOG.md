@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2026-06-18
+
+Consensus view polish — interaction refinements and visual consistency (#52 CP7).
+
+### Added
+- **Date in Event Inspector modal header** — the selected day is shown in the modal header alongside the story title
+- **Date in brand badge** — the currently selected date is displayed in the header brand badge
+- **Click affordance on callouts and chips** — cursor and hover styles make clickable elements discoverable; callout box render path unified
+
+### Changed
+- **Desktop source selector sections** — controls grouped into labelled sections (View / Highlight / Map) for clarity
+- **Consensus view colour scheme** — reverted to blue, matching the by-source view for visual consistency
+- **Chip colour tracks callout expand state** — chip accent colour updates when its associated callout is expanded
+- **CSS colours abstracted to custom properties** — all colour values centralised in `:root` for maintainability
+
 ## [0.18.0] - 2026-06-17
 
 Consensus view — see how multiple news sources cover the same story.
