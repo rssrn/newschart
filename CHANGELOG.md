@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.0] - 2026-06-19
+
+Claude and Grok news sources enabled (backend only); consensus display hardened against unknown sources.
+
+### Added
+- **Claude and Grok news sources** — backend now ingests from Claude (Anthropic) and Grok (xAI) in addition to existing sources; no frontend changes required
+
+### Fixed
+- **Consensus display: unknown-source guard** — `pickDisplayCallout` prefers known sources over unknown in its fallback; `SOURCE_META` accesses in `StoryCalloutList` aria labels use optional chaining to avoid runtime errors when a new source arrives before a frontend release
+
+### Security
+- `undici` updated to address a vulnerability flagged by npm audit
+
 ## [0.19.0] - 2026-06-18
 
 Consensus view polish — interaction refinements and visual consistency (#52 CP7).
