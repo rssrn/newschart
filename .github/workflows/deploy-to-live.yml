@@ -6,10 +6,18 @@ on:
       - 'v*'
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
-  build-and-deploy:
+  publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -23,7 +31,7 @@ jobs:
 
           for attempt in $(seq 1 20); do
             RUNS=$(gh api "repos/${{ github.repository }}/commits/$SHA/check-runs" \
-              --paginate --jq '.check_runs[] | select(.name != "build-and-deploy")')
+              --paginate --jq '.check_runs[] | select(.name != "publish" and .name != "deploy")')
 
             TOTAL=$(echo "$RUNS" | jq -s 'length')
             if [ "$TOTAL" -eq 0 ]; then
@@ -46,44 +54,50 @@ jobs:
               exit 1
             fi
 
-            echo "All CI checks passed for $SHA — proceeding with deploy"
+            echo "All CI checks passed for $SHA — proceeding"
             exit 0
           done
 
           echo "Timed out waiting for CI checks after $(( 20 * 30 / 60 )) minutes"
           exit 1
 
-      - name: Set up Java 21
-        uses: actions/setup-java@v5
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/') }}
 
-      - name: Build frontend
-        timeout-minutes: 5
-        run: |
-          cd frontend
-          npm ci --legacy-peer-deps
-          npm run build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build backend jar
-        timeout-minutes: 5
-        run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/v}
-            ./mvnw -B versions:set -DnewVersion="$VERSION" package -DskipTests
-          else
-            ./mvnw -B package -DskipTests
-          fi
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+  deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
       - name: Connect to Tailscale
         timeout-minutes: 2
         uses: tailscale/github-action@v4
@@ -91,48 +105,34 @@ jobs:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
           args: --advertise-tags=tag:github-runner
 
-      - name: Back up current jar
-        id: backup
-        timeout-minutes: 2
+      - name: Set up SSH key
         run: |
-          set +e
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
-            ${{ secrets.DEPLOY_HOST }} \
-            "test -f /opt/newschart/newschart.jar"
-          HAS_EXISTING=$?
-          set -e
-          if [ "$HAS_EXISTING" -eq 0 ]; then
-            ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
-              ${{ secrets.DEPLOY_HOST }} \
-              "cp -f /opt/newschart/newschart.jar /opt/newschart/newschart.jar.prev && \
-               rm -rf /opt/newschart/frontend.prev && cp -r /opt/newschart/frontend /opt/newschart/frontend.prev && \
-               test -f /opt/newschart/newschart.jar.prev && test -s /opt/newschart/newschart.jar.prev && \
-               test -d /opt/newschart/frontend.prev"
-            echo "done=true" >> "$GITHUB_OUTPUT"
-          elif [ "$HAS_EXISTING" -eq 1 ]; then
-            echo "No prior artifacts found — skipping backup (first deploy)"
-            echo "done=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "SSH connection failed (exit $HAS_EXISTING) checking for prior artifacts"
-            exit 1
-          fi
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-      - name: Deploy jar and frontend
-        timeout-minutes: 3
+      - name: Deploy
+        id: deploy
         run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10" \
-            target/newschart-*.jar \
-            ${{ secrets.DEPLOY_HOST }}:/opt/newschart/newschart.jar
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10" \
-            frontend/build/ \
-            ${{ secrets.DEPLOY_HOST }}:/opt/newschart/frontend/
+          PREV_IMAGE=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
+            deploy@homelab-infra \
+            "docker inspect newschart --format '{{.Config.Image}}' 2>/dev/null || echo ''" || echo "")
+          echo "prev-image=$PREV_IMAGE" >> "$GITHUB_OUTPUT"
 
-      - name: Restart service
-        timeout-minutes: 1
-        run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
-            ${{ secrets.DEPLOY_HOST }} \
-            "sudo systemctl restart newschart && sudo systemctl status newschart --no-pager"
+            deploy@homelab-infra \
+            "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin && \
+             docker pull ghcr.io/rssrn/newschart:latest && \
+             docker stop newschart 2>/dev/null || true && \
+             docker rm newschart 2>/dev/null || true && \
+             docker run -d \
+               --name newschart \
+               --restart unless-stopped \
+               -p 8080:8080 \
+               -e SPRING_MONGODB_URI='${{ secrets.MONGODB_URI }}' \
+               -e GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}' \
+               -e OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}' \
+               ghcr.io/rssrn/newschart:latest"
 
       - name: Smoke test
         timeout-minutes: 2
@@ -145,15 +145,14 @@ jobs:
               echo "Backend up (HTTP $STATUS)"
               break
             fi
-            echo "Attempt $i: HTTP $STATUS — retrying in 3s"
-            sleep 3
+            echo "Attempt $i: HTTP $STATUS — retrying in 5s"
+            sleep 5
             if [ "$i" = "12" ]; then
               echo "Smoke test failed: /api/news/availableDays did not return 200 after 12 attempts"
               exit 1
             fi
           done
 
-          # Check frontend index.html
           echo "Checking frontend index.html..."
           RESP=$(curl -si "$BASE/")
           INDEX_STATUS=$(echo "$RESP" | grep -m1 "^HTTP" | awk '{print $2}')
@@ -168,7 +167,6 @@ jobs:
           fi
           echo "index.html OK (HTTP $INDEX_STATUS, $INDEX_CT)"
 
-          # Resolve the hashed JS bundle from index.html and check it loads with a JS content-type
           echo "Checking hashed JS bundle..."
           INDEX_BODY=$(curl -s "$BASE/")
           JS_PATH=$(echo "$INDEX_BODY" | grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' | head -1)
@@ -176,39 +174,45 @@ jobs:
             echo "FAIL: could not find hashed JS bundle in index.html"
             exit 1
           fi
-          echo "Found bundle: $JS_PATH"
           JS_RESP=$(curl -si "$BASE$JS_PATH")
           JS_STATUS=$(echo "$JS_RESP" | grep -m1 "^HTTP" | awk '{print $2}')
           JS_CT=$(echo "$JS_RESP" | grep -i "^content-type:" | head -1)
           if [ "$JS_STATUS" != "200" ]; then
-            echo "FAIL: $JS_PATH returned HTTP $JS_STATUS (expected 200)"
+            echo "FAIL: $JS_PATH returned HTTP $JS_STATUS"
             exit 1
           fi
           if echo "$JS_CT" | grep -qi "text/html"; then
-            echo "FAIL: JS bundle served as text/html (SPA fallback instead of asset): $JS_CT"
+            echo "FAIL: JS bundle served as text/html (SPA fallback fired): $JS_CT"
             exit 1
           fi
           echo "JS bundle OK (HTTP $JS_STATUS, $JS_CT)"
 
-          # Second API endpoint: heatmap aggregation
           echo "Checking statsAllCallouts..."
           STATS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/news/statsAllCallouts")
           if [ "$STATS_STATUS" != "200" ]; then
-            echo "FAIL: /api/news/statsAllCallouts returned HTTP $STATS_STATUS (expected 200)"
+            echo "FAIL: /api/news/statsAllCallouts returned HTTP $STATS_STATUS"
             exit 1
           fi
-          echo "statsAllCallouts OK (HTTP $STATS_STATUS)"
+          echo "statsAllCallouts OK"
 
           echo "All smoke tests passed"
 
       - name: Rollback on failure
-        if: failure() && steps.backup.outputs.done == 'true'
+        if: failure() && steps.deploy.outputs.prev-image != ''
         timeout-minutes: 2
         run: |
-          echo "Deployment failed — rolling back jar and frontend"
+          PREV="${{ steps.deploy.outputs.prev-image }}"
+          echo "Deployment failed — rolling back to $PREV"
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
-            ${{ secrets.DEPLOY_HOST }} \
-            "cp -f /opt/newschart/newschart.jar.prev /opt/newschart/newschart.jar && \
-             rm -rf /opt/newschart/frontend && cp -r /opt/newschart/frontend.prev /opt/newschart/frontend && \
-             sudo systemctl restart newschart"
+            deploy@homelab-infra \
+            "docker stop newschart 2>/dev/null || true && \
+             docker rm newschart 2>/dev/null || true && \
+             docker run -d \
+               --name newschart \
+               --restart unless-stopped \
+               -p 8080:8080 \
+               -e SPRING_MONGODB_URI='${{ secrets.MONGODB_URI }}' \
+               -e GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}' \
+               -e OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}' \
+               $PREV"
           echo "Rollback complete"
