@@ -23,6 +23,7 @@ export function SourceBadgeHtml({
   title?: string;
 }): React.ReactElement {
   const meta = SOURCE_META[source];
+  if (!meta) return <></>;
   const hlClass = highlight != null
     ? (source === highlight ? 'consensus-badge--emphasis' : 'consensus-badge--dimmed')
     : '';
@@ -71,6 +72,7 @@ export function SourceBadgeSvg({
   // useId gives a stable unique ID per component instance, avoiding clipPath
   // collisions when the same source badge renders on multiple chips.
   const uid = React.useId();
+  if (!meta) return <></>;
   const clipId = `bsc-${uid}`;
   return (
     <g>

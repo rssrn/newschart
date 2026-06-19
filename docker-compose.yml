@@ -8,6 +8,20 @@ services:
       - mongodb_data:/data/db
     mem_limit: 512m
 
+  newschart:
+    build: .
+    image: newschart:local
+    profiles: ["app"]
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_MONGODB_URI=mongodb://mongodb:27017/newschart
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    depends_on:
+      - mongodb
+    mem_limit: 512m
+
   prometheus:
     image: prom/prometheus:v2.45.3
     profiles: ["monitoring"]

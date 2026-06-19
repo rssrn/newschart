@@ -47,3 +47,6 @@ frontend/test-output/
 .mcp.json
 .playwright-mcp/
 .aider*
+
+### Local env ###
+.env
