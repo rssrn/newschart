@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Verify CI passed for this commit
         env:
@@ -105,6 +105,9 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Connect to Tailscale
         timeout-minutes: 2
         uses: tailscale/github-action@v4
@@ -118,29 +121,26 @@ jobs:
           echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: Deploy
-        id: deploy
+      - name: Sync deploy config
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
-          PREV_IMAGE=$(ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
-            deploy@homelab-infra \
-            "docker inspect newschart --format '{{.Config.Image}}' 2>/dev/null || echo ''" || echo "")
-          echo "prev-image=$PREV_IMAGE" >> "$GITHUB_OUTPUT"
+          printf 'MONGODB_URI=%s\nGOOGLE_API_KEY=%s\nOPENROUTER_API_KEY=%s\n' \
+            "$MONGODB_URI" "$GOOGLE_API_KEY" "$OPENROUTER_API_KEY" > deploy/.env
+          rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10" \
+            deploy/ deploy@homelab-infra:/home/deploy/newschart/
 
+      - name: Deploy
+        run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
             deploy@homelab-infra \
-            "echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin && \
-             docker pull ghcr.io/rssrn/newschart:latest && \
-             docker stop newschart 2>/dev/null || true && \
-             docker rm newschart 2>/dev/null || true && \
-             docker run -d \
-               --name newschart \
-               --restart unless-stopped \
-               -p 8080:8080 \
-               -e SPRING_MONGODB_URI='${{ secrets.MONGODB_URI }}' \
-               -e SPRING_MONGODB_DATABASE=newschart \
-               -e GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}' \
-               -e OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}' \
-               ghcr.io/rssrn/newschart:latest"
+            "cd /home/deploy/newschart && \
+             echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin && \
+             docker compose pull newschart && \
+             docker compose up -d"
 
       - name: Smoke test
         timeout-minutes: 2
@@ -205,23 +205,3 @@ jobs:
 
           echo "All smoke tests passed"
 
-      - name: Rollback on failure
-        if: failure() && steps.deploy.outputs.prev-image != ''
-        timeout-minutes: 2
-        run: |
-          PREV="${{ steps.deploy.outputs.prev-image }}"
-          echo "Deployment failed — rolling back to $PREV"
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \
-            deploy@homelab-infra \
-            "docker stop newschart 2>/dev/null || true && \
-             docker rm newschart 2>/dev/null || true && \
-             docker run -d \
-               --name newschart \
-               --restart unless-stopped \
-               -p 8080:8080 \
-               -e SPRING_MONGODB_URI='${{ secrets.MONGODB_URI }}' \
-               -e SPRING_MONGODB_DATABASE=newschart \
-               -e GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}' \
-               -e OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}' \
-               $PREV"
-          echo "Rollback complete"
