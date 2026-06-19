@@ -137,6 +137,7 @@ jobs:
                --restart unless-stopped \
                -p 8080:8080 \
                -e SPRING_MONGODB_URI='${{ secrets.MONGODB_URI }}' \
+               -e SPRING_MONGODB_DATABASE=newschart \
                -e GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}' \
                -e OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}' \
                ghcr.io/rssrn/newschart:latest"
@@ -219,6 +220,7 @@ jobs:
                --restart unless-stopped \
                -p 8080:8080 \
                -e SPRING_MONGODB_URI='${{ secrets.MONGODB_URI }}' \
+               -e SPRING_MONGODB_DATABASE=newschart \
                -e GOOGLE_API_KEY='${{ secrets.GOOGLE_API_KEY }}' \
                -e OPENROUTER_API_KEY='${{ secrets.OPENROUTER_API_KEY }}' \
                $PREV"
