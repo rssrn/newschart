@@ -57,7 +57,8 @@ export function pickDisplayCallout(group: ConsensusGroup): StoryCallout {
   // Fall back to first callout whose source is known to the frontend; if none,
   // return callouts[0] so the caller always gets a value (unknown source will
   // be skipped by SOURCE_META lookups upstream).
-  return group.callouts.find(c => SOURCE_ORDER.includes(c.source as any)) ?? group.callouts[0];
+  const knownSources: readonly string[] = SOURCE_ORDER;
+  return group.callouts.find(c => c.source != null && knownSources.includes(c.source)) ?? group.callouts[0];
 }
 
 export interface HighlightedDisplay {
