@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.1] - 2026-06-19
+
+Docker image and local compose setup.
+
+### Added
+- **Dockerfile** — multi-stage build bundling frontend into Spring Boot JAR
+- **GitHub Actions docker-publish workflow** — publishes to `ghcr.io` on version tags
+- **docker-compose `app` profile** — `docker compose --profile app up` runs the full stack locally
+
+### Fixed
+- **SPA routing** — `PathResourceResolver` fallback serves `index.html` for non-API routes when running from JAR
+- **`SourceBadge` unknown-source guard** — renders empty rather than crashing on unrecognised source values
+
 ## [0.20.0] - 2026-06-19
 
 Claude and Grok news sources enabled (backend only); consensus display hardened against unknown sources.
