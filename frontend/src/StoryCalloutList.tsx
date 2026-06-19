@@ -283,8 +283,8 @@ const boundingBox = useMemo(() => {
       : '';
     const consensusAriaLabel = consensus && highlightSource
       ? highlightFiled === false
-        ? `${baseLabel}. ${SOURCE_META[highlightSource].shortLabel} did not file here; showing ${voiceSource ? SOURCE_META[voiceSource].shortLabel : 'another source'}'s coverage${countSuffix}`
-        : `${baseLabel}. Showing ${SOURCE_META[highlightSource].shortLabel}'s coverage${countSuffix}`
+        ? `${baseLabel}. ${SOURCE_META[highlightSource]?.shortLabel ?? highlightSource} did not file here; showing ${voiceSource ? (SOURCE_META[voiceSource]?.shortLabel ?? voiceSource) : 'another source'}'s coverage${countSuffix}`
+        : `${baseLabel}. Showing ${SOURCE_META[highlightSource]?.shortLabel ?? highlightSource}'s coverage${countSuffix}`
       : baseLabel + countSuffix;
     return (
       <g
