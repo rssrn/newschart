@@ -23,4 +23,24 @@ describe('SourceBadge accessibility', () => {
     const { container } = render(<SourceBadgeHtml source="GOOGLE_GEMINI" filled={false} highlight="PERPLEXITY" />);
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it('has no axe violations for ANTHROPIC filled', async () => {
+    const { container } = render(<SourceBadgeHtml source="ANTHROPIC" filled={true} />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('has no axe violations for ANTHROPIC dimmed', async () => {
+    const { container } = render(<SourceBadgeHtml source="ANTHROPIC" filled={true} highlight="PERPLEXITY" />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('has no axe violations for XAI filled', async () => {
+    const { container } = render(<SourceBadgeHtml source="XAI" filled={true} />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('has no axe violations for XAI dimmed', async () => {
+    const { container } = render(<SourceBadgeHtml source="XAI" filled={true} highlight="PERPLEXITY" />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
 });

@@ -1,6 +1,6 @@
-import { siGooglegemini, siPerplexity, siNewyorktimes } from 'simple-icons';
+import { siGooglegemini, siPerplexity, siNewyorktimes, siClaude, siX } from 'simple-icons';
 
-export type CalloutSource = 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI' | 'NEW_YORK_TIMES';
+export type CalloutSource = 'GOOGLE_GEMINI' | 'PERPLEXITY' | 'OPENAI' | 'ANTHROPIC' | 'XAI' | 'NEW_YORK_TIMES';
 
 export interface SourceMeta {
   letter: string;
@@ -24,10 +24,12 @@ export const SOURCE_META: Record<CalloutSource, SourceMeta> = {
   GOOGLE_GEMINI: { letter: 'G', label: 'Google Gemini', shortLabel: 'Gemini', color: '#8E75B2', svgPath: siGooglegemini.path },
   PERPLEXITY: { letter: 'P', label: 'Perplexity Sonar', shortLabel: 'Perplexity', color: '#1FB8CD', svgPath: siPerplexity.path },
   OPENAI: { letter: 'O', label: 'OpenAI ChatGPT', shortLabel: 'ChatGPT', color: '#000000', svgPath: OPENAI_BLOSSOM_PATH, svgViewBox: '146 227 268 265' },
+  ANTHROPIC: { letter: 'A', label: 'Anthropic Claude', shortLabel: 'Claude', color: '#D97757', svgPath: siClaude.path },
+  XAI: { letter: 'X', label: 'xAI Grok', shortLabel: 'Grok', color: '#000000', svgPath: siX.path },
   NEW_YORK_TIMES: { letter: 'N', label: 'New York Times', shortLabel: 'NYT', color: '#000000', svgPath: siNewyorktimes.path },
 };
 
-export const SOURCE_ORDER: CalloutSource[] = ['GOOGLE_GEMINI', 'PERPLEXITY', 'OPENAI', 'NEW_YORK_TIMES'];
+export const SOURCE_ORDER: CalloutSource[] = ['GOOGLE_GEMINI', 'PERPLEXITY', 'OPENAI', 'ANTHROPIC', 'XAI', 'NEW_YORK_TIMES'];
 
 export function formatSourceShort(source: string): string {
   return SOURCE_META[source as CalloutSource]?.shortLabel ?? source;

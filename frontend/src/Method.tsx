@@ -252,7 +252,7 @@ const Method = (): React.ReactElement => (
         <h2 id="ai-h">2. AI: models, prompts, and caveats</h2>
 
         <p>
-          Three of the four news sources are large language models — each chosen
+          Five of the six news sources are large language models — each chosen
           specifically because they offer native web search as a built-in capability.
           Without search grounding a model draws on training data for "today's news",
           producing plausible-sounding but stale or invented stories. Each source is
@@ -268,6 +268,8 @@ const Method = (): React.ReactElement => (
           <span className="mt-tag">Gemini (NYT geo-tagging)</span>
           <span className="mt-tag">Perplexity Sonar Pro Search</span>
           <span className="mt-tag">OpenAI gpt-4o-search-preview</span>
+          <span className="mt-tag">Anthropic claude-sonnet-4.6</span>
+          <span className="mt-tag">xAI grok-4.20</span>
           <span className="mt-tag">NYT RSS (non-AI baseline)</span>
         </div>
         <ul>
@@ -288,6 +290,18 @@ const Method = (): React.ReactElement => (
             handles both.
           </li>
           <li>
+            <strong>Anthropic claude-sonnet-4.6</strong> — Claude's native search
+            via OpenRouter, which delegates search decisions to the model itself
+            rather than pre-injecting results. A different retrieval approach to
+            Perplexity and OpenAI.
+          </li>
+          <li>
+            <strong>xAI grok-4.20</strong> — Grok's native search via OpenRouter,
+            with access to the X/Twitter real-time index alongside standard web
+            sources. Provides a perspective that can surface breaking social-media
+            narratives the other models may not index as quickly.
+          </li>
+          <li>
             <strong>New York Times RSS</strong> — a non-AI baseline. The{' '}
             <a href="https://rss.nytimes.com/services/xml/rss/nyt/World.xml" target="_blank" rel="noopener noreferrer">NYT world feed</a>{' '}
             is polled daily and every item is geo-tagged. The top 3 countries
@@ -305,12 +319,14 @@ const Method = (): React.ReactElement => (
         <p>
           The primary selection criterion was native search grounding — a model
           that can't search the live web can't reliably report today's news.
-          Beyond that, practical integration played a role: Perplexity and OpenAI
-          are both accessible via OpenRouter, which lets a single backend gateway
-          handle both without bespoke client code. Other vendors with search-native
-          models — notably Claude (Anthropic) and Grok (xAI) — are natural
-          candidates for future expansion; three independent sources is sufficient
-          to make cross-model differences visible.
+          Beyond that, practical integration played a role: Perplexity, OpenAI,
+          Claude, and Grok are all accessible via OpenRouter, which lets a single
+          backend gateway handle them without bespoke client code per vendor. Five
+          independent sources is more than enough to make cross-model differences
+          visible — and with meaningfully different retrieval approaches (Google
+          Search, Perplexity's own index, OpenAI's index, Anthropic native search,
+          and Grok's X/Twitter index), the divergences between them tend to be
+          informative rather than random.
         </p>
 
         <h3>The prompt</h3>
