@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-06-20
+
+Claude and Grok in the frontend; consensus view polish and deploy infrastructure.
+
+### Added
+- **Claude and Grok sources in frontend** — Anthropic Claude and xAI Grok now appear as source badges and highlights in the consensus view
+- **Maintenance page on 502/503** — users see a friendly maintenance page during backend restarts rather than a raw error
+- **Single-source chip skips event inspector** — clicking a single-source consensus chip goes directly to the story detail modal
+
+### Fixed
+- **Story detail meta label contrast** — improved contrast to meet WCAG AA
+- **Event inspector source labels** — short names used (e.g. "Gemini", "Claude", "NYT") instead of full names
+- **MongoDB database name** — corrected to `newschart-prod` in production
+
+### CI
+- Switched deploy from JAR + systemd to Docker Compose on Hetzner via Tailscale
+- Added `skip_build` input to deploy workflow for manual redeploys without rebuild
+
 ## [0.20.1] - 2026-06-19
 
 Docker image and local compose setup.
