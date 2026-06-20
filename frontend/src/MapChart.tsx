@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { GeoProjection, geoPath } from "d3-geo";
-import StoryCalloutList from './StoryCalloutList';
+import StoryCalloutList, { StoryDetailModal } from './StoryCalloutList';
 import { ConsensusChip } from './components/ConsensusChip';
 import { StoryCallout, CalloutStat, ViewportSize } from './types/news';
 import { useWorldCountries } from './utils/useWorldCountries';
@@ -214,6 +214,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
   // @author Claude Sonnet 4.6 Anthropic
   const [inspectorGroup, setInspectorGroup] = useState<ConsensusGroup | null>(null);
   const [inspectorTrigger, setInspectorTrigger] = useState<'callout_box' | 'chip'>('callout_box');
+  const [directDetailCallout, setDirectDetailCallout] = useState<StoryCallout | null>(null);
 
   // @author Claude Sonnet 4.6 Anthropic
   const presentSources: CalloutSource[] = useMemo(() =>
@@ -374,7 +375,15 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
           y={chip.y}
           isHistorical={isHistorical}
           highlight={highlightSource}
-          onClick={(group) => { setInspectorTrigger('chip'); setInspectorGroup(group); }}
+          onClick={(group) => {
+            if (group.consensusCount === 1) {
+              track('consensus_chip_direct_open', { iso2: group.country.iso2 });
+              setDirectDetailCallout(pickDisplayCallout(group));
+            } else {
+              setInspectorTrigger('chip');
+              setInspectorGroup(group);
+            }
+          }}
         />
       ))}
     </svg>
@@ -424,6 +433,13 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
         trigger={inspectorTrigger}
         date={date}
         onClose={() => setInspectorGroup(null)}
+      />
+    )}
+    {directDetailCallout && (
+      <StoryDetailModal
+        callout={directDetailCallout}
+        isHistorical={isHistorical}
+        onClose={() => setDirectDetailCallout(null)}
       />
     )}
     </div>
