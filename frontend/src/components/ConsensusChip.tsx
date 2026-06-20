@@ -44,6 +44,7 @@ export function ConsensusChip({ group, x, y, isHistorical = false, onClick, high
     isHistorical ? 'consensus-chip-pill--historical' : '',
     highlightFiled ? 'consensus-chip-pill--emphasis' : '',
     highlightOmitted ? 'consensus-chip-pill--dimmed' : '',
+    group.consensusCount > 1 ? 'consensus-chip-pill--multi' : '',
   ].filter(Boolean).join(' ');
 
   return (
@@ -55,6 +56,7 @@ export function ConsensusChip({ group, x, y, isHistorical = false, onClick, high
           role="button"
           tabIndex={0}
           aria-label={ariaLabel}
+          data-source-count={group.consensusCount}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
         >

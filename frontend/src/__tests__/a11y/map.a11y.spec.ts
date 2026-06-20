@@ -225,7 +225,7 @@ test('consensus view with highlight active — no axe violations', async ({ page
   expect(results.violations, 'axe violations in consensus view with highlight').toEqual([]);
 });
 
-test('consensus chip click → inspector modal — no axe violations', async ({ page, viewport }) => {
+test('consensus chip click → story detail modal — no axe violations', async ({ page, viewport }) => {
   test.skip(isMobile(viewport), 'consensus chip test is desktop-only');
 
   const allSourcesFix = fix('callouts-all-sources.json');
@@ -239,11 +239,11 @@ test('consensus chip click → inspector modal — no axe violations', async ({ 
   await page.waitForSelector('svg.geo-svg', { state: 'visible' });
   await page.waitForTimeout(500);
 
-  // Chips live inside SVG <foreignObject>; the clickable pill is a div[role=button]
+  // Single-source chips open the story detail modal directly (skipping the inspector)
   const chip = page.locator('.consensus-chip-pill').first();
   await chip.waitFor({ state: 'visible' });
   await chip.click();
-  await page.waitForSelector('.inspector-card', { state: 'visible' });
+  await page.waitForSelector('.story-detail-card', { state: 'visible' });
 
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
@@ -253,10 +253,10 @@ test('consensus chip click → inspector modal — no axe violations', async ({ 
     const summary = results.violations
       .map(v => `[${v.impact}] ${v.id}: ${v.description}\n  ${v.nodes.map(n => n.target.join(', ')).join('\n  ')}`)
       .join('\n\n');
-    console.error('Axe violations in inspector modal (chip trigger):\n' + summary);
+    console.error('Axe violations in story detail modal (chip trigger):\n' + summary);
   }
 
-  expect(results.violations, 'axe violations in inspector modal from chip').toEqual([]);
+  expect(results.violations, 'axe violations in story detail modal from chip').toEqual([]);
 });
 
 test('consensus full-size callout click → inspector modal — no axe violations', async ({ page, viewport }) => {
