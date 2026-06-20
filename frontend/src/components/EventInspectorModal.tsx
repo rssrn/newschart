@@ -159,13 +159,13 @@ export function EventInspectorModal({
                 ref={el => setRowRef(source, el)}
                 className="inspector-row inspector-row--filed"
                 onClick={() => handleRowClick(callout, source)}
-                aria-label={`${meta.label}: ${callout.headline}`}
+                aria-label={`${meta.shortLabel}: ${callout.headline}`}
               >
                 <span className="inspector-row-badge">
                   <SourceBadgeHtml source={source} filled={true} size={22} className="consensus-badge--lg" />
                 </span>
                 <div className="inspector-row-content">
-                  <span className="inspector-row-source">{meta.label}</span>
+                  <span className="inspector-row-source">{meta.shortLabel}</span>
                   <span className="inspector-row-headline">{callout.headline}</span>
                 </div>
               </button>
@@ -178,7 +178,7 @@ export function EventInspectorModal({
               <div
                 key={source}
                 className="inspector-row inspector-row--omission"
-                aria-label={`${meta.label}: not covered here`}
+                aria-label={`${meta.shortLabel}: not covered here`}
               >
                 <span className="inspector-row-omission-line">
                   {meta.shortLabel}{flags ? ` · Picked ${flags} instead` : ''}
