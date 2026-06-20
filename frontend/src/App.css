@@ -1265,7 +1265,7 @@ svg {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: var(--text-secondary); /* --text-dim (#475569) fails WCAG AA on dark card bg */
   flex-shrink: 0;
   padding-top: 0.1vw;
 }
