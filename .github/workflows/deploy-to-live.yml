@@ -140,7 +140,9 @@ jobs:
             "cd /home/deploy/newschart && \
              echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin && \
              docker compose pull newschart && \
-             docker compose up -d"
+             docker compose up -d && \
+             cp /home/deploy/newschart/nginx.conf /opt/nginx/conf.d/newschart.conf && \
+             docker compose -f /home/deploy/infra/docker-compose.yml exec nginx nginx -s reload"
 
       - name: Smoke test
         timeout-minutes: 2

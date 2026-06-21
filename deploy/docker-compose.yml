@@ -1,15 +1,4 @@
 services:
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./maintenance.html:/usr/share/nginx/html/maintenance.html:ro
-    depends_on:
-      - newschart
-    restart: unless-stopped
-
   newschart:
     image: ghcr.io/rssrn/newschart:latest
     environment:
@@ -17,4 +6,10 @@ services:
       - SPRING_MONGODB_DATABASE=newschart-prod
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    networks:
+      - proxy
     restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
