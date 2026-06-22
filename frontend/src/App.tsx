@@ -335,23 +335,18 @@ function App(): React.ReactElement {
               />
               All Sources
             </label>
-            {NEWS_SOURCES.map(({ value, label }) => {
-              const notPresent = !presentSources.includes(value);
-              const dateLabel = isToday(selectedDate) ? 'today' : formatShortDate(selectedDate);
-              return (
-                <label key={value} className="source-radio-label" title={notPresent ? `${label} not collected on ${dateLabel}` : undefined}>
-                  <input
-                    type="radio"
-                    name="highlight-source"
-                    value={value}
-                    checked={effectiveHighlightSource === value}
-                    onChange={() => handleHighlightChange(value)}
-                    disabled={notPresent}
-                  />
-                  {label}
-                </label>
-              );
-            })}
+            {NEWS_SOURCES.filter(({ value }) => presentSources.includes(value)).map(({ value, label }) => (
+              <label key={value} className="source-radio-label">
+                <input
+                  type="radio"
+                  name="highlight-source"
+                  value={value}
+                  checked={effectiveHighlightSource === value}
+                  onChange={() => handleHighlightChange(value)}
+                />
+                {label}
+              </label>
+            ))}
           </div>
           )}
           <div className="selector-group">
