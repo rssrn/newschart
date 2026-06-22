@@ -262,6 +262,7 @@ function App(): React.ReactElement {
           <span className="brand-badge-text">NewsChart</span>
           <span className="brand-badge-date">{isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
         </div>
+        <span className="brand-strapline">World news. AI sources.</span>
         <button
           className="mobile-banner-hamburger"
           onClick={() => setMobileSheetOpen(true)}
@@ -285,6 +286,7 @@ function App(): React.ReactElement {
             <span className="brand-badge-text">NewsChart</span>
             <span className="brand-badge-date">{isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate)}</span>
           </div>
+          <span className="brand-strapline">World news. AI sources.</span>
         </div>
 
         {/* Desktop controls overlay */}

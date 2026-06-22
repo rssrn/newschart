@@ -94,6 +94,18 @@ svg {
   line-height: 1;
 }
 
+/* @author Claude Sonnet 4.6 Anthropic */
+.brand-strapline {
+  font-size: 16px;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  padding-left: 14px;
+  border-left: 1px solid var(--blue-border);
+  align-self: center;
+  white-space: nowrap;
+}
+
 .source-selector-overlay {
   position: absolute;
   top: 12px;
@@ -816,6 +828,11 @@ svg {
 
   .mobile-brand-banner .brand-badge-date {
     font-size: 10px;
+  }
+
+  .mobile-brand-banner .brand-strapline {
+    font-size: 13px;
+    padding-left: 10px;
   }
 
   .mobile-banner-hamburger {
