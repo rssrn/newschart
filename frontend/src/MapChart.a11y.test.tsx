@@ -67,14 +67,16 @@ describe('MapChart (App) accessibility', () => {
     expect(await axe(document.body)).toHaveNoViolations();
   });
 
-  // CP6 D25: absent sources get disabled radios with title tooltip — verify no axe violations
-  it('has no axe violations in consensus view with disabled highlight radios (partial-source day)', async () => {
-    // Single-source fixture → radios for absent sources get disabled + title attribute
+  // CP6 D25: absent sources are hidden (not disabled) — verify no axe violations and sources not rendered
+  it('has no axe violations in consensus view with hidden highlight radios (partial-source day)', async () => {
+    // Single-source fixture → radios for absent sources are hidden entirely
     localStorage.setItem('viewMode', 'consensus');
     stubFetch();
     await act(async () => { render(<App />); });
-    const disabledRadios = document.querySelectorAll('input[name="highlight-source"][disabled]');
-    expect(disabledRadios.length).toBeGreaterThan(0);
+    const allHighlightRadios = document.querySelectorAll('input[name="highlight-source"]');
+    // Only present sources + "All Sources" should be rendered; absent sources hidden
+    expect(allHighlightRadios.length).toBeGreaterThan(0);
+    expect(document.querySelectorAll('input[name="highlight-source"][disabled]').length).toBe(0);
     expect(await axe(document.body)).toHaveNoViolations();
   });
 
