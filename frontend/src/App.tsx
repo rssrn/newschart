@@ -228,7 +228,7 @@ function App(): React.ReactElement {
       return `${sourceShortLabel} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
     }
     return sourceShortLabel;
-  }, [viewMode, heatmapStats, source, sourceShortLabel, availableDates, selectedDate, callouts]);
+  }, [viewMode, heatmapStats, source, sourceShortLabel, availableDates, callouts]);
 
 
   // @author Claude Sonnet 4.6 Anthropic
