@@ -211,8 +211,7 @@ function App(): React.ReactElement {
   // @author Claude Sonnet 4.6 Anthropic
   const mobilePillLabel = useMemo(() => {
     if (viewMode === 'consensus') {
-      const dateLabel = isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate);
-      return `Consensus · ${dateLabel} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
+      return `Consensus · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
     }
     if (viewMode === 'heatmap') {
       const stats = heatmapStats ?? [];
@@ -225,11 +224,10 @@ function App(): React.ReactElement {
       }
       return `${sourceShortLabel} · Coverage Map`;
     }
-    const dateLabel = isToday(selectedDate) ? 'Today' : formatShortDate(selectedDate);
     if (callouts.length > 0) {
-      return `${sourceShortLabel} · ${dateLabel} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
+      return `${sourceShortLabel} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
     }
-    return `${sourceShortLabel} · ${dateLabel}`;
+    return sourceShortLabel;
   }, [viewMode, heatmapStats, source, sourceShortLabel, availableDates, selectedDate, callouts]);
 
 
