@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.1] - 2026-06-22
+
+Infrastructure and cost optimisation.
+
+### Changed
+- **Cheaper AI models for Anthropic and xAI** — switched to `claude-haiku-latest` (was Sonnet) and `grok-4.3` (was grok-4.20) to reduce API costs
+- **Nginx moved to shared infrastructure** — newschart compose no longer manages its own nginx; uses the shared homelab nginx reverse proxy instead
+
 ## [0.21.0] - 2026-06-20
 
 Claude and Grok in the frontend; consensus view polish and deploy infrastructure.
