@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2026-06-24
+
+Header polish and UX refinements.
+
+### Added
+- **Strapline in header** — "World news. AI sources." displayed below the header brand badges
+
+### Changed
+- **Unavailable highlight sources hidden** — source options that aren't available for the selected day are now hidden rather than disabled
+- **Date removed from mobile info strip** — date is now shown only in the header badge, not duplicated in the strip below the map
+
+### Fixed
+- **Stale `selectedDate` dependency** — removed from `mobilePillLabel` `useMemo`, preventing stale renders on mobile
+
 ## [0.21.1] - 2026-06-22
 
 Infrastructure and cost optimisation.
