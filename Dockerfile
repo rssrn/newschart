@@ -8,13 +8,14 @@ RUN cd frontend && npm run build
 
 # Stage 2: Build backend (with frontend bundled into classpath:/static/)
 FROM eclipse-temurin:21-jdk-alpine AS backend-build
+ARG APP_VERSION=0.0.1-SNAPSHOT
 WORKDIR /app
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 RUN ./mvnw package -DskipTests -q -Dmaven.repo.local=/root/.m2/repository || true
 COPY src/ src/
 COPY --from=frontend-build /app/frontend/build/ src/main/resources/static/
-RUN ./mvnw package -DskipTests -q && cp target/newschart-*.jar target/app.jar
+RUN ./mvnw package -DskipTests -q -Drevision="$APP_VERSION" && cp target/newschart-*.jar target/app.jar
 
 # Stage 3: Runtime
 # NOTE: SPA routing (serving index.html for non-API paths) requires a backend
