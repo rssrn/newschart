@@ -48,9 +48,9 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 
 ## Screenshots
 
-| Desktop — day view | Desktop — heatmap |
+| Desktop — consensus view | Desktop — heatmap |
 |---|---|
-| ![Desktop day view with three story callouts](docs/screenshots/screenshot-desktop-day-view.png) | ![Desktop heatmap choropleth](docs/screenshots/screenshot-desktop-heatmap.png) |
+| ![Desktop consensus view with story callouts](docs/screenshots/screenshot-desktop-consensus-view.png) | ![Desktop heatmap choropleth](docs/screenshots/screenshot-desktop-heatmap.png) |
 
 | Mobile — heatmap | Desktop — credits |
 |---|---|
