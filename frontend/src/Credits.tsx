@@ -308,7 +308,13 @@ const Credits =(): React.ReactElement => (
           </tr>
         </tbody>
         <tbody>
-          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Database &amp; Cloud Services</th></tr>
+          <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Infrastructure &amp; Cloud Services</th></tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="docker.com" alt="" /></td>
+            <td><a href="https://www.docker.com/" target="_blank" rel="noopener noreferrer">Docker</a></td>
+            <td>Container runtime; the application is containerised and deployed via Docker in production</td>
+            <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
+          </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="mongodb.com" alt="" /></td>
             <td><a href="https://www.mongodb.com/products/platform" target="_blank" rel="noopener noreferrer">MongoDB Atlas</a></td>
@@ -337,6 +343,12 @@ const Credits =(): React.ReactElement => (
             <td className="icon-col"><FaviconImg domain="cloudflare.com" alt="" /></td>
             <td><a href="https://www.cloudflare.com/" target="_blank" rel="noopener noreferrer">Cloudflare</a></td>
             <td>CDN, DDoS protection, and reverse proxy serving the production application</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="hetzner.com" alt="" /></td>
+            <td><a href="https://www.hetzner.com/cloud/" target="_blank" rel="noopener noreferrer">Hetzner Cloud</a></td>
+            <td>VPS hosting the production server</td>
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
         </tbody>
