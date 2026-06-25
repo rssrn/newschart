@@ -190,6 +190,18 @@ const Credits =(): React.ReactElement => (
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
           <tr>
+            <td className="icon-col"><FaviconImg domain="x.ai" alt="" /></td>
+            <td><a href="https://x.ai/" target="_blank" rel="noopener noreferrer">xAI Grok</a></td>
+            <td>AI model used to source and summarise current news stories</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="anthropic.com" alt="" /></td>
+            <td><a href="https://www.anthropic.com/" target="_blank" rel="noopener noreferrer">Anthropic Claude</a></td>
+            <td>AI model used to source and summarise current news stories</td>
+            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+          </tr>
+          <tr>
             <td className="icon-col"><FaviconImg domain="nytimes.com" alt="" /></td>
             <td><a href="https://www.nytimes.com/rss" target="_blank" rel="noopener noreferrer">New York Times RSS</a></td>
             <td>World news RSS feed; used to provide a non-AI-sourced, editorially curated news source for comparison</td>
