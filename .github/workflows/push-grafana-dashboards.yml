@@ -12,47 +12,23 @@ jobs:
   push-dashboards:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          args: --advertise-tags=tag:github-runner
 
-      - name: Push production-tagged dashboards to Grafana
-        env:
-          GRAFANA_URL: http://100.103.218.16:3000
-          GRAFANA_API_TOKEN: ${{ secrets.GRAFANA_API_TOKEN }}
+      - name: Set up SSH key
         run: |
-          pushed=0
-          skipped=0
-          failed=0
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-          for file in grafana/dashboards/*.json; do
-            [ -f "$file" ] || continue
-
-            if jq -e '.tags // [] | contains(["production"])' "$file" > /dev/null; then
-              echo "Pushing $file..."
-              payload=$(jq 'del(.id) | (.. | select(.datasource? and .datasource.uid?) | .datasource.uid) |= null | {dashboard: ., overwrite: true}' "$file")
-              response=$(curl -s -o /tmp/gf_response.json -w "%{http_code}" \
-                -X POST "$GRAFANA_URL/api/dashboards/db" \
-                -H "Authorization: Bearer $GRAFANA_API_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d "$payload")
-              if [ "$response" -eq 200 ]; then
-                echo "  OK (HTTP $response)"
-                pushed=$((pushed + 1))
-              else
-                echo "  FAILED (HTTP $response)"
-                cat /tmp/gf_response.json
-                failed=$((failed + 1))
-              fi
-            else
-              echo "Skipping $file (no 'production' tag)"
-              skipped=$((skipped + 1))
-            fi
-          done
-
-          echo ""
-          echo "Done: $pushed pushed, $skipped skipped, $failed failed"
-          [ "$failed" -eq 0 ] || exit 1
+      - name: Sync dashboards to Grafana
+        run: |
+          rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10" \
+            grafana/dashboards/*.json \
+            deploy@homelab-infra:/opt/grafana/dashboards/apps/newschart/

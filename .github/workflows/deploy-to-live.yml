@@ -146,6 +146,13 @@ jobs:
              cp /home/deploy/newschart/nginx.conf /opt/nginx/conf.d/newschart.conf && \
              docker compose -f /home/deploy/infra/docker-compose.yml exec nginx nginx -s reload"
 
+      - name: Sync Grafana dashboards
+        run: |
+          rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10" \
+            grafana/dashboards/*.json \
+            deploy@homelab-infra:/opt/grafana/dashboards/apps/newschart/
+
       - name: Smoke test
         timeout-minutes: 2
         run: |
