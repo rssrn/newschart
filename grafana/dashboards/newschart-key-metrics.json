@@ -40,7 +40,7 @@
     {
       "icon": "external link",
       "keepTime": true,
-      "title": "NewsChart — Detailed Metrics",
+      "title": "NewsChart \u2014 Detailed Metrics",
       "type": "link",
       "url": "/d/newschart-detail"
     },
@@ -408,7 +408,7 @@
       },
       "id": 7,
       "panels": [],
-      "title": "AI — Google Gemini",
+      "title": "AI \u2014 Google Gemini",
       "type": "row"
     },
     {
@@ -765,7 +765,7 @@
       },
       "id": 21,
       "panels": [],
-      "title": "AI — OpenAI (OpenRouter)",
+      "title": "AI \u2014 OpenAI (OpenRouter)",
       "type": "row"
     },
     {
@@ -823,7 +823,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"openai/.*\"}[$__range]))",
+          "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"openai/.*\"}[$__range]))",
           "refId": "A"
         }
       ],
@@ -885,7 +885,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"openai/.*\", gen_ai_token_type=\"total\"}[$__range]))",
+          "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"openai/.*\", gen_ai_token_type=\"total\"}[$__range]))",
           "refId": "A"
         }
       ],
@@ -955,7 +955,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(gen_ai_client_operation_seconds_sum{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"openai/.*\"}) / sum(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"openai/.*\"})",
+          "expr": "sum(gen_ai_client_operation_seconds_sum{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"openai/.*\"}) / sum(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"openai/.*\"})",
           "instant": true,
           "refId": "A"
         }
@@ -1026,7 +1026,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "max(max_over_time(gen_ai_client_operation_seconds_max{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"openai/.*\"}[24h]))",
+          "expr": "max(max_over_time(gen_ai_client_operation_seconds_max{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"openai/.*\"}[24h]))",
           "instant": true,
           "refId": "A"
         }
@@ -1044,7 +1044,7 @@
       },
       "id": 26,
       "panels": [],
-      "title": "AI — Perplexity (OpenRouter)",
+      "title": "AI \u2014 Perplexity (OpenRouter)",
       "type": "row"
     },
     {
@@ -1102,7 +1102,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"perplexity/.*\"}[$__range]))",
+          "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"perplexity/.*\"}[$__range]))",
           "refId": "A"
         }
       ],
@@ -1164,7 +1164,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"perplexity/.*\", gen_ai_token_type=\"total\"}[$__range]))",
+          "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"perplexity/.*\", gen_ai_token_type=\"total\"}[$__range]))",
           "refId": "A"
         }
       ],
@@ -1234,7 +1234,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "sum(gen_ai_client_operation_seconds_sum{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"perplexity/.*\"}) / sum(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"perplexity/.*\"})",
+          "expr": "sum(gen_ai_client_operation_seconds_sum{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"perplexity/.*\"}) / sum(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"perplexity/.*\"})",
           "instant": true,
           "refId": "A"
         }
@@ -1305,7 +1305,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "max(max_over_time(gen_ai_client_operation_seconds_max{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai_sdk\", gen_ai_request_model=~\"perplexity/.*\"}[24h]))",
+          "expr": "max(max_over_time(gen_ai_client_operation_seconds_max{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"perplexity/.*\"}[24h]))",
           "instant": true,
           "refId": "A"
         }
@@ -1320,6 +1320,564 @@
         "w": 24,
         "x": 0,
         "y": 25
+      },
+      "id": 35,
+      "panels": [],
+      "title": "AI \u2014 Claude (OpenRouter)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 26
+      },
+      "id": 36,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\".*anthropic/.*\"}[$__range]))",
+          "refId": "A"
+        }
+      ],
+      "title": "AI calls",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 26
+      },
+      "id": 37,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\".*anthropic/.*\", gen_ai_token_type=\"total\"}[$__range]))",
+          "refId": "A"
+        }
+      ],
+      "title": "AI tokens",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 26
+      },
+      "id": 38,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "sum(gen_ai_client_operation_seconds_sum{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\".*anthropic/.*\"}) / sum(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\".*anthropic/.*\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "AI avg latency (lifetime)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 26
+      },
+      "id": 39,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "max(max_over_time(gen_ai_client_operation_seconds_max{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\".*anthropic/.*\"}[24h]))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "AI max latency",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 40,
+      "panels": [],
+      "title": "AI \u2014 xAI (OpenRouter)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 31
+      },
+      "id": 41,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "sum(increase(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"x-ai/.*\"}[$__range]))",
+          "refId": "A"
+        }
+      ],
+      "title": "AI calls",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 31
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "sum(increase(gen_ai_client_token_usage_total{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"x-ai/.*\", gen_ai_token_type=\"total\"}[$__range]))",
+          "refId": "A"
+        }
+      ],
+      "title": "AI tokens",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 31
+      },
+      "id": 43,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "sum(gen_ai_client_operation_seconds_sum{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"x-ai/.*\"}) / sum(gen_ai_client_operation_seconds_count{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"x-ai/.*\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "AI avg latency (lifetime)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 31
+      },
+      "id": 44,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "max(max_over_time(gen_ai_client_operation_seconds_max{application=\"$application\", instance=\"$instance\", gen_ai_system=\"openai\", gen_ai_request_model=~\"x-ai/.*\"}[24h]))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "AI max latency",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
       },
       "id": 12,
       "panels": [],
@@ -1354,7 +1912,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 26
+        "y": 36
       },
       "id": 13,
       "options": {
@@ -1424,7 +1982,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 26
+        "y": 36
       },
       "id": 14,
       "options": {
@@ -1494,7 +2052,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 26
+        "y": 36
       },
       "id": 15,
       "options": {
@@ -1566,7 +2124,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 26
+        "y": 36
       },
       "id": 16,
       "options": {
@@ -1606,7 +2164,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 30
+        "y": 40
       },
       "id": 17,
       "panels": [],
@@ -1651,7 +2209,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 31
+        "y": 41
       },
       "id": 18,
       "options": {
@@ -1723,7 +2281,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 31
+        "y": 41
       },
       "id": 19,
       "options": {
@@ -1785,7 +2343,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 31
+        "y": 41
       },
       "id": 20,
       "options": {
@@ -2031,7 +2589,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "NewsChart — Key Metrics",
+  "title": "NewsChart \u2014 Key Metrics",
   "uid": "newschart-key",
   "version": 5,
   "weekStart": ""
