@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0] - 2026-06-26
+
+Observability, credits, and backend housekeeping.
+
+### Added
+- **OpenRouter call cost metadata** — cost per call now stored as metadata for OpenRouter API requests
+- **Key metrics dashboard** — added Claude and xAI rows; fixed `gen_ai_system` label
+- **Version baked into JAR** — Spring Boot JAR now reports release version via Maven `revision` property
+
+### Changed
+- **Credits page** — added xAI Grok, Anthropic Claude, Docker, and Hetzner; renamed section to "Infrastructure & Cloud Services"
+- **Grafana dashboard deploy** — switched to rsync file provisioning (no API calls required)
+- **README** — replaced day view screenshot with consensus view screenshot
+
+### Fixed
+- **Nginx upstream resolution** — fixed using Docker DNS resolver variable
+- **Grafana datasource UID** — corrected in dashboard JSONs
+- **`FindCalloutFiltered`** — uses `Instant` instead of `Date` (cleaner, tests fixed)
+
+### Housekeeping
+- Removed unnecessary `@Autowired` annotations on single-constructor beans
+
 ## [0.22.0] - 2026-06-24
 
 Header polish and UX refinements.
