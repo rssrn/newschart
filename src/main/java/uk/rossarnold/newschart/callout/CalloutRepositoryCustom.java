@@ -1,6 +1,6 @@
 package uk.rossarnold.newschart.callout;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -9,11 +9,10 @@ import java.util.List;
  * {@link CalloutRepositoryCustomImpl} and mixed into {@link CalloutRepository} via
  * Spring Data's fragment-interface convention.
  *
- * @author Claude Opus 4.8 Anthropic
  */
 public interface CalloutRepositoryCustom {
 
-    List<Callout> findCalloutsFiltered(Date start, Date end, CalloutSource source);
+    List<Callout> findCalloutsFiltered(Instant start, Instant end, CalloutSource source);
 
     List<String> findDistinctDaysWithCallouts(CalloutSource source);
 }

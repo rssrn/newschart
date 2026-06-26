@@ -18,7 +18,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.web.reactive.function.client.WebClient;
+import uk.rossarnold.newschart.ai.metadata.MetadataRepository;
 import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.callout.CalloutSource;
 import uk.rossarnold.newschart.geo.Country;
@@ -56,6 +59,21 @@ class OpenRouterGatewayServiceTest {
         @Bean
         MeterRegistry meterRegistry() {
             return new SimpleMeterRegistry();
+        }
+
+        @Bean
+        ThreadPoolTaskScheduler taskScheduler() {
+            return Mockito.mock(ThreadPoolTaskScheduler.class);
+        }
+
+        @Bean(name = "openRouterWebClient")
+        WebClient openRouterWebClient() {
+            return Mockito.mock(WebClient.class);
+        }
+
+        @Bean
+        MetadataRepository metadataRepository() {
+            return Mockito.mock(MetadataRepository.class);
         }
     }
 

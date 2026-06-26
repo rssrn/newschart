@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,10 +67,7 @@ public class CalloutService implements PipelineStep {
         ZonedDateTime startOfDay = date.atStartOfDay(ZoneId.of("UTC"));
         ZonedDateTime endOfDay = startOfDay.plusDays(1);
 
-        Date startDate = Date.from(startOfDay.toInstant());
-        Date endDate = Date.from(endOfDay.toInstant());
-
-        return calloutRepository.findCalloutsFiltered(startDate, endDate, source);
+        return calloutRepository.findCalloutsFiltered(startOfDay.toInstant(), endOfDay.toInstant(), source);
     }
 
     public List<CalloutStats> calloutStatsAllCallouts() {

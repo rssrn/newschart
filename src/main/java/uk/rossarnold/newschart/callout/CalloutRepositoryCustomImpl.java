@@ -9,8 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class CalloutRepositoryCustomImpl implements CalloutRepositoryCustom {
@@ -24,7 +24,7 @@ public class CalloutRepositoryCustomImpl implements CalloutRepositoryCustom {
     record DayResult(@Field("_id") String day) {} // needed to unwrap MongoDB _id wrapper
 
     @Override
-    public List<Callout> findCalloutsFiltered(Date start, Date end, CalloutSource source) {
+    public List<Callout> findCalloutsFiltered(Instant start, Instant end, CalloutSource source) {
         Query query = new Query();
 
         query.addCriteria(Criteria.where("generatedAt").gte(start).lt(end));
