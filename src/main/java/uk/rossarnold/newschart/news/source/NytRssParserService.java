@@ -8,7 +8,6 @@ import uk.rossarnold.newschart.news.highlights.NewsItem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,7 +39,6 @@ public class NytRssParserService implements PipelineStep {
 
     private final CountryFactory countryFactory;
 
-    @Autowired
     public NytRssParserService(CountryFactory countryFactory) throws IllegalStateException {
         this.countryFactory = countryFactory;
 

@@ -2,7 +2,6 @@ package uk.rossarnold.newschart.news;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.rossarnold.newschart.callout.CalloutSource;
 
@@ -18,7 +17,6 @@ public class NewsEntryService {
 
     private final NewsEntryRepository repository;
 
-    @Autowired
     public NewsEntryService(NewsEntryRepository repository) {
         this.repository = repository;
     }

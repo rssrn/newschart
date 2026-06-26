@@ -2,7 +2,6 @@ package uk.rossarnold.newschart.api;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,7 +30,6 @@ public class CalloutController {
 
     private final CalloutService calloutService;
 
-    @Autowired
     public CalloutController(CalloutService calloutService) {
         this.calloutService = calloutService;
     }

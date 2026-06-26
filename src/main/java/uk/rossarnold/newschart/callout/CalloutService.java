@@ -2,7 +2,6 @@ package uk.rossarnold.newschart.callout;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +26,6 @@ public class CalloutService implements PipelineStep {
 
     private final CalloutRepository calloutRepository;
 
-    @Autowired
     public CalloutService(CalloutRepository repository) {
         this.calloutRepository = repository;
     }

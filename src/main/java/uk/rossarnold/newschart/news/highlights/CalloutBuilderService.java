@@ -2,7 +2,6 @@ package uk.rossarnold.newschart.news.highlights;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.rossarnold.newschart.ai.AiSummaryService;
 import uk.rossarnold.newschart.ai.StoryOutline;
@@ -28,7 +27,6 @@ public class CalloutBuilderService implements PipelineStep {
 
     private static final Logger log = LogManager.getLogger(CalloutBuilderService.class);
 
-    @Autowired
     public CalloutBuilderService(AiSummaryService aiSummaryService) {
         this.aiSummaryService = aiSummaryService;
     }

@@ -3,7 +3,6 @@ package uk.rossarnold.newschart.news.source;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,6 @@ public class NytRssIngestionService implements PipelineStep {
     private final Environment environment;
     private final NytRssClient nytRssClient;
 
-    @Autowired
     public NytRssIngestionService(NewsEntryService newsRssService, Environment environment, NytRssClient nytRssClient) {
         this.newsRssService = newsRssService;
         this.environment = environment;

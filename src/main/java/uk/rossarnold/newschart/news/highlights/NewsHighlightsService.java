@@ -2,7 +2,6 @@ package uk.rossarnold.newschart.news.highlights;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.rossarnold.newschart.news.pipeline.PipelineContext;
 import uk.rossarnold.newschart.news.pipeline.PipelineStep;
@@ -16,7 +15,6 @@ public class NewsHighlightsService implements PipelineStep {
 
     private final NewsHighlightsRepository repository;
 
-    @Autowired
     public NewsHighlightsService(NewsHighlightsRepository repository) {
         this.repository = repository;
     }
