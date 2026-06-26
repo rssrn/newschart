@@ -1,5 +1,6 @@
 package uk.rossarnold.newschart.ai;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.openai.errors.BadRequestException;
 import com.openai.errors.InternalServerException;
 import com.openai.errors.OpenAIIoException;
@@ -9,13 +10,21 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import uk.rossarnold.newschart.ai.metadata.Metadata;
+import uk.rossarnold.newschart.ai.metadata.MetadataRepository;
 import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.callout.CalloutType;
 import uk.rossarnold.newschart.callout.LlmCallout;
@@ -29,17 +38,36 @@ import java.util.Optional;
 public class OpenRouterGatewayService {
     private final ChatClient chatClient;
     private final MeterRegistry meterRegistry;
+    private final ThreadPoolTaskScheduler taskScheduler;
+    private final WebClient webClient;
+    private final MetadataRepository metadataRepository;
+
+    record GenerationResponse(GenerationData data) {
+    }
+
+    record GenerationData(@JsonProperty("total_cost") double totalCost) {
+    }
 
     private static final Logger log = LogManager.getLogger(OpenRouterGatewayService.class);
 
     static final String MAIN_SUMMARY_MODEL = "openai/gpt-oss-120b:free";
 
+    // secondary call to get OpenRouter cost data needs a delay since it doesn't populate immediately
+    private static final int GENERATION_CALL_DELAY = 35;
+
     static final String OPENROUTER_GETCALLOUTS_EXHAUSTED = "gemini.getcallouts.exhausted";
     static final String OPENROUTER_SUMMARISESTORIES_EXHAUSTED = "openrouter.summarisestories.exhausted";
 
-    public OpenRouterGatewayService(OpenAiChatModel chatModel, MeterRegistry meterRegistry) {
+    public OpenRouterGatewayService(OpenAiChatModel chatModel,
+                                    MeterRegistry meterRegistry,
+                                    ThreadPoolTaskScheduler taskScheduler,
+                                    @Qualifier("openRouterWebClient") WebClient webClient,
+                                    MetadataRepository metadataRepository) {
         this.chatClient = ChatClient.create(chatModel);
         this.meterRegistry = meterRegistry;
+        this.taskScheduler = taskScheduler;
+        this.webClient = webClient;
+        this.metadataRepository = metadataRepository;
         meterRegistry.counter(OPENROUTER_GETCALLOUTS_EXHAUSTED); // pre-register to expose baseline 0 value
         meterRegistry.counter(OPENROUTER_SUMMARISESTORIES_EXHAUSTED);
     }
@@ -100,12 +128,30 @@ public class OpenRouterGatewayService {
         // and spring doesn't strip it automatically
         var converter = new BeanOutputConverter<>(LlmCalloutList.class);
 
-        String raw = chatClient.prompt()
+        ChatResponse chatResponse = chatClient.prompt()
                 .user(AiPrompts.FIND_NEWS_PROMPT + "\n" + converter.getFormat())
                 .options(OpenAiChatOptions.builder()
                         .model(model))
                 .call()
-                .content();
+                .chatResponse();
+
+        Instant receivedAt = Instant.now();
+
+        if (chatResponse == null) {
+            log.error("Null chatResponse from OpenRouter model {}, skipping", model);
+            return Optional.empty();
+        }
+
+        // schedule cost collection - the underlying response from OpenRouter has cost details
+        // but currently Spring AI doesn't expose it, and it'd be a bit messy to extract
+        // by intercepting the underlying OpenAI SDK raw response.
+        String id = chatResponse.getMetadata().getId();
+        log.info("Scheduling cost metrics collection for {}", id);
+        taskScheduler.schedule(() -> recordMetadata(chatResponse.getMetadata(), receivedAt, model), Instant.now().plusSeconds(GENERATION_CALL_DELAY));
+
+        String raw = Optional.ofNullable(chatResponse.getResult())
+                .map(r -> r.getOutput().getText())
+                .orElse(null);
         if (raw == null) {
             log.error("Got empty result from call to model {}", model);
             return Optional.empty();
@@ -132,6 +178,39 @@ public class OpenRouterGatewayService {
                         .type(CalloutType.NEWS)
                         .build())
                 .toList());
+    }
+
+    /**
+     * Save relevant metadata, including native call to fetch the cost of an earlier OpenRouter chatResponse
+     *
+     */
+    private void recordMetadata(ChatResponseMetadata chatResponseMetadata, Instant responseReceivedAt, String model) {
+        log.info("fetchAndRecordCost {}", chatResponseMetadata.getId());
+
+        Metadata md = new Metadata();
+        md.setId(chatResponseMetadata.getId());
+        md.setModel(model);
+        md.setResponseReceivedAt(responseReceivedAt);
+
+        GenerationResponse response = webClient.get()
+                .uri(u -> u.path("/api/v1/generation").queryParam("id", chatResponseMetadata.getId()).build())
+                .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(),
+                        resp -> resp.bodyToMono(String.class)
+                                .doOnNext(body -> log.error("Cost fetch failed {}: {}", resp.statusCode(), body))
+                                .then(Mono.empty()))
+                .bodyToMono(GenerationResponse.class)
+                .block();
+
+        if (response == null || response.data() == null) {
+            log.warn("No cost data received for generation {}", chatResponseMetadata.getId());
+        } else {
+            log.info("Generation for model {} cost: ${}", model, response.data().totalCost());
+            md.setCostUsd(response.data().totalCost());
+        }
+
+        metadataRepository.save(md);
+
     }
 
     /***
