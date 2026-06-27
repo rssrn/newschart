@@ -143,33 +143,38 @@ const Method = (): React.ReactElement => (
           NewsChart is a way to <strong>compare how different AI models cover the
           news</strong>. Each day, we ask several leading AI models the same simple
           question — "what are today's top three international news stories?" — and
-          plot their answers on a world map. You can flip between models to see which
-          stories each one chose, where in the world they think the action is, and
-          how they summarised it.
+          plot their answers on a world map. The default view shows <strong>all
+          models at once</strong>: one map, every source, so you can see at a glance
+          where they agree and where they diverge.
         </p>
 
         <p>
           It's part news reader, part comparison tool. If you've ever wondered
-          whether ChatGPT, Gemini and Perplexity actually agree on what's important
-          today — or how an AI's picks compare to the front page of a major
-          newspaper — this is a way to see for yourself, side by side.
+          whether ChatGPT, Gemini, Perplexity, Claude and Grok actually agree on
+          what's important today — or how any of their picks compare to the front
+          page of a major newspaper — this is a way to see for yourself, all on the
+          same map.
         </p>
 
         <h3>What you can do with it</h3>
         <ul>
           <li>
-            <strong>Get a quick global news briefing.</strong> Pick a source, glance
-            at the map, read three short summaries. Done in under a minute.
+            <strong>Get a quick global news briefing.</strong> Glance at the map,
+            read the callout summaries. Done in under a minute.
           </li>
           <li>
-            <strong>Compare AI models.</strong> Switch between Google Gemini,
-            Perplexity, ChatGPT and a New York Times baseline for the same day.
-            Where do they agree? Where do they completely miss each other?
+            <strong>See where models agree — and where they don't.</strong> The
+            consensus map shows every source's picks together. Countries covered by
+            two or more sources get a full callout; countries covered by only one
+            appear as a small chip. The pattern of agreement and disagreement is
+            the story.
           </li>
           <li>
-            <strong>See whose worldview is which.</strong> Different models lean on
-            different search engines and training data. Looking at the same date
-            across all four sources tends to make those biases visible.
+            <strong>Drill into a single model's worldview.</strong> Switch to an
+            individual source to see exactly which three stories it chose, and
+            compare that against what the others picked. Different models lean on
+            different search engines and training data, and those biases show up
+            in the selection.
           </li>
           <li>
             <strong>Look back at previous days.</strong> A date timeline lets you
@@ -180,14 +185,15 @@ const Method = (): React.ReactElement => (
 
         <h3>How to use it</h3>
         <p>
-          The map is the main thing. Each story shows up as a small box (a
-          "callout") connected by a line to the country it's about. Click or tap a
-          callout to open the full summary.
+          The map is the main thing. The default view is the consensus map — all
+          sources overlaid at once. Each story appears as a small box (a "callout")
+          connected by a line to the country it's about. Click or tap a callout to
+          open the full summary.
         </p>
         <ul>
           <li>
-            <strong>Change the news source</strong> using the source selector — this
-            switches between the AI models and the NYT baseline.
+            <strong>Switch to an individual source</strong> using the source selector
+            to see just one model's picks for the day.
           </li>
           <li>
             <strong>Change the date</strong> using the date timeline to jump to a
@@ -200,14 +206,14 @@ const Method = (): React.ReactElement => (
           </li>
         </ul>
 
-        <h3>Consensus view: comparing all models at once</h3>
+        <h3>Consensus view: all models on one map</h3>
         <p>
-          Consensus view shows all sources on the same map, one marker per country.
-          Each marker has a row of source badges — a visible badge means that source
-          picked a story in that country; a faded one means it didn't. Hover a badge
-          to see which country that source picked. Countries where two or more sources
-          agree get a full-size callout box. Countries covered by only one source
-          appear as a small clickable chip.
+          Consensus view is the default. It shows all sources on the same map, one
+          marker per country. Each marker has a row of source badges — a visible
+          badge means that source picked a story in that country; a faded one means
+          it didn't. Countries
+          where two or more sources agree get a full-size callout box. Countries
+          covered by only one source appear as a small clickable chip.
         </p>
         <ul>
           <li>
@@ -274,32 +280,28 @@ const Method = (): React.ReactElement => (
         </div>
         <ul>
           <li>
-            <strong>Gemini 2.5 Flash</strong> — used for the Gemini news source
-            with Google Search grounding enabled, giving it a different index
-            than either of the other two LLM sources.
+            <strong>Gemini 2.5 Flash</strong> — uses Google's Search grounding
+            to connect to real-time web content via Google's own index.
           </li>
           <li>
-            <strong>Perplexity Sonar Pro Search</strong> — a search-native model
-            built around live web retrieval and source citations. Provides an
-            independent perspective via Perplexity's own index.
+            <strong>Perplexity Sonar Pro Search</strong> — an agentic search
+            model that plans and executes multi-step research workflows against
+            Perplexity's own index, with citations.
           </li>
           <li>
-            <strong>OpenAI gpt-4o-search-preview</strong> — an independent voice
-            from a third vendor so no single provider's worldview dominates.
-            Routed via OpenRouter alongside Perplexity so the same gateway code
-            handles both.
+            <strong>OpenAI gpt-4o-search-preview</strong> — trained specifically
+            to understand and execute web search queries, grounding answers in
+            current web content with source attribution.
           </li>
           <li>
-            <strong>Anthropic claude-sonnet-4.6</strong> — Claude's native search
-            via OpenRouter, which delegates search decisions to the model itself
-            rather than pre-injecting results. A different retrieval approach to
-            Perplexity and OpenAI.
+            <strong>Anthropic claude-sonnet-4.6</strong> — uses Claude's native
+            web search tool; the model autonomously decides when to search and
+            what to query, with automatic citations.
           </li>
           <li>
-            <strong>xAI grok-4.20</strong> — Grok's native search via OpenRouter,
-            with access to the X/Twitter real-time index alongside standard web
-            sources. Provides a perspective that can surface breaking social-media
-            narratives the other models may not index as quickly.
+            <strong>xAI grok-4.20</strong> — has native integration with both
+            real-time X (Twitter) data and standard web search, with no
+            knowledge cutoff for content on X.
           </li>
           <li>
             <strong>New York Times RSS</strong> — a non-AI baseline. The{' '}
@@ -319,14 +321,10 @@ const Method = (): React.ReactElement => (
         <p>
           The primary selection criterion was native search grounding — a model
           that can't search the live web can't reliably report today's news.
-          Beyond that, practical integration played a role: Perplexity, OpenAI,
-          Claude, and Grok are all accessible via OpenRouter, which lets a single
-          backend gateway handle them without bespoke client code per vendor. Five
-          independent sources is more than enough to make cross-model differences
-          visible — and with meaningfully different retrieval approaches (Google
-          Search, Perplexity's own index, OpenAI's index, Anthropic native search,
-          and Grok's X/Twitter index), the divergences between them tend to be
-          informative rather than random.
+          Five LLM sources with meaningfully different retrieval approaches (Google
+          Search, Perplexity's own index, OpenAI's index, Anthropic's native search
+          tool, and Grok's X/Twitter index) means the divergences between them tend
+          to be informative rather than random.
         </p>
 
         <h3>The prompt</h3>
@@ -370,11 +368,11 @@ const Method = (): React.ReactElement => (
             <strong>Bias.</strong> "Top international stories" is itself an editorial
             judgement, baked into model training data and search rankings. The
             multi-source view is partly a transparency mechanism — you can see when
-            three models agree, and when they don't.
+            sources agree, and when they don't.
           </li>
           <li>
             <strong>Recency vs. training data.</strong> Native search grounding was a
-            selection criterion for all three LLM sources precisely because without
+            selection criterion for all five LLM sources precisely because without
             it, models produce plausible-sounding but stale or invented "today's news"
             from training data.
           </li>
@@ -484,8 +482,8 @@ const Method = (): React.ReactElement => (
         <p>
           Deployments are tag-triggered: pushing a <code>v*</code> tag kicks off the
           deploy workflow, which builds the frontend, runs <code>versions:set</code>{' '}
-          on the Maven project to align the artifact version with the tag, builds the
-          Spring Boot jar, and ships it to the production host via Tailscale.
+          on the Maven project to align the artifact version with the tag, builds a
+          Docker image, and ships it to the production host via Tailscale.
         </p>
 
         <h3>Code quality &amp; testing</h3>
@@ -498,7 +496,7 @@ const Method = (): React.ReactElement => (
           <li>
             <strong>Layout algorithm with a real foundation.</strong> The callout
             placement uses exhaustive candidate enumeration with penalty scoring —
-            based on the Point-Feature Label Placement literature (<a href="https://doi.org/10.1145/212332.212334" target="_blank" rel="noopener noreferrer">Christensen, Marks &amp; Shieber, 1995</a>). Feasible because N ≤ 3 stories per day; correct
+            based on the Point-Feature Label Placement literature (<a href="https://doi.org/10.1145/212332.212334" target="_blank" rel="noopener noreferrer">Christensen, Marks &amp; Shieber, 1995</a>). Feasible because N ≤ 4 stories per day; correct
             because the search space is bounded and every candidate is evaluated.
           </li>
           <li>
@@ -535,9 +533,10 @@ const Method = (): React.ReactElement => (
         <h3>Hosting</h3>
         <ul>
           <li>
-            <strong>Application server.</strong> The Spring Boot jar runs on a
-            self-managed Linux host on Oracle Cloud, fronted by a reverse proxy
-            that terminates TLS and serves the built React bundle as static assets.
+            <strong>Application server.</strong> The application runs as a Docker
+            container on a self-managed Linux host on Hetzner Cloud, fronted by a
+            reverse proxy that terminates TLS and serves the built React bundle as
+            static assets.
           </li>
           <li>
             <strong>Database.</strong>{' '}
