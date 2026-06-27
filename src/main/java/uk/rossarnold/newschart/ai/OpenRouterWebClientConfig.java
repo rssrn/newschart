@@ -11,7 +11,7 @@ public class OpenRouterWebClientConfig {
     @Bean
     public WebClient openRouterWebClient(
             WebClient.Builder builder,
-            @Value("${spring.ai.openai.api-key}") String apiKey) {
+            @Value("${spring.ai.openai.api-key:}") String apiKey) {
         return builder
                 .baseUrl("https://openrouter.ai")
                 .defaultHeader("Authorization", "Bearer " + apiKey)
