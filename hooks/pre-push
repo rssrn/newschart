@@ -4,7 +4,9 @@ PUSHED=$(git diff --name-only HEAD @{u} 2>/dev/null || git diff --name-only HEAD
 
 if echo "$PUSHED" | grep -q '^src/'; then
   echo "Running backend tests..."
-  ./mvnw test -q
+  # Strip API keys so the test environment matches CI (where these vars are absent).
+  # Without this, a locally-set key can mask missing defaults in application.properties.
+  env -u OPENROUTER_API_KEY -u GOOGLE_API_KEY ./mvnw test -q
   STATUS=$?
   if [ $STATUS -ne 0 ]; then
     echo ""
