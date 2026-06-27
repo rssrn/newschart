@@ -47,9 +47,10 @@ export function calculateOffsets(
   projection: MapProjection,
   visibleSvgHeight: number = 600,
   bottomPadding: number = 0,
-  obstaclePoints: { x: number; y: number }[] = []
+  obstaclePoints: { x: number; y: number }[] = [],
+  viewportWidth: number = 800
 ): PositionedCallout[] {
-  return calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints).positioned;
+  return calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints, viewportWidth).positioned;
 }
 
 /**
@@ -64,7 +65,8 @@ export function calculateOffsetsWithDiagnostics(
   projection: MapProjection,
   visibleSvgHeight: number = 600,
   bottomPadding: number = 0,
-  obstaclePoints: { x: number; y: number }[] = []
+  obstaclePoints: { x: number; y: number }[] = [],
+  viewportWidth: number = 800
 ): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
   const empty = (): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } => ({
     positioned: [],
@@ -73,7 +75,7 @@ export function calculateOffsetsWithDiagnostics(
   if (!Array.isArray(callouts) || !projection) return empty();
   if (callouts.length === 0) return empty();
 
-  const _inner = _calculateOffsets(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints);
+  const _inner = _calculateOffsets(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints, viewportWidth);
   return _inner;
 }
 
@@ -83,7 +85,8 @@ function _calculateOffsets(
   projection: MapProjection,
   visibleSvgHeight: number,
   bottomPadding: number,
-  obstaclePoints: Point[] = []
+  obstaclePoints: Point[] = [],
+  viewportWidth: number = 800
 ): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
 
   // --- Coordinate setup ---
@@ -155,6 +158,16 @@ function _calculateOffsets(
   const boundsMinY = TOP_PADDING;
   const boundsMaxY = visibleSvgHeight - RENDERED_HEIGHT - bottomPadding;
 
+  // Top-right exclusion zone: the controls panel (VIEW/HIGHLIGHT/MAP radio buttons) sits at
+  // top-right in HTML space. Convert its approximate pixel footprint to SVG units so callouts
+  // can't be placed underneath it. Apply only on full desktop (≥1024px) where the panel is
+  // wide enough in SVG-coordinate space to cause real overlap. Below that the standard bounds
+  // already constrain placement enough without aggressively cutting off right-side candidates.
+  // Pixel estimates: panel ~210px from right edge (width + 12px margin), ~370px tall.
+  const svgScale = SVG_WIDTH / viewportWidth;
+  const topRightExclXMin = viewportWidth >= 1024 ? SVG_WIDTH - 210 * svgScale : SVG_WIDTH;
+  const topRightExclYMax = viewportWidth >= 1024 ? 370 * svgScale : 0;
+
   // --- Step 2: Generate candidate positions per callout ---
   // 16-way grid (22.5° steps): the extra intermediate angles let a connector thread
   // *between* two neighbouring boxes instead of being forced through one of them —
@@ -186,8 +199,10 @@ function _calculateOffsets(
 
   // Helper: check if a box position is within viewport bounds
   function isWithinBounds(boxX: number, boxY: number): boolean {
-    return boxX >= boundsMinX && boxX <= boundsMaxX &&
-           boxY >= boundsMinY && boxY <= boundsMaxY;
+    if (boxX < boundsMinX || boxX > boundsMaxX || boxY < boundsMinY || boxY > boundsMaxY) return false;
+    // Reject boxes whose right edge overlaps the controls panel area at the top of the viewport
+    if (boxY < topRightExclYMax && boxX + BOX_WIDTH > topRightExclXMin) return false;
+    return true;
   }
 
   // allCandidatesPerNode includes rejected candidates with rejectedReason set (for diagnostics).

@@ -71,6 +71,8 @@ export function runLayout(
     mapProjection,
     vp.visibleSvgHeight,
     vp.bottomPaddingSvg,
+    [],
+    viewport.w,
   );
 
   const evalResult: EvalResult = evaluateLayout(
@@ -144,6 +146,8 @@ export function runTieredLayout(
     mapProjection,
     vp.visibleSvgHeight,
     vp.bottomPaddingSvg,
+    [],
+    viewport.w,
   );
 
   const fullSizeBoxes = fullSizePositioned.map((pc, i) => {

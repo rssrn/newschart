@@ -222,7 +222,7 @@ const boundingBox = useMemo(() => {
 
     const bottomPaddingSvg = bottomReservedPx * (SVG_WIDTH / viewportSize.w);
     if (layoutDiagnostics) {
-      const { positioned, diagnostics } = calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
+      const { positioned, diagnostics } = calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPaddingSvg, obstacles, viewportSize.w);
       console.group('[layoutDiagnostics] Score breakdown');
       diagnostics.nodes.forEach((node, i) => {
         const label = callouts[i]?.country?.name ?? `node ${i}`;
@@ -243,7 +243,7 @@ const boundingBox = useMemo(() => {
       console.groupEnd();
       return positioned;
     }
-    return calculateOffsets(callouts, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
+    return calculateOffsets(callouts, projection, visibleSvgHeight, bottomPaddingSvg, obstacles, viewportSize.w);
   }, [callouts, obstacleCallouts, projection, visibleSvgHeight, bottomReservedPx, viewportSize.w, layoutDiagnostics, precomputedOffsets]);
 
   return (

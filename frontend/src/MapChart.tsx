@@ -256,7 +256,7 @@ const MapChart = ({ source, projectionType, onFetchStatus, date, bottomReservedP
       .map(c => projection([c.country.longitude, c.country.latitude]))
       .filter((pt): pt is [number, number] => pt !== null)
       .map(([x, y]) => ({ x, y }));
-    return calculateOffsets(calloutsInView, projection, visibleSvgHeight, bottomPaddingSvg, obstacles);
+    return calculateOffsets(calloutsInView, projection, visibleSvgHeight, bottomPaddingSvg, obstacles, viewportSize.w);
   }, [viewMode, calloutsInView, obstacleCallouts, projection, visibleSvgHeight, bottomPaddingSvg]);
 
   const placedChips = useMemo(() => {
