@@ -144,7 +144,7 @@ jobs:
              docker compose pull newschart && \
              docker compose up -d && \
              cp /home/deploy/newschart/nginx.conf /opt/nginx/conf.d/newschart.conf && \
-             docker compose -f /home/deploy/infra/docker-compose.yml exec nginx nginx -s reload"
+             docker compose -f /opt/homelab-infra/services/nginx/docker-compose.yml exec nginx nginx -s reload"
 
       - name: Sync Grafana dashboards
         run: |
