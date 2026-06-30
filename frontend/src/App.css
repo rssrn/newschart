@@ -1524,6 +1524,10 @@ svg {
 
 
 @media (max-width: 640px) {
+  .inspector-backdrop {
+    backdrop-filter: none;
+  }
+
   .inspector-card {
     top: auto;
     bottom: 0;
