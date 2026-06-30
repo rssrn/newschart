@@ -1,7 +1,7 @@
 // @author Claude Sonnet 4.6 Anthropic
 import React, { useState } from 'react';
 import { StoryCallout } from './types/news';
-import { ConsensusGroup, pickDisplayCallout } from './utils/consensus';
+import { ConsensusGroup, resolveDisplay } from './utils/consensus';
 import { SOURCE_ORDER, CalloutSource } from './utils/sources';
 import { SourceBadgeHtml } from './components/SourceBadge';
 import { EventInspectorModal } from './components/EventInspectorModal';
@@ -13,6 +13,7 @@ interface MobileConsensusStoryListProps {
   groups: ConsensusGroup[];
   allCallouts: StoryCallout[];
   presentSources: CalloutSource[];
+  highlightSource?: CalloutSource | null;
   isHistorical?: boolean;
   date: string;
 }
@@ -21,6 +22,7 @@ function MobileConsensusStoryList({
   groups,
   allCallouts,
   presentSources,
+  highlightSource = null,
   isHistorical = false,
   date,
 }: MobileConsensusStoryListProps): React.ReactElement | null {
@@ -31,7 +33,7 @@ function MobileConsensusStoryList({
 
   function handleRowClick(group: ConsensusGroup) {
     if (group.consensusCount === 1) {
-      setDirectDetail(pickDisplayCallout(group));
+      setDirectDetail(resolveDisplay(group, highlightSource).callout);
       track('consensus_list_chip_clicked', { country: group.country.name });
     } else {
       setInspectorGroup(group);
@@ -42,12 +44,13 @@ function MobileConsensusStoryList({
   return (
     <div className="mobile-consensus-story-list">
       {groups.map((group) => {
-        const displayCallout = pickDisplayCallout(group);
+        const { callout: displayCallout, highlightFiled } = resolveDisplay(group, highlightSource);
+        const dimmed = highlightSource !== null && !highlightFiled;
         const flag = getCountryFlag(group.country.iso2);
         return (
           <button
             key={group.country.iso2}
-            className="mobile-story-item"
+            className={`mobile-story-item${dimmed ? ' mobile-story-item--dimmed' : ''}`}
             onClick={() => handleRowClick(group)}
             aria-label={`${group.country.name}: ${displayCallout.headline}. Reported by ${group.consensusCount} of ${presentSources.length} sources`}
           >

@@ -570,6 +570,33 @@ function App(): React.ReactElement {
         ))}
         <div className="mobile-sheet-divider" />
         </>)}
+        {viewMode === 'consensus' && (<>
+        <div className="mobile-sheet-divider" />
+        <div className="mobile-sheet-section-title">Highlight</div>
+        <label className="mobile-sheet-radio-label">
+          <input
+            type="radio"
+            name="highlight-source-mobile"
+            value=""
+            checked={effectiveHighlightSource === null}
+            onChange={() => handleHighlightChange(null)}
+          />
+          All Sources
+        </label>
+        {NEWS_SOURCES.filter(({ value }) => presentSources.includes(value)).map(({ value, label }) => (
+          <label key={value} className="mobile-sheet-radio-label">
+            <input
+              type="radio"
+              name="highlight-source-mobile"
+              value={value}
+              checked={effectiveHighlightSource === value}
+              onChange={() => handleHighlightChange(value)}
+            />
+            {label}
+          </label>
+        ))}
+        <div className="mobile-sheet-divider" />
+        </>)}
         <div className="mobile-sheet-section-title">Projection</div>
         {PROJECTION_OPTIONS.map(({ value, label }) => (
           <label key={value} className="mobile-sheet-radio-label">
@@ -638,6 +665,7 @@ function App(): React.ReactElement {
           groups={mobileConsensusGroups}
           allCallouts={callouts}
           presentSources={mobileConsensusPresentSources}
+          highlightSource={effectiveHighlightSource}
           isHistorical={selectedDate !== todayIso()}
           date={selectedDate}
         />

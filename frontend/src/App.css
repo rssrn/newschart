@@ -2072,6 +2072,10 @@ svg {
     border-bottom: none;
   }
 
+  .mobile-story-item--dimmed {
+    filter: saturate(0.4) brightness(0.75);
+  }
+
   .mobile-story-flag {
     font-size: 20px;
     flex-shrink: 0;
