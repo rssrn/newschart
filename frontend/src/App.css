@@ -933,6 +933,7 @@ svg {
 
   /* Pad list bottoms so last items clear the fixed footer */
   .mobile-story-list,
+  .mobile-consensus-story-list,
   .mobile-coverage-list {
     padding-bottom: calc(52px + env(safe-area-inset-bottom));
   }
@@ -2109,6 +2110,37 @@ svg {
   }
 }
 
+/* ── Mobile consensus story list (consensus view) ──────────────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+
+.mobile-consensus-story-list {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mobile-consensus-story-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg-base);
+    border-top: 1px solid rgba(96, 165, 250, 0.1);
+  }
+
+  .mobile-consensus-country-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mobile-consensus-badges {
+    padding: 0;
+    gap: 2px;
+  }
+}
+
 /* ── Mobile coverage ranking list (heatmap view) ───────────────────────────── */
 /* @author Claude Sonnet 4.6 Anthropic */
 
@@ -2131,6 +2163,11 @@ svg {
   .mobile-controls-bar,
   .mobile-date-strip-wrapper {
     flex-shrink: 0;
+  }
+
+  /* Clip the empty southern-ocean area at the bottom of the SVG projection */
+  .map-container {
+    max-height: 63vw;
   }
 
   .mobile-coverage-list {
@@ -2204,6 +2241,26 @@ svg {
     color: var(--text-dim);
     text-align: center;
     border-top: 1px solid rgba(251, 146, 60, 0.06);
+  }
+}
+
+/* ── Mobile plain-badge style (callouts, chips, story list) ────────────────── */
+/* @author Claude Sonnet 4.6 Anthropic */
+@media (max-width: 640px) {
+  .consensus-badge-fill {
+    display: none;
+  }
+
+  .consensus-badge {
+    border-color: transparent !important;
+  }
+
+  .consensus-badge--dark-icon {
+    color: #ffffff !important;
+  }
+
+  .consensus-badge--hollow {
+    opacity: 0.45;
   }
 }
 

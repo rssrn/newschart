@@ -12,6 +12,7 @@ export function SourceBadgeHtml({
   className,
   highlight,
   title,
+  plain = false,
 }: {
   source: CalloutSource;
   filled: boolean;
@@ -21,19 +22,24 @@ export function SourceBadgeHtml({
   /** Hover tooltip text. Defaults to the source label; override (e.g. in a chip)
    *  so hovering a badge shows the chip's headline rather than the model name. */
   title?: string;
+  /** Plain mode: no circle background or border; black icons rendered white. */
+  plain?: boolean;
 }): React.ReactElement {
   const meta = SOURCE_META[source];
   if (!meta) return <></>;
   const hlClass = highlight != null
     ? (source === highlight ? 'consensus-badge--emphasis' : 'consensus-badge--dimmed')
     : '';
+  const darkIconClass = meta.color === '#000000' ? ' consensus-badge--dark-icon' : '';
+  const hollowClass = !filled ? ' consensus-badge--hollow' : '';
+  const iconColor = plain && meta.color === '#000000' ? '#ffffff' : meta.color;
   return (
     <span
       role="img"
-      className={`consensus-badge${className ? ` ${className}` : ''}${hlClass ? ` ${hlClass}` : ''}`}
+      className={`consensus-badge${className ? ` ${className}` : ''}${hlClass ? ` ${hlClass}` : ''}${darkIconClass}${hollowClass}`}
       style={{
-        borderColor: '#ffffff',
-        color: meta.color,
+        borderColor: plain ? 'transparent' : '#ffffff',
+        color: iconColor,
         // Base opacity drives the filed/omitted signal; --dimmed multiplies this
         // var so dimming stays relative (omitted badges stay near-invisible).
         ['--badge-base-opacity']: filled ? 1 : 0.04,
@@ -42,7 +48,7 @@ export function SourceBadgeHtml({
       title={title ?? (filled ? `${meta.shortLabel} picked this country` : `${meta.shortLabel} did not pick this country`)}
       aria-label={`${meta.shortLabel}: ${filled ? 'covered' : 'not covered'}`}
     >
-      <span className="consensus-badge-fill" style={{ backgroundColor: '#ffffff' }} aria-hidden="true" />
+      {!plain && <span className="consensus-badge-fill" style={{ backgroundColor: '#ffffff' }} aria-hidden="true" />}
       {meta.svgPath ? (
         <svg viewBox={meta.svgViewBox ?? '0 0 24 24'} width={size} height={size} fill="currentColor" aria-hidden="true">
           <path d={meta.svgPath} />

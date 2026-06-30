@@ -10,10 +10,11 @@ import { heatmapLegendGradient } from './utils/heatmapUtils';
 import HeatmapCountryModal from './HeatmapCountryModal';
 import ContactModal from './ContactModal';
 import MobileStoryList from './MobileStoryList';
+import MobileConsensusStoryList from './MobileConsensusStoryList';
 import MobileCoverageList from './MobileCoverageList';
 import { ViewMode, VIEW_MODES, NAV } from './constants';
 import { SOURCE_META, SOURCE_ORDER, CalloutSource } from './utils/sources';
-import { groupByCountry, fullSizeTier } from './utils/consensus';
+import { groupByCountry, fullSizeTier, chipTier } from './utils/consensus';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = CalloutSource;
@@ -58,6 +59,18 @@ function App(): React.ReactElement {
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [callouts, setCallouts] = useState<StoryCallout[]>([]);
   const [retryKey, incrementRetryKey] = useReducer((n: number) => n + 1, 0);
+
+  // @author Claude Sonnet 4.6 Anthropic
+  const mobileConsensusPresentSources = useMemo(
+    () => SOURCE_ORDER.filter(src => callouts.some(c => c.source === src)),
+    [callouts]
+  );
+  const mobileConsensusGroups = useMemo(() => {
+    if (viewMode !== 'consensus' || callouts.length === 0) return [];
+    const groups = groupByCountry(callouts);
+    const fullSize = fullSizeTier(groups, 4);
+    return [...fullSize, ...chipTier(groups, fullSize)];
+  }, [viewMode, callouts]);
   const retryCountRef = useRef(0);
 
   // @author Claude Sonnet 4.6 Anthropic
@@ -617,6 +630,17 @@ function App(): React.ReactElement {
       {/* Mobile story list – day view – @author Claude Sonnet 4.6 Anthropic */}
       {viewMode === 'day' && (
         <MobileStoryList callouts={callouts} isHistorical={selectedDate !== todayIso()} />
+      )}
+
+      {/* Mobile story list – consensus view – @author Claude Sonnet 4.6 Anthropic */}
+      {viewMode === 'consensus' && (
+        <MobileConsensusStoryList
+          groups={mobileConsensusGroups}
+          allCallouts={callouts}
+          presentSources={mobileConsensusPresentSources}
+          isHistorical={selectedDate !== todayIso()}
+          date={selectedDate}
+        />
       )}
 
       {/* Mobile coverage ranking list – heatmap view – @author Claude Sonnet 4.6 Anthropic */}
