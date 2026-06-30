@@ -2255,6 +2255,11 @@ svg {
 /* ── Mobile plain-badge style (callouts, chips, story list) ────────────────── */
 /* @author Claude Sonnet 4.6 Anthropic */
 @media (max-width: 640px) {
+  .consensus-chip-pill {
+    transform: scale(2);
+    transform-origin: left center;
+  }
+
   .consensus-badge-fill {
     display: none;
   }
