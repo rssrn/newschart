@@ -207,6 +207,12 @@ const Credits =(): React.ReactElement => (
             <td>World news RSS feed; used to provide a non-AI-sourced, editorially curated news source for comparison</td>
             <td><LicenseBadge variant="nyt" label="NYT Terms of Service" href="https://static01.nyt.com/services/xml/rss/termsconditions.html" /></td>
           </tr>
+          <tr>
+            <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
+            <td><a href="https://github.com/gavinr/world-countries-centroids" target="_blank" rel="noopener noreferrer">world-countries-centroids</a></td>
+            <td>Country centroid coordinates and territory-to-sovereign-state affiliation data, bundled locally as <code>countries.csv</code></td>
+            <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
+          </tr>
         </tbody>
         <tbody>
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Security</th></tr>

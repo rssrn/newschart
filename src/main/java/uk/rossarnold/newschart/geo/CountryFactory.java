@@ -28,6 +28,7 @@ public class CountryFactory {
     @PostConstruct
     public void init() throws IOException {
         // load all countries from static csv
+        // Source: https://github.com/gavinr/world-countries-centroids (MIT), bundled unmodified
         Resource resource = resourceLoader.getResource("classpath:static/countries.csv");
         try (BufferedReader csvReader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
             List<Country> countryList = new CsvToBeanBuilder<Country>(csvReader).withType(Country.class).build().parse();
