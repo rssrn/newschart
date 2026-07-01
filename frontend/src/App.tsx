@@ -224,7 +224,10 @@ function App(): React.ReactElement {
   // @author Claude Sonnet 4.6 Anthropic
   const mobilePillLabel = useMemo(() => {
     if (viewMode === 'consensus') {
-      return `Consensus · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
+      const focusSuffix = effectiveHighlightSource !== null
+        ? ` · ${SOURCE_META[effectiveHighlightSource].shortLabel} focus`
+        : '';
+      return `Consensus${focusSuffix} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
     }
     if (viewMode === 'heatmap') {
       const stats = heatmapStats ?? [];
@@ -241,7 +244,7 @@ function App(): React.ReactElement {
       return `${sourceShortLabel} · ${callouts.length} ${callouts.length === 1 ? 'story' : 'stories'}`;
     }
     return sourceShortLabel;
-  }, [viewMode, heatmapStats, source, sourceShortLabel, availableDates, callouts]);
+  }, [viewMode, heatmapStats, source, sourceShortLabel, availableDates, callouts, effectiveHighlightSource]);
 
 
   // @author Claude Sonnet 4.6 Anthropic
