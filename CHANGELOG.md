@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2026-07-01
+
+Mobile consensus view UX pass.
+
+### Added
+- **Mobile consensus view story list** — dedicated story list layout for consensus view on mobile, with a map gap fix
+- **Highlight section in mobile settings sheet** — surfaces highlight source selection within the mobile settings sheet
+
+### Changed
+- **Mobile consensus chip size doubled** — larger tap targets for easier interaction on touch devices
+- **Desktop callout placement** — excludes the top-right controls-panel area so callouts no longer overlap it
+- **/method and /accessibility pages** — consensus view documented as default, updated model descriptions and factual fixes, reordered a11y test descriptions by impact
+
+### Fixed
+- **Mobile consensus map blur** — removed blur effect behind the story inspector on mobile
+- **Nginx reload path** — corrected compose file path used in the deploy workflow
+- **Pre-push backend tests** — API key env vars stripped to match CI environment
+
 ## [0.23.1] - 2026-06-27
 
 ### Fixed
