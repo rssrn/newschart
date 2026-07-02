@@ -27,7 +27,7 @@
         <url/>
     </scm>
     <properties>
-        <revision>0.24.0</revision>
+        <revision>0.24.1</revision>
         <java.version>21</java.version>
         <!-- Precautionary override: fix Netty 4.2.13.Final security patch (10 CVEs: HTTP smuggling, resource leaks, DNS validation) -->
         <netty.version>4.2.13.Final</netty.version>

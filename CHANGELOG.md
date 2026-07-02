@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.1] - 2026-07-02
+
+### Changed
+- **Analytics** — Umami tracking now points at a self-hosted instance instead of the cloud-hosted one
+- **Dependabot** — updates grouped into one PR per ecosystem, reducing PR noise
+- **Credits page** — credits `world-countries-centroids` (MIT) as the source of country centroid/affiliation data
+- **Mobile consensus chip** — now shows the selected provider's focus (e.g. "Consensus · Perplexity focus · N stories") instead of just the story count
+
 ## [0.24.0] - 2026-07-01
 
 Mobile consensus view UX pass.
