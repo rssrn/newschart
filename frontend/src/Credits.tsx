@@ -132,6 +132,7 @@ const Credits =(): React.ReactElement => (
       .badge-apache     { background: #fef3c7; color: #92400e; }
       .badge-isc        { background: #cffafe; color: #0e7490; }
       .badge-gpl        { background: #fee2e2; color: #991b1b; }
+      .badge-agpl       { background: #fecaca; color: #7f1d1d; }
       .badge-epl        { background: #ede9fe; color: #5b21b6; }
       .badge-acm        { background: #f0f9ff; color: #0369a1; }
       .badge-nyt        { background: #fafafa; color: #374151; border: 1px solid #e5e7eb; }
@@ -354,8 +355,8 @@ const Credits =(): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="umami.is" alt="" /></td>
             <td><a href="https://umami.is/" target="_blank" rel="noopener noreferrer">Umami</a></td>
-            <td>Privacy-friendly, cookie-free web analytics</td>
-            <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
+            <td>Privacy-friendly, cookie-free web analytics; self-hosted</td>
+            <td><LicenseBadge variant="agpl" label="AGPL v3" href="https://opensource.org/license/AGPL-3.0" /></td>
           </tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="cloudflare.com" alt="" /></td>
@@ -453,7 +454,7 @@ const FaviconImg = ({ domain, alt }: { domain: string; alt: string }): React.Rea
   />
 );
 
-type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'epl' | 'acm' | 'nyt' | 'mpl' | 'bsd' | 'artistic';
+type LicenseVariant = 'commercial' | 'mit' | 'apache' | 'isc' | 'gpl' | 'agpl' | 'epl' | 'acm' | 'nyt' | 'mpl' | 'bsd' | 'artistic';
 
 /** @author Claude Sonnet 4.6 Anthropic */
 const LicenseBadge = ({ variant, label, href }: { variant: LicenseVariant; label: string; href?: string }): React.ReactElement => {
