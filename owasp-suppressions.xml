@@ -22,4 +22,16 @@
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.module/jackson-module-kotlin@.*$</packageUrl>
         <cve>CVE-2020-29582</cve>
     </suppress>
+    <!--
+        No fix released yet: CVE-2026-53914 (unsafe deserialization in Kotlin build-cache metadata) is
+        fixed in 2.4.20, but only a 2.4.20-Beta1 exists on Maven Central as of 2026-07-08 - no stable
+        release to upgrade to. Kotlin-stdlib is pulled in transitively via spring-core's optional Kotlin
+        support; this app is pure Java and never touches Kotlin's Gradle build-cache deserialization path,
+        so it isn't reachable at runtime. Revisit once 2.4.20 (or later) reaches GA and remove this suppression.
+    -->
+    <suppress>
+        <notes>No stable fix available yet (2.4.20 is still Beta1); not reachable at runtime in this pure-Java app. Revisit when 2.4.20 GA ships.</notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
+        <cve>CVE-2026-53914</cve>
+    </suppress>
 </suppressions>
