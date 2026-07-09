@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2026-07-09
+
+Frontend error visibility and critical security patching.
+
+### Added
+- **Frontend error reporting via ferrtrap** — uncaught render errors (via a new `ErrorBoundary`) and global window errors/rejections are now posted to the ferrtrap sidecar, so production JS errors are logged and surfaced in Prometheus instead of vanishing silently. Added `?ferrtrap_test=1` URL param to trigger a synthetic error for verifying the pipeline in prod.
+
+### Fixed
+- **Critical CVSS 9+ vulnerabilities** — bumped Spring Boot to 4.0.7 (fixes Spring Framework gadget-deserialization CVE-2026-41855, CVSS 9.8) and overrode Netty to 4.2.15.Final and Tomcat to 11.0.23, closing a DNS cache-poisoning CVE (CVSS 10.0) and further Tomcat CVEs (CVSS 9.1)
+- **Credits page** — corrected Umami license as self-hosted AGPL v3, not commercial
+
 ## [0.24.1] - 2026-07-02
 
 ### Changed
