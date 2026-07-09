@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.1] - 2026-07-09
+
+### Fixed
+- **Ferrtrap 404s** — `/ferrtrap/stamp` was 404ing because `proxy_pass` with a variable upstream (required for Docker DNS re-resolution) disables nginx's automatic location-prefix stripping, so the full `/ferrtrap/` prefix was being forwarded to ferrtrap, which only routes `/stamp`. Added an explicit `rewrite` to strip the prefix before proxying.
+
 ## [0.25.0] - 2026-07-09
 
 Frontend error visibility and critical security patching.

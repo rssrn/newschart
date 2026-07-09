@@ -27,7 +27,7 @@
         <url/>
     </scm>
     <properties>
-        <revision>0.25.0</revision>
+        <revision>0.25.1</revision>
         <java.version>21</java.version>
         <!-- Precautionary override: fix Netty DNS bailiwick validation CVEs (CVE-2026-45674, CVE-2026-47691) patched in 4.2.15.Final -->
         <netty.version>4.2.15.Final</netty.version>
