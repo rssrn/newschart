@@ -11,6 +11,10 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': process.env.BACKEND ?? 'http://localhost:8080',
+      '/ferrtrap': {
+        target: process.env.FERRTRAP_BACKEND ?? 'http://localhost:8085',
+        rewrite: (path) => path.replace(/^\/ferrtrap/, ''),
+      },
     },
   },
   // `vite preview` (used by the layout-test screenshot harness) otherwise inherits
