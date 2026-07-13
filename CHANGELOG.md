@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.3] - 2026-07-13
+
+### Fixed
+- **Container unhealthy / `/actuator/health` 503 on live** — Spring Boot 4.0's rewritten `MongoHealthIndicator` probes every database returned by `listDatabaseNames()`, which fails on MongoDB Atlas (`not authorized on local`), turning the health endpoint into a false-DOWN 503 that the new Docker healthcheck (added in 0.25.2) surfaced as an unhealthy container. Temporarily disabled the Mongo health indicator (`management.health.mongodb.enabled=false`) until the upstream fix ships in Spring Boot 4.0.8 — tracked in #78, which covers reverting the workaround after the upgrade.
+
 ## [0.25.2] - 2026-07-13
 
 Layout robustness and deploy hardening.
