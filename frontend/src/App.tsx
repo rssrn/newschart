@@ -266,6 +266,13 @@ function App(): React.ReactElement {
     return { sourceMax, globalMax, gradient, dateRange, sourceTotalCount };
   })() : null;
 
+  // Space reserved at the bottom of the map for the date strip. Reserved optimistically while
+  // availableDates is still loading (empty) so the map lays out once at its final height rather
+  // than jumping when availableDays resolves and the strip appears. Collapses to 0 only for a
+  // genuine single-day dataset. @author Claude Opus 4.8 Anthropic
+  const mapBottomReservedPx =
+    (viewMode === 'day' || viewMode === 'consensus') && (availableDates.length > 1 || availableDates.length === 0) ? 90 : 0;
+
   return (
     <div className="App">
 
@@ -410,7 +417,7 @@ function App(): React.ReactElement {
             projectionType={projectionType}
             onFetchStatus={handleFetchStatus}
             date={selectedDate}
-            bottomReservedPx={(viewMode === 'day' || viewMode === 'consensus') && availableDates.length > 1 ? 90 : 0}
+            bottomReservedPx={mapBottomReservedPx}
             isHistorical={selectedDate !== todayIso()}
             viewMode={viewMode}
             heatmapStats={heatmapStats ?? []}
