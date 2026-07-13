@@ -140,6 +140,24 @@ function _calculateOffsets(
            ay + RENDERED_HEIGHT + pad > by;
   }
 
+  // Overlap area (including the 10px spacing pad) between two box footprints. Used only in
+  // the soft-fallback pass to rank otherwise-infeasible layouts by how little they overlap.
+  // @author Claude Opus 4.8 Anthropic
+  function boxOverlapArea(ax: number, ay: number, bx: number, by: number): number {
+    const pad = 10;
+    const w = BOX_WIDTH + pad;
+    const h = RENDERED_HEIGHT + pad;
+    const ox = Math.max(0, Math.min(ax + w, bx + w) - Math.max(ax, bx));
+    const oy = Math.max(0, Math.min(ay + h, by + h) - Math.max(ay, by));
+    return ox * oy;
+  }
+
+  // softPass: when the strict pass finds no non-overlapping arrangement, we re-run enumeration
+  // with hard rejects (box overlap, origin-inside-box) converted to large finite penalties so
+  // the algorithm still returns the least-bad spread instead of collapsing every box to origin.
+  // @author Claude Opus 4.8 Anthropic
+  let softPass = false;
+
   // Minimum distance from point p to line segment [a, b].
   // @author Claude Sonnet 4.6 Anthropic
   function distancePointToSegment(p: Point, a: Point, b: Point): number {
@@ -197,18 +215,25 @@ function _calculateOffsets(
     return false;
   }
 
-  // Helper: check if a box position is within viewport bounds
-  function isWithinBounds(boxX: number, boxY: number): boolean {
+  // Helper: check if a box position is within viewport bounds.
+  // relaxed=true (soft fallback pass) keeps the hard on-screen bounds but drops the top-right
+  // controls-panel exclusion — nudging a box under the panel is preferable to overlapping boxes.
+  // @author Claude Opus 4.8 Anthropic
+  function isWithinBounds(boxX: number, boxY: number, relaxed: boolean = false): boolean {
     if (boxX < boundsMinX || boxX > boundsMaxX || boxY < boundsMinY || boxY > boundsMaxY) return false;
     // Reject boxes whose right edge overlaps the controls panel area at the top of the viewport
-    if (boxY < topRightExclYMax && boxX + BOX_WIDTH > topRightExclXMin) return false;
+    if (!relaxed && boxY < topRightExclYMax && boxX + BOX_WIDTH > topRightExclXMin) return false;
     return true;
   }
 
-  // allCandidatesPerNode includes rejected candidates with rejectedReason set (for diagnostics).
-  // candidatesPerNode contains only accepted candidates used for enumeration.
-  const allCandidatesPerNode: CandidateDiag[][] = [];
-  const candidatesPerNode: LayoutCandidate[][] = nodes.map((node, nodeIndex) => {
+  // Build the accepted candidate positions for every node. In the strict pass, candidates that
+  // obscure another callout's origin or fall under the controls panel are filtered out here. In
+  // the relaxed (soft fallback) pass both filters are dropped so enumeration has enough room to
+  // separate the boxes; the dropped constraints become finite penalties during scoring instead.
+  // @author Claude Opus 4.8 Anthropic
+  function buildCandidatesPerNode(relaxed: boolean): { candidates: LayoutCandidate[][]; all: CandidateDiag[][] } {
+    const allNodes: CandidateDiag[][] = [];
+    const candidates = nodes.map((node, nodeIndex) => {
     const accepted: LayoutCandidate[] = [];
     const all: CandidateDiag[] = [];
     for (const dir of DIRECTIONS) {
@@ -216,11 +241,11 @@ function _calculateOffsets(
         const boxX = node.subjectX + Math.cos(dir.angle) * dist - BOX_WIDTH / 2;
         const boxY = node.subjectY + Math.sin(dir.angle) * dist - ANCHOR_Y;
 
-        if (!isWithinBounds(boxX, boxY)) {
+        if (!isWithinBounds(boxX, boxY, relaxed)) {
           all.push({ boxX, boxY, dist, angle: dir.angle, rejectedReason: 'out-of-bounds' });
           continue;
         }
-        if (boxObscuresOrigin(boxX, boxY, nodeIndex)) {
+        if (!relaxed && boxObscuresOrigin(boxX, boxY, nodeIndex)) {
           all.push({ boxX, boxY, dist, angle: dir.angle, rejectedReason: 'obscures-origin' });
           continue;
         }
@@ -228,9 +253,14 @@ function _calculateOffsets(
         accepted.push({ boxX, boxY, dist, angle: dir.angle });
       }
     }
-    allCandidatesPerNode.push(all);
+    allNodes.push(all);
     return accepted;
   });
+    return { candidates, all: allNodes };
+  }
+
+  // Strict candidate set. Reassigned to the relaxed set if the soft fallback pass runs.
+  let { candidates: candidatesPerNode, all: allCandidatesPerNode } = buildCandidatesPerNode(false);
 
   // --- Step 3: Enumerate all combinations and score ---
 
@@ -243,9 +273,12 @@ function _calculateOffsets(
     const ci: Point = { x: pi.boxX + BOX_WIDTH / 2, y: pi.boxY + ANCHOR_Y };
     const cj: Point = { x: pj.boxX + BOX_WIDTH / 2, y: pj.boxY + ANCHOR_Y };
 
-    // Hard reject: box overlap
+    // Hard reject: box overlap (soft pass: large finite penalty scaled by overlap area)
     if (boxesOverlap(pi.boxX, pi.boxY, pj.boxX, pj.boxY)) {
-      return Infinity;
+      if (!softPass) return Infinity;
+      // Weighted well above every other penalty so any non-overlapping pair still wins,
+      // and among overlapping layouts the one with least total overlap area is chosen.
+      return 5000 + boxOverlapArea(pi.boxX, pi.boxY, pj.boxX, pj.boxY) * 2;
     }
 
     let penalty = 0;
@@ -299,9 +332,11 @@ function _calculateOffsets(
       if (k === selfIndex) continue;
       const nk = nodes[k];
       // Hard reject: another callout's origin literally inside this box
+      // (soft pass: large finite penalty instead, so a layout still gets chosen)
       if (nk.subjectX > pi.boxX && nk.subjectX < pi.boxX + BOX_WIDTH &&
           nk.subjectY > pi.boxY && nk.subjectY < pi.boxY + RENDERED_HEIGHT) {
-        return Infinity;
+        if (!softPass) return Infinity;
+        return 3000;
       }
     }
     // Obstacle points (small country dots): hard-reject only if literally inside the box,
@@ -309,7 +344,8 @@ function _calculateOffsets(
     for (const pt of obstaclePoints) {
       if (pt.x > pi.boxX && pt.x < pi.boxX + BOX_WIDTH &&
           pt.y > pi.boxY && pt.y < pi.boxY + RENDERED_HEIGHT) {
-        return Infinity;
+        if (!softPass) return Infinity;
+        return 1500;
       }
     }
 
@@ -394,7 +430,14 @@ function _calculateOffsets(
   let bestPlacements: LayoutCandidate[] | null = null;
   let combinationsEvaluated = 0;
 
-  function enumerate(nodeIndex: number, currentPlacements: LayoutCandidate[]): void {
+  // Branch-and-bound enumeration. partialLB is the score accumulated so far — the sum of every
+  // placed pair's interaction penalty plus each placed box's connector length. Every remaining
+  // scoring term (diagonal bias, origin proximity, obstacle-connector proximity, and the pairs
+  // and lengths still to be added) is non-negative, so partialLB is an admissible lower bound on
+  // any completion. Once it reaches bestScore the whole subtree can be pruned. This makes the
+  // strict pass and the un-pruned soft fallback alike explore only a small fraction of the
+  // cartesian product. @author Claude Opus 4.8 Anthropic
+  function enumerate(nodeIndex: number, currentPlacements: LayoutCandidate[], partialLB: number): void {
     if (nodeIndex === nodes.length) {
       combinationsEvaluated++;
       const score = scoreCombination(currentPlacements);
@@ -405,30 +448,66 @@ function _calculateOffsets(
       return;
     }
 
+    const ni = nodes[nodeIndex];
     const candidates = candidatesPerNode[nodeIndex];
     for (const candidate of candidates) {
-      // Early prune: check overlap with already-placed boxes before recursing
-      let overlaps = false;
-      for (const placement of currentPlacements) {
-        if (boxesOverlap(candidate.boxX, candidate.boxY,
-                         placement.boxX, placement.boxY)) {
-          overlaps = true;
-          break;
-        }
+      // Interaction with the already-placed boxes. scorePairInteraction returns Infinity on box
+      // overlap in the strict pass (hard reject) and a finite area-scaled penalty in the soft
+      // pass — so this single loop both rejects overlaps and drives the lower bound.
+      let added = candidate.dist;
+      let reject = false;
+      for (let k = 0; k < currentPlacements.length; k++) {
+        const pair = scorePairInteraction(k, nodeIndex, currentPlacements[k], candidate, nodes[k], ni);
+        if (pair === Infinity) { reject = true; break; }
+        added += pair;
       }
-      if (overlaps) continue;
+      if (reject) continue;
+
+      const newLB = partialLB + added;
+      if (newLB >= bestScore) continue; // branch-and-bound prune
 
       currentPlacements.push(candidate);
-      enumerate(nodeIndex + 1, currentPlacements);
+      enumerate(nodeIndex + 1, currentPlacements, newLB);
       currentPlacements.pop();
     }
   }
 
-  enumerate(0, []);
+  enumerate(0, [], 0);
+
+  // Graceful fallback: the strict pass found no non-overlapping arrangement — clustered origins
+  // squeezed against the viewport bounds / controls-panel exclusion zone, most common in the
+  // Natural Earth projection on busy news days. Rather than collapsing every box onto its origin
+  // (the old dx:0/dy:-80 behaviour, which stacked the boxes), retry with progressively relaxed
+  // constraints so we always return a readable, least-overlapping spread. @author Claude Opus 4.8 Anthropic
+  if (!bestPlacements) {
+    // Relaxed candidate set: drop the controls-panel exclusion and obscures-origin filter to give
+    // enumeration room to separate the boxes. A safety cap on the nearest positions per node keeps
+    // the worst-case cartesian product bounded; branch-and-bound already prunes it to a tiny
+    // fraction in practice. Nearest-first keeps the short, low-crossing placements the scorer
+    // prefers anyway. @author Claude Opus 4.8 Anthropic
+    const CANDIDATE_CAP = 48;
+    const relaxed = buildCandidatesPerNode(true);
+    candidatesPerNode = relaxed.candidates.map(cs =>
+      cs.length <= CANDIDATE_CAP ? cs : [...cs].sort((a, b) => a.dist - b.dist).slice(0, CANDIDATE_CAP));
+    allCandidatesPerNode = relaxed.all;
+
+    // Stage 2 — relaxed candidates, still requiring non-overlap (box overlap is a hard reject).
+    enumerate(0, [], 0);
+
+    // Stage 3 — still nothing: overlap is genuinely unavoidable in this viewport. Allow it as a
+    // finite penalty (softPass) so the least-overlapping spread is chosen rather than collapsing
+    // every box onto its origin. @author Claude Opus 4.8 Anthropic
+    if (!bestPlacements) {
+      softPass = true;
+      bestScore = Infinity;
+      console.warn(`[exhaustive] No non-overlapping layout for ${nodes.length} boxes in this viewport — using least-overlap soft fallback.`);
+      enumerate(0, [], 0);
+    }
+  }
 
   // --- Step 4: Convert to dx/dy offsets ---
   if (!bestPlacements) {
-    console.warn(`[exhaustive] No valid combination found (${nodes.length} nodes, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}). Using zero offsets.`);
+    console.warn(`[exhaustive] No valid combination found even in soft pass (${nodes.length} nodes, candidates per node: ${candidatesPerNode.map(c => c.length).join(',')}). Using zero offsets.`);
     const fallback = callouts.map((original) => ({ ...original, dx: 0, dy: -80 }));
     return {
       positioned: fallback,
