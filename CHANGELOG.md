@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.2] - 2026-07-13
+
+Layout robustness and deploy hardening.
+
+### Fixed
+- **Infeasible consensus layouts no longer stack** — replaced the catastrophic fallback (which piled all four consensus callout boxes onto their origins when no non-overlapping arrangement existed, most often in Natural Earth on busy news days) with a staged relaxed/soft fallback plus branch-and-bound pruning. Stage 2 retries with the controls-panel exclusion and obscures-origin filters dropped; stage 3 converts hard rejects to area-scaled penalties and picks the least-overlapping spread, always returning a readable layout instead of a stack. Branch-and-bound pruning cuts search time (~590ms → ~100ms).
+- **Map layout jump on load** — the date-strip space (90px) is now reserved optimistically while the available-days fetch is still in flight, so the map lays out once at its final height instead of visibly re-laying out ~0.4s after first paint. Collapses to 0 only for a genuine single-day dataset.
+
+### Changed
+- **Deploy** — added a healthcheck to the newschart compose service.
+
 ## [0.25.1] - 2026-07-09
 
 ### Fixed
