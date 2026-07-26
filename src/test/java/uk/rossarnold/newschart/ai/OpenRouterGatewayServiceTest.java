@@ -86,7 +86,7 @@ class OpenRouterGatewayServiceTest {
     @BeforeEach
     void resetMock() {
         Mockito.reset(openAiChatModel);
-        when(openAiChatModel.getDefaultOptions())
+        when(openAiChatModel.getOptions())
                 .thenReturn(OpenAiChatOptions.builder().model("test-model").build());
     }
 
