@@ -66,7 +66,7 @@ class GeminiGatewayServiceTest {
     @BeforeEach
     void resetMock() {
         Mockito.reset(googleGenAiChatModel);
-        when(googleGenAiChatModel.getDefaultOptions())
+        when(googleGenAiChatModel.getOptions())
                 .thenReturn(GoogleGenAiChatOptions.builder().model("test-model").build());
     }
 
