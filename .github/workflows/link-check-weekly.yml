@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Check links in source files (strict)
-        uses: lycheeverse/lychee-action@v2.8.0
+        uses: lycheeverse/lychee-action@v2.9.0
         with:
           args: >
             --verbose
@@ -33,7 +33,7 @@ jobs:
       # connections at the network level (OS error 104) rather than returning
       # a 403/999, so --accept cannot suppress them. Links are stable enough to skip.
       - name: Check bot-blocking links (visibility only, non-failing)
-        uses: lycheeverse/lychee-action@v2.8.0
+        uses: lycheeverse/lychee-action@v2.9.0
         with:
           args: >
             --verbose
