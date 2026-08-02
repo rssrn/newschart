@@ -7,30 +7,37 @@
     <suppress>
         <notes>
             CVEs for MongoDB Server (database) incorrectly matched against Spring Boot Data MongoDB (Java client).
-            Spring Boot Data MongoDB 4.0.1 is a Spring Framework module, not MongoDB Server 4.0.1.
+            These artifacts are Spring Boot modules and carry Spring Boot's version, which the NVD matcher
+            mistakes for a MongoDB Server version. Deliberately version-agnostic: an exact-version regex here
+            (previously @4.0.1) silently stopped matching the moment Spring Boot was upgraded, letting the
+            false positives resurface.
         </notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring-boot.*mongodb.*@4\.0\.1$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring-boot.*mongodb.*@.*$</packageUrl>
         <vulnerabilityName regex="true">^CVE-.*$</vulnerabilityName>
         <cpe>cpe:/a:mongodb:mongodb</cpe>
     </suppress>
     <!--
         False positive: CVE-2020-29582 affects Kotlin before 1.4.21 (incorrect default permissions in temp files).
-        We use Kotlin 2.2.21 (via jackson-module-kotlin) which is well past the fix.
+        Every Kotlin artifact we resolve is well past that: 2.3.21 for kotlin-stdlib/-jdk7/-jdk8/-reflect,
+        and 1.9.10 for the kotlin-stdlib-common straggler.
+        This rule previously targeted com.fasterxml.jackson.module/jackson-module-kotlin and recorded
+        "zero matches" on every scan - the CVE actually matches the org.jetbrains.kotlin coordinates.
     -->
     <suppress>
-        <notes>Fixed in Kotlin 1.4.21; we use 2.2.21 via jackson-module-kotlin.</notes>
-        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.module/jackson-module-kotlin@.*$</packageUrl>
+        <notes>Fixed in Kotlin 1.4.21; every Kotlin artifact we resolve is far past it. Version-agnostic by design.</notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
         <cve>CVE-2020-29582</cve>
     </suppress>
     <!--
         No fix released yet: CVE-2026-53914 (unsafe deserialization in Kotlin build-cache metadata) is
-        fixed in 2.4.20, but only a 2.4.20-Beta1 exists on Maven Central as of 2026-07-08 - no stable
-        release to upgrade to. Kotlin-stdlib is pulled in transitively via spring-core's optional Kotlin
-        support; this app is pure Java and never touches Kotlin's Gradle build-cache deserialization path,
-        so it isn't reachable at runtime. Revisit once 2.4.20 (or later) reaches GA and remove this suppression.
+        fixed in 2.4.20, but as of 2026-08-02 Maven Central's latest is still only 2.4.20-Beta2 - no stable
+        release to upgrade to. Kotlin arrives transitively via spring-ai-starter-model-openai -> kotlin-reflect
+        -> kotlin-stdlib (2.3.21); this app is pure Java and never touches Kotlin's Gradle build-cache
+        deserialization path, so it isn't reachable at runtime. Revisit once 2.4.20 (or later) reaches GA
+        and remove this suppression.
     -->
     <suppress>
-        <notes>No stable fix available yet (2.4.20 is still Beta1); not reachable at runtime in this pure-Java app. Revisit when 2.4.20 GA ships.</notes>
+        <notes>No stable fix available yet (2.4.20 is still at Beta2); not reachable at runtime in this pure-Java app. Revisit when 2.4.20 GA ships.</notes>
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
         <cve>CVE-2026-53914</cve>
     </suppress>
