@@ -23,9 +23,14 @@ Getty's API was verified against its live OpenAPI spec: it supports **date limit
 (day granularity), **free-text `phrase` search**, **quality/relevance ranking**, a **`news`
 editorial segment filter**, and — critically — **programmatic embed retrieval**
 (`embed_content_only` + `uri_oembed`). Two caveats: there is **no structured geographic
-filter**, so "country X" is a free-text heuristic; and **the API needs an approved key**
-(~1–3 business days), so we can't test anything today. **Apply for the key now** — it's the
-long pole. Full detail under Option 4.
+filter**, so "country X" is a free-text heuristic; and **search needs an approved key**
+(~1–3 business days). Getty publishes **no pricing tiers at all** — API access is account-rep
+gated — but an **Embed Key** ("search for and embed from over 40 million embeddable images") is
+the free, licence-agreement-free path that fits us.
+
+**Usefully, oEmbed itself needs no key** — verified working unauthenticated today — so the modal
+display layer can be built and finished while the search key application is in flight. Full
+detail under Option 4.
 
 **NYT RSS (Option 1) is blocked pending permission**, despite being technically trivial: the
 feed we already download carries `media:content` + `media:credit` + `media:description` on
@@ -98,6 +103,10 @@ the right cluster is interaction affordance. An image indicator belongs with the
 - At 12px a photo is unreadable as an image; it reads as a coloured dot. A generic icon may
   communicate "photo available" *better* than a real thumbnail. Worth prototyping both — the
   honest answer may be that the thumbnail idea resolves into an icon.
+- **If the source is Getty, it must be an icon, not a real thumbnail.** Getty's oEmbed exposes a
+  plain `thumbnail_url` JPEG, but using it outside the embed widget strips the branding and
+  credit the free licence depends on — see "Caveat 2" under Option 4. An icon avoids the
+  question entirely.
 - Only render it when an image actually exists, or it stops being informative.
 
 **Also needs:** an `aria-label` update (currently "…Press Enter to expand.") to mention the
@@ -307,9 +316,88 @@ GET /v3/search/images/editorial
 "find the event, then pull its images" may be a far better matching primitive than raw free-text
 image search, and could sidestep the relevance problem that is now the main risk.
 
-### Access status — key required, not instant
+### Pricing and access tiers
 
-**We cannot call the API today.** Verified live on 2026-08-02:
+**Getty publishes no API pricing.** There is no self-serve plan page, no free/pro/enterprise
+ladder, no per-call rate card. The developer docs simply say: *"Please contact your Getty Images
+account rep to discuss API access and licensing options"* and *"Please have your client contact
+their Getty Images account rep to obtain an API key that is connected to their license
+agreement."* Rate limits are *"configured when a customer is initially setup to use the API"* —
+i.e. negotiated per account, not published.
+
+**Two key types are documented, and the second is the one we want:**
+
+| Key type | Purpose |
+|---|---|
+| **Test Key** | *"Use to test Getty Images API functionality including: image search and metadata, download, and account management."* |
+| **Embed Key** | *"Use to search for and embed from over 40 million embeddable images."* |
+
+The **Embed Key** maps exactly onto our use case — search + embed, no download, no licensing
+agreement implied. Neither key has published limits; both go through the same application.
+
+**Image licensing costs are a separate matter and don't apply to us.** Getty's paid licence
+models are RF (priced by file size), RR and RM (priced by usage). Those govern *downloading and
+using* an asset. **The embed route sidesteps this entirely** — embedding is free for
+non-commercial use, which is why it's the recommendation. If we ever needed to host the actual
+image file, we'd be into negotiated licensing.
+
+### ⭐ oEmbed works right now, with no key at all
+
+**Verified live on 2026-08-02.** The oEmbed endpoint is unauthenticated:
+
+```
+curl --get --data-urlencode "url=https://www.gettyimages.com/detail/463371235" \
+     https://embed.gettyimages.com/oembed
+```
+
+returns `HTTP 200` with a complete payload — no `Api-Key`, no OAuth token. (A malformed `url`
+gives a *validation* error, not `401`, confirming auth isn't being checked.)
+
+Response fields include everything an attribution block needs:
+
+| Field | Example |
+|---|---|
+| `html` | the embed snippet (see caveat below) |
+| `width` / `height` | `594` × `354` |
+| `title`, `caption` | full editorial caption |
+| `photographer` | `Gabe Ginsberg` |
+| `collection` | `FilmMagic` |
+| `thumbnail_url` | `media.gettyimages.com/id/…?s=170x170&k=20&c=…` (170×101) |
+| `terms_of_use_url` | Getty's terms |
+
+**This splits the access problem in two, and materially de-risks the plan:**
+
+- **Rendering an embed — available today, no key, no approval.** If we can obtain an asset ID by
+  any means, we can display it immediately.
+- **Searching for the right asset ID — still needs the approved key.** This remains the blocker
+  for automation, but it is now the *only* blocker.
+
+A useful consequence: we can prototype the modal display end-to-end with hardcoded asset IDs
+**before** the key arrives, and have the display layer finished by the time search unblocks.
+
+**Caveat 1 — the embed is a JS widget, not a plain iframe.** The returned `html` is an `<a>`
+tag plus inline `<script>`, which loads `//embed-cdn.gettyimages.com/widgets.js` and calls
+`gie.widgets.load({...})` with a signed `sig` token. Implications:
+
+- **React can't just `dangerouslySetInnerHTML` it** — injected `<script>` tags don't execute.
+  Needs deliberate script-loading, or building our own `<iframe>` against the documented embed
+  URL.
+- **CSP**: requires allowing `embed-cdn.gettyimages.com` as a script source.
+- Third-party JS in the modal has privacy/tracking implications worth a conscious decision,
+  given the site is otherwise light on external scripts.
+
+**Caveat 2 — do NOT use `thumbnail_url` directly.** It's tempting for the ≤12px header
+affordance, since it's a plain JPEG URL. But the free embed licence covers *the embed widget*,
+with its Getty branding, photographer credit and click-through intact. Extracting the bare JPEG
+and rendering it ourselves strips exactly what the licence is exchanging for free use, and puts
+us back in the same inferred-permission territory that blocked Option 1 — this time against a
+party with a notably active legal history around image rights. **For the header affordance, use
+a generic icon, not a real Getty thumbnail.**
+
+### Access status — key required for search, not instant
+
+**We cannot call the *search* API today** (but see oEmbed above — display needs no key).
+Verified live on 2026-08-02:
 
 ```
 GET /v3/search/images/editorial?phrase=Iran&… → HTTP 401 {"message":"Unauthorized"}
@@ -326,8 +414,9 @@ GET /v3/search/images/editorial?phrase=Iran&… → HTTP 401 {"message":"Unautho
   Whether search needs only the key or also a token resolves itself once we have credentials.
 - **Rate limits:** not documented publicly. Unknown until we have an account.
 
-**Action: apply for the key now.** It is the long pole — the relevance trial that decides
-whether this whole path works can't start until approval lands.
+**Action: apply for the Embed Key now.** It is the long pole for *search* — the relevance trial
+that decides whether this path works can't start until approval lands. Meanwhile the display
+layer can be built against unauthenticated oEmbed with hardcoded asset IDs.
 
 ---
 
@@ -451,7 +540,14 @@ With display settled, the plan is:
   location fields? Options: country name in `phrase`, or an extra `ImageDetail` fetch per
   candidate to check `country` (costly — watch rate limits).
 - Does the oEmbed output's fixed sizing fit the modal's responsive breakpoints cleanly?
-- What are the rate limits? Undocumented; affects whether per-story lookups are viable at all.
+- What are the rate limits? Undocumented and set per-account at setup; affects whether per-story
+  lookups are viable at all. Ask during the application.
+- Does the Embed Key permit the `/v3/search/images/editorial` endpoint specifically, or only a
+  narrower embed-oriented search? Its description says "search for and embed", but confirm.
+- Build the modal display layer now against unauthenticated oEmbed + hardcoded asset IDs — this
+  is unblocked today and de-risks the integration ahead of key approval.
+- Decide how to render the JS widget in React (script injection vs. hand-built iframe) and
+  whether to accept `embed-cdn.gettyimages.com` in CSP.
 
 - ~~Does Getty expose embed codes programmatically, or is the embed flow browser-only?~~
   **Resolved — programmatic.** `embed_content_only` search filter plus a `uri_oembed` field on
