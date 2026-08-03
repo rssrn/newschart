@@ -406,17 +406,37 @@ GET /v3/search/images/editorial?phrase=Iran&… → HTTP 401 {"message":"Unautho
 - **Auth schemes** (from the spec): `Api-Key` (header) and/or `OAuth2` against
   `https://authentication.gettyimages.com/oauth2/token`, supporting client-credentials,
   password and authorization-code flows. Client-credentials suits a backend scheduler.
-- **Registration:** <https://developers.gettyimages.com/> — "Get API Key" / "Apply for API
-  Access". Reportedly **requires application review, ~1–3 business days**. This is *not*
-  self-serve like the Guardian's key.
+- **Registration: there is no self-serve signup.** Corrected 2026-08-03 — the earlier claim that
+  <https://developers.gettyimages.com/> carries a "Get API Key" / "Apply for API Access" button is
+  **wrong**; that site is documentation only and has no registration CTA anywhere on it. The
+  self-serve developer portal it described was Getty's old Mashery instance at
+  `developer.gettyimages.com` (note: singular `developer`), which is **retired — `/member/register`
+  returns HTTP 404**. The two-key-type table above survives only in third-party GitHub mirrors of
+  those retired Mashery docs, so treat "Embed Key" as historical terminology that Getty no longer
+  surfaces publicly.
+- **The only live path is sales contact**, from <https://www.gettyimages.co.uk/solutions/api>:
+  - <https://engage.gettyimages.com/api-contact> — "Get started with our API" form. Asks country
+    plus an integration-method checkbox (Platform Partnerships / Access Content With an Existing
+    Subscription / Content Integration and Promotion / Other). No developer, free or embed-only
+    option. **Was returning "Unable to submit form at this time" on 2026-08-03.**
+  - <https://www.gettyimages.com/enterprise/contact-sales> — "I'm ready to discuss plans and pricing".
+  - The page also says: *"If your company has an existing Getty Images agreement, contact your
+    Account Manager and ask for API access."*
 - **Unresolved:** the spec lists `Api-Key` and `OAuth2` as alternative schemes, but Getty's
   Getting Started example sends both together (`Authorization: Bearer … -H Api-Key: …`).
   Whether search needs only the key or also a token resolves itself once we have credentials.
 - **Rate limits:** not documented publicly. Unknown until we have an account.
 
-**Action: apply for the Embed Key now.** It is the long pole for *search* — the relevance trial
-that decides whether this path works can't start until approval lands. Meanwhile the display
-layer can be built against unauthenticated oEmbed with hardcoded asset IDs.
+**Action (revised 2026-08-03): there is nothing to apply *to*.** The Embed Key application route
+described above no longer exists. Getting search access means entering a B2B sales conversation
+with no published pricing, an unknown timeline and no evidence a free embed-only tier is still
+offered — and the one contact form is currently erroring. That makes Getty search a much weaker
+bet than originally assessed.
+
+What is unaffected: **oEmbed still needs no key**, so the display layer remains buildable now
+against hardcoded asset IDs. The open question is no longer "when does the key land?" but "how do
+we pick an asset ID per story without Getty search?" — which should be weighed against the other
+options in the comparison table before spending more on this path.
 
 ---
 
