@@ -170,6 +170,11 @@
                     <ossIndexUsername>${env.OSS_INDEX_USERNAME}</ossIndexUsername>
                     <ossIndexPassword>${env.OSS_INDEX_PASSWORD}</ossIndexPassword>
                     <nvdApiKey>${nvd.api.key}</nvdApiKey>
+                    <!-- Bulk-load CVEs from NIST's static feeds rather than paging the NVD API ~180
+                         times. Since NVD's 2026-06-17 schema change touched ~95% of records, the API
+                         has been overloaded and cold updates crawl (see #89). The API is still used
+                         for the recent delta. {0} is the year placeholder. -->
+                    <nvdDatafeedUrl>https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-{0}.json.gz</nvdDatafeedUrl>
                     <suppressionFile>${project.basedir}/owasp-suppressions.xml</suppressionFile>
                 </configuration>
                 <executions>
