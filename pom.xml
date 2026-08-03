@@ -29,11 +29,15 @@
     <properties>
         <revision>0.25.3</revision>
         <java.version>21</java.version>
-        <!-- Precautionary override: fix Netty DNS bailiwick validation CVEs (CVE-2026-45674, CVE-2026-47691) patched in 4.2.15.Final -->
-        <netty.version>4.2.15.Final</netty.version>
-        <!-- Override: fix 2 CRITICAL Tomcat CVEs (CVE-2026-55276, CVE-2026-53434) patched in 11.0.23 -->
-        <tomcat.version>11.0.23</tomcat.version>
-        <micrometer.version>1.17.0</micrometer.version>
+        <!-- Override: keep Netty one patch ahead of Boot's managed 4.2.15.Final. Originally pinned for DNS bailiwick CVEs
+             (CVE-2026-45674, CVE-2026-47691); raised to 4.2.16.Final for CVE-2026-56820 (OCSP CertificateID validation,
+             NVD 9.1 CRITICAL), which affects 4.2.0.Final through 4.2.15.Final. -->
+        <netty.version>4.2.16.Final</netty.version>
+        <!-- Override: keep Tomcat one patch ahead of Boot's managed 11.0.22 and raise past 11.0.23. 11.0.23 fixed
+             CVE-2026-55276, CVE-2026-53434 and CVE-2026-55956 (Tomcat rates these Low/Low/Moderate; NVD scores
+             55276/53434 at 9.1 CRITICAL). 11.0.24 fixes CVE-2026-59083 and CVE-2026-59084 (Tomcat: Low; NVD: 9.1
+             CRITICAL), both in components this app does not use (RewriteValve, EncryptInterceptor clustering). -->
+        <tomcat.version>11.0.24</tomcat.version>
         <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
         <ossindex.username>${env.OSS_INDEX_USERNAME}</ossindex.username>
         <ossindex.password>${env.OSS_INDEX_PASSWORD}</ossindex.password>
