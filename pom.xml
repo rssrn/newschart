@@ -39,8 +39,6 @@
              CRITICAL), both in components this app does not use (RewriteValve, EncryptInterceptor clustering). -->
         <tomcat.version>11.0.24</tomcat.version>
         <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
-        <ossindex.username>${env.OSS_INDEX_USERNAME}</ossindex.username>
-        <ossindex.password>${env.OSS_INDEX_PASSWORD}</ossindex.password>
     </properties>
     <dependencyManagement>
       <dependencies>
@@ -166,7 +164,8 @@
                 <configuration>
                     <failBuildOnCVSS>9</failBuildOnCVSS>
                     <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                    <ossIndexAnalyzerUrl>https://api.guide.sonatype.com</ossIndexAnalyzerUrl>
+                    <!-- ossIndexAnalyzerUrl is not set: dependency-check-core 12.2.2 already
+                         defaults analyzer.ossindex.url to https://api.guide.sonatype.com. -->
                     <ossIndexUsername>${env.OSS_INDEX_USERNAME}</ossIndexUsername>
                     <ossIndexPassword>${env.OSS_INDEX_PASSWORD}</ossIndexPassword>
                     <nvdApiKey>${nvd.api.key}</nvdApiKey>
