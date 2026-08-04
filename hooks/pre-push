@@ -53,6 +53,17 @@ if echo "$PUSHED" | grep -q '^frontend/'; then
   fi
 
   if echo "$PUSHED" | grep -q -E '^(frontend/src|frontend/index\.html)'; then
+    # Playwright pins a new browser build with most version bumps, so an existing
+    # clone silently loses its binary on upgrade and the a11y suite then fails with
+    # "Executable doesn't exist" on every test. Silent no-op (~1s) when present.
+    npx playwright install chromium
+    STATUS=$?
+    if [ $STATUS -ne 0 ]; then
+      echo ""
+      echo "Failed to install the Playwright browser. Run 'npx playwright install chromium' in frontend/ for details."
+      exit 1
+    fi
+
     echo "Running map accessibility tests..."
     npm run test:a11y -- --grep-invert="/method|/credits|/accessibility"
     STATUS=$?
