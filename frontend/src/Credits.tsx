@@ -224,7 +224,7 @@ const Credits =(): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="owasp.org" alt="" /></td>
             <td><a href="https://owasp.org/www-project-dependency-check/" target="_blank" rel="noopener noreferrer">OWASP Dependency-Check</a></td>
-            <td>Maven plugin that scans Java dependencies for known CVEs; runs as a dedicated GitHub Actions workflow</td>
+            <td>Maven plugin that scans Java dependencies for known CVEs; runs twice weekly as a dedicated GitHub Actions workflow</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
           <tr>
@@ -236,7 +236,7 @@ const Credits =(): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain" target="_blank" rel="noopener noreferrer">GitHub Dependabot</a></td>
-            <td>Automated dependency update PRs for Maven, npm, and GitHub Actions packages; configured for weekly scans</td>
+            <td>Automated dependency update PRs for Maven, npm, and GitHub Actions packages; configured for monthly scans</td>
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
         </tbody>
@@ -244,7 +244,7 @@ const Credits =(): React.ReactElement => (
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Frontend Libraries</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="react.dev" alt="" /></td>
-            <td><a href="https://github.com/facebook/react" target="_blank" rel="noopener noreferrer">React 18</a></td>
+            <td><a href="https://github.com/facebook/react" target="_blank" rel="noopener noreferrer">React 19</a></td>
             <td>UI component library and rendering framework</td>
             <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>

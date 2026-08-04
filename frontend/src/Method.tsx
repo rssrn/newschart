@@ -431,11 +431,11 @@ const Method = (): React.ReactElement => (
         </p>
         <ul>
           <li>
-            <strong>OWASP Dependency-Check</strong> — runs weekly against the
-            National Vulnerability Database (NVD), plus on demand. Scans every
+            <strong>OWASP Dependency-Check</strong> — runs twice weekly against
+            the National Vulnerability Database (NVD), plus on demand. Scans every
             transitive Java dependency for known CVEs and fails the build if a
-            new one shows up. The weekly cadence means a vulnerability disclosed
-            on Tuesday is flagged by the following Monday at the latest, even if
+            new one shows up. Running on Sundays and Wednesdays means a newly
+            disclosed vulnerability is flagged within four days at worst, even if
             nobody has touched the code.
           </li>
           <li>
@@ -445,7 +445,7 @@ const Method = (): React.ReactElement => (
             redundancy helps when one source is slow to publish.
           </li>
           <li>
-            <strong>Dependabot</strong> — opens weekly pull requests for
+            <strong>Dependabot</strong> — opens monthly pull requests for
             out-of-date dependencies across all three ecosystems the project uses:
             Maven (backend), npm (frontend), and GitHub Actions itself. Keeping
             CI action versions current is easy to forget; automating it means the

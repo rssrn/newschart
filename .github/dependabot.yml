@@ -17,6 +17,9 @@ updates:
       npm-dependencies:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]  # until typescript-eslint supports TS >=7.1
 
   - package-ecosystem: github-actions
     directory: /

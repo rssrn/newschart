@@ -43,7 +43,7 @@ The backend uses a pipeline-based architecture for processing news:
 6. **Geo** (`geo/`) - Country entity and factory
 
 ### Frontend Structure
-React SPA using react-simple-maps for world map visualization:
+React SPA using d3-geo + topojson-client for world map visualization:
 
 - **MapChart** - Main map component; drives two view modes: day view (Mercator projection with callouts) and heatmap (choropleth colouring by story count)
 - **StoryCalloutList** - Renders callout boxes with connectors to country points
@@ -79,7 +79,7 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 
 ## Key Technologies
 - **Backend**: Spring Boot 4.0.x, Java 21, MongoDB, WebFlux
-- **Frontend**: React 18, react-simple-maps
+- **Frontend**: React 19, d3-geo, topojson-client
 - **Testing**: Testcontainers (MongoDB), Vitest, React Testing Library, Playwright
 - **AI**: Google Gemini API (gemini-2.5-flash-lite model)
 

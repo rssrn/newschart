@@ -57,7 +57,7 @@ Items are grouped into three tiers:
 
 ### Security
 
-- [x] **Scheduled OWASP dependency-check workflow** — run `./mvnw org.owasp:dependency-check-maven:check` weekly
+- [x] **Scheduled OWASP dependency-check workflow** — run `./mvnw org.owasp:dependency-check-maven:check` twice weekly
 - [x] **NVD API key secret** — `NVD_API_KEY` stored in GitHub secrets for the workflow
 - [x] **npm audit workflow** — run `npm audit --audit-level=high` in frontend CI
 - [x] **Review `SUPPRESS.md` / `owasp-suppressions.xml`** — ensure all suppressions are still justified before go-live
