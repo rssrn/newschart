@@ -3,7 +3,11 @@ import StaticPageShell from './StaticPageShell';
 
 /** @author Claude Sonnet 4.6 Anthropic */
 const Accessibility = (): React.ReactElement => (
-  <StaticPageShell>
+  <StaticPageShell meta={{
+    title: 'Accessibility — NewsChart',
+    description: 'NewsChart’s accessibility statement: WCAG conformance, keyboard and screen-reader support, known limitations, and how to report an issue.',
+    path: '/accessibility',
+  }}>
     <style>{`
       .ac-container {
         max-width: 900px;
