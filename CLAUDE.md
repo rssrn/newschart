@@ -93,6 +93,7 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 ## Sitemap
 - Sitemap lives at `frontend/public/sitemap.xml`
 - **When a new page is added, remind the user to update the sitemap** before committing
+- **When a page's content changes substantially, propose bumping its `<lastmod>`** — a wording fix or restructure counts, a CSS tweak or dependency bump does not. Deliberately manual: a date that moves on every deploy teaches search engines to ignore the field. The homepage has no `<lastmod>` by design (daily API-driven content can't be described by a static date)
 
 ## Accessibility Testing
 - Playwright axe tests live in `frontend/src/__tests__/a11y/`: `map.a11y.spec.ts` (main map + modals), `static-pages.a11y.spec.ts` (/method and /credits)
