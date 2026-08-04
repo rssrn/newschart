@@ -220,12 +220,6 @@ function App(): React.ReactElement {
     return () => document.body.classList.remove('sheet-open');
   }, [mobileSheetOpen]);
 
-  const mobileSheetRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    // React 18 types don't expose `inert` as a DOM property; set it imperatively
-    if (mobileSheetRef.current) (mobileSheetRef.current as HTMLDivElement & { inert: boolean }).inert = !mobileSheetOpen;
-  }, [mobileSheetOpen]);
-
   const sourceShortLabel = NEWS_SOURCES.find(s => s.value === source)?.shortLabel ?? source;
 
   // @author Claude Sonnet 4.6 Anthropic
@@ -549,11 +543,11 @@ function App(): React.ReactElement {
 
       {/* Mobile bottom sheet – @author Claude Sonnet 4.6 Anthropic */}
       <div
-        ref={mobileSheetRef}
         className={`mobile-controls-sheet${mobileSheetOpen ? ' open' : ''}`}
         role="dialog"
         aria-label="Map settings"
         aria-modal="true"
+        inert={!mobileSheetOpen}
       >
         <div className="mobile-sheet-handle" aria-hidden="true" />
         <div className="mobile-sheet-section-title">View</div>

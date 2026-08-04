@@ -312,3 +312,18 @@ test('mobile sheet open — no axe violations', async ({ page, viewport }) => {
 
   expect(results.violations, 'axe violations in mobile sheet').toEqual([]);
 });
+
+// @author Claude Opus 5 Anthropic
+test('mobile sheet is inert while closed and interactive once open', async ({ page, viewport }) => {
+  test.skip(!isMobile(viewport), 'mobile controls sheet only exists on mobile viewports');
+
+  // The off-screen sheet must stay out of the tab order and the accessibility tree.
+  const sheet = page.locator('.mobile-controls-sheet');
+  await expect(sheet).toHaveAttribute('inert', '');
+
+  await page.click('button[aria-label="Open map settings"]');
+  await page.waitForSelector('.mobile-controls-sheet.open', { state: 'visible' });
+
+  // `inert` must be absent, not "false" — the string form would leave the open sheet inert.
+  await expect(sheet).not.toHaveAttribute('inert', /.*/);
+});
