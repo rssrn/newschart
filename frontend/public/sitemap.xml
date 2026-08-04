@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  lastmod must stay honest: only bump it when a page's content actually changes.
-  A date that moves on every deploy teaches search engines the field is noise and
-  they start ignoring it. changefreq and priority are kept for other crawlers;
-  Google ignores both.
--->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <!-- No lastmod: the map content changes daily from the API, so no date in a
-         static file can describe it accurately. Better omitted than wrong. -->
+    <!-- No lastmod: map content changes daily from the API. -->
     <loc>https://newschart.rossarnold.uk/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
