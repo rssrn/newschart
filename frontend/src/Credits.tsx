@@ -220,7 +220,7 @@ const Credits =(): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="owasp.org" alt="" /></td>
             <td><a href="https://owasp.org/www-project-dependency-check/" target="_blank" rel="noopener noreferrer">OWASP Dependency-Check</a></td>
-            <td>Maven plugin that scans Java dependencies for known CVEs; runs as a dedicated GitHub Actions workflow</td>
+            <td>Maven plugin that scans Java dependencies for known CVEs; runs twice weekly as a dedicated GitHub Actions workflow</td>
             <td><LicenseBadge variant="apache" label="Apache 2.0" href="https://www.apache.org/licenses/LICENSE-2.0" /></td>
           </tr>
           <tr>
