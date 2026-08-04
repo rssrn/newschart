@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.0] - 2026-08-04
+
+Per-route SEO metadata, plus a security-scanning and dependency-hygiene pass.
+
+### Added
+- **Per-route page metadata** (#96) — a new `useDocumentMeta` hook sets `<title>`, meta description, canonical link and the Open Graph title/description/url per route, so `/method`, `/credits` and `/accessibility` are no longer indistinguishable from the homepage to crawlers and the static `og:url` no longer points every page back at `/`. The app is client-rendered with no router, so this corrects the document during Google's JS-rendering pass — the practical ceiling for a CSR SPA short of adding SSR or prerendering. All mutations revert on unmount so metadata cannot leak between routes.
+- **Sitemap `lastmod` dates** — the three static pages now carry `<lastmod>`, giving crawlers a change signal they previously had to infer. Kept deliberately manual and documented as a maintenance convention in `CLAUDE.md`: a date that moves on every deploy teaches search engines to ignore the field, so it is bumped only when a page's content actually changes. The homepage is intentionally left without one — its content changes daily from the API, and no static date can describe that honestly.
+
+### Fixed
+- **OWASP dependency-check NVD cache never being saved** (#89, #93) — the scan re-downloaded the entire NVD dataset on every CI run, making it slow and prone to rate-limit failures. The cache is now saved correctly, and the database is bulk-loaded from the NIST data feeds instead of the rate-limited per-CVE API.
+- **Two dead OWASP suppressions** — repaired suppression rules that no longer matched anything (silently widening scan noise), and corrected stale Kotlin notes in the suppression file.
+- **Vulnerable transitive dependencies** — `brace-expansion` 5.0.6 → 5.0.7 (CVE-2026-13149, #80), and refreshed stale `netty`/`tomcat`/`micrometer` pins that had drifted behind their managed versions (#90).
+
+### Changed
+- **Dependency updates** — 14 npm packages (#85) and two rounds of Maven group updates (#75, #83).
+- **Frontend dependency pinning cleaned up** (#88) — removed redundant pins and added a dependabot guard.
+- **Mobile settings sheet uses React 19's native `inert` prop** — replaces the manual attribute handling for hiding the closed sheet from assistive tech, with a new a11y test asserting the sheet is inert while closed and interactive once open.
+- **Playwright browser now installed by `setup.sh` and the pre-push hook** — a fresh clone could previously pass setup but fail a11y and layout tests on first run.
+- **OWASP config** — dropped redundant dependency-check configuration (#95).
+
+### Documentation
+- **Story image acquisition options** — new `docs/IMAGE-ACQUISITION-OPTIONS.md` capturing the research into sourcing images for stories: provider comparison, Getty pricing tiers, the finding that Getty's oEmbed endpoint is unauthenticated, and a correction that Getty offers no self-serve API registration route.
+
 ## [0.25.3] - 2026-07-13
 
 ### Fixed
