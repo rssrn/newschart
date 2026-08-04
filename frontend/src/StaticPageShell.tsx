@@ -1,8 +1,11 @@
 import React from 'react';
 import { NAV } from './constants';
+import { useDocumentMeta, DocumentMeta } from './utils/useDocumentMeta';
 
 /** @author Claude Sonnet 4.6 Anthropic */
-const StaticPageShell = ({ children }: { children: React.ReactNode }): React.ReactElement => (
+const StaticPageShell = ({ children, meta }: { children: React.ReactNode; meta: DocumentMeta }): React.ReactElement => {
+  useDocumentMeta(meta);
+  return (
   <>
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=IBM+Plex+Sans:wght@400;500;600;700&display=optional');
@@ -97,6 +100,7 @@ const StaticPageShell = ({ children }: { children: React.ReactNode }): React.Rea
       </footer>
     </div>
   </>
-);
+  );
+};
 
 export default StaticPageShell;

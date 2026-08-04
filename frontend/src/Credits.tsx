@@ -2,7 +2,11 @@ import React from 'react';
 import StaticPageShell from './StaticPageShell';
 
 const Credits =(): React.ReactElement => (
-  <StaticPageShell>
+  <StaticPageShell meta={{
+    title: 'Credits — NewsChart',
+    description: 'The data sources, open-source libraries, map data and AI models behind NewsChart, with licences and attribution.',
+    path: '/credits',
+  }}>
     <style>{`
       .cr-container {
         max-width: 900px;

@@ -15,6 +15,7 @@ import MobileCoverageList from './MobileCoverageList';
 import { ViewMode, VIEW_MODES, NAV } from './constants';
 import { SOURCE_META, SOURCE_ORDER, CalloutSource } from './utils/sources';
 import { groupByCountry, fullSizeTier, chipTier } from './utils/consensus';
+import { useDocumentMeta } from './utils/useDocumentMeta';
 
 // @author Claude Sonnet 4.6 Anthropic
 type NewsSource = CalloutSource;
@@ -26,6 +27,12 @@ const NEWS_SOURCES: { value: NewsSource; label: string; shortLabel: string }[] =
   SOURCE_ORDER.map(s => ({ value: s, label: SOURCE_META[s].label, shortLabel: SOURCE_META[s].shortLabel }));
 
 function App(): React.ReactElement {
+  // @author Claude Opus 5 Anthropic
+  useDocumentMeta({
+    title: 'NewsChart — AI News on a World Map',
+    description: 'See which world news stories each AI model is leading with today — Gemini, Perplexity, ChatGPT, and NYT compared on an interactive map.',
+    path: '/',
+  });
   const [source, setSource] = useState<NewsSource>(
     () => (localStorage.getItem('newsSource') as NewsSource | null) ?? 'GOOGLE_GEMINI'
   );

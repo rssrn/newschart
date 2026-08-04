@@ -3,7 +3,11 @@ import StaticPageShell from './StaticPageShell';
 
 /** @author Claude Opus 4.7 Anthropic */
 const Method = (): React.ReactElement => (
-  <StaticPageShell>
+  <StaticPageShell meta={{
+    title: 'How it works — NewsChart',
+    description: 'How NewsChart gathers each day’s top world stories from Gemini, Perplexity, ChatGPT and the New York Times, geo-tags them, and places them on the map.',
+    path: '/method',
+  }}>
     <style>{`
       .mt-container {
         max-width: 900px;
