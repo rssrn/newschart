@@ -79,7 +79,7 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 
 ## Key Technologies
 - **Backend**: Spring Boot 4.0.x, Java 21, MongoDB, WebFlux
-- **Frontend**: React 18, d3-geo, topojson-client
+- **Frontend**: React 19, d3-geo, topojson-client
 - **Testing**: Testcontainers (MongoDB), Vitest, React Testing Library, Playwright
 - **AI**: Google Gemini API (gemini-2.5-flash-lite model)
 

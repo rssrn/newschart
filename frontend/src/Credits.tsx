@@ -232,7 +232,7 @@ const Credits =(): React.ReactElement => (
           <tr>
             <td className="icon-col"><FaviconImg domain="github.com" alt="" /></td>
             <td><a href="https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain" target="_blank" rel="noopener noreferrer">GitHub Dependabot</a></td>
-            <td>Automated dependency update PRs for Maven, npm, and GitHub Actions packages; configured for weekly scans</td>
+            <td>Automated dependency update PRs for Maven, npm, and GitHub Actions packages; configured for monthly scans</td>
             <td><LicenseBadge variant="commercial" label="Commercial Service" /></td>
           </tr>
         </tbody>
@@ -240,7 +240,7 @@ const Credits =(): React.ReactElement => (
           <tr><th scope="rowgroup" colSpan={4} className="sec-hdr">Frontend Libraries</th></tr>
           <tr>
             <td className="icon-col"><FaviconImg domain="react.dev" alt="" /></td>
-            <td><a href="https://github.com/facebook/react" target="_blank" rel="noopener noreferrer">React 18</a></td>
+            <td><a href="https://github.com/facebook/react" target="_blank" rel="noopener noreferrer">React 19</a></td>
             <td>UI component library and rendering framework</td>
             <td><LicenseBadge variant="mit" label="MIT" href="https://opensource.org/license/MIT" /></td>
           </tr>

@@ -8,7 +8,7 @@
 [![Frontend CI](https://github.com/rssrn/newschart/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/rssrn/newschart/actions/workflows/frontend-ci.yml)
 ![Java 21](https://img.shields.io/badge/java-21-blue.svg)
 ![Spring Boot 4](https://img.shields.io/badge/spring--boot-4-brightgreen.svg)
-![React 18](https://img.shields.io/badge/react-18-61dafb.svg)
+![React 19](https://img.shields.io/badge/react-19-61dafb.svg)
 ![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)
 ![Google Gemini](https://img.shields.io/badge/google%20gemini-8E75B2?logo=googlegemini&logoColor=white)
 ![Grafana](https://img.shields.io/badge/grafana-F46800?logo=grafana&logoColor=white)
@@ -152,7 +152,7 @@ Scheduler → Pipeline Orchestrator → News Source
 
 | File | Description |
 |---|---|
-| `MapChart.tsx` | Main map component (Mercator projection via react-simple-maps) |
+| `MapChart.tsx` | Main map component (Mercator and Natural Earth projections via d3-geo) |
 | `StoryCalloutList.tsx` | Renders callout boxes with SVG connectors to country markers |
 | `DateTimeline.tsx` | Date navigation (desktop slider + mobile chip strip) |
 | `utils/mapCalloutUtils.ts` | Exhaustive PFLP-based callout layout algorithm |
@@ -294,8 +294,9 @@ Built with:
 - [Spring Boot 4](https://spring.io/projects/spring-boot) — backend framework
 - [Google Gemini API](https://ai.google.dev/) — AI summarisation and geo-tagging
 - [OpenRouter](https://openrouter.ai/) — multi-model AI gateway (Perplexity, OpenAI, etc.)
-- [React 18](https://react.dev/) — frontend framework
-- [react-simple-maps](https://github.com/zcreativelabs/react-simple-maps) — world map component
+- [React 19](https://react.dev/) — frontend framework
+- [d3-geo](https://github.com/d3/d3-geo) — geographic projections
+- [topojson-client](https://github.com/topojson/topojson-client) — TopoJSON to GeoJSON conversion
 - [world-atlas](https://github.com/topojson/world-atlas) — TopoJSON world geometry
 - [MongoDB](https://www.mongodb.com/) — news storage
 - [Testcontainers](https://testcontainers.com/) — integration test infrastructure

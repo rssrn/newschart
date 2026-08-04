@@ -441,7 +441,7 @@ const Method = (): React.ReactElement => (
             redundancy helps when one source is slow to publish.
           </li>
           <li>
-            <strong>Dependabot</strong> — opens weekly pull requests for
+            <strong>Dependabot</strong> — opens monthly pull requests for
             out-of-date dependencies across all three ecosystems the project uses:
             Maven (backend), npm (frontend), and GitHub Actions itself. Keeping
             CI action versions current is easy to forget; automating it means the
