@@ -1,0 +1,46 @@
+# Claude Code worktrees (each carries its own frontend/node_modules) and session state
+.claude/
+.mcp.json
+.playwright-mcp/
+.aider*
+
+# VCS
+.git/
+.github/
+
+# Build outputs (rebuilt inside the image; frontend/node_modules especially is huge)
+target/
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/test-output/
+
+# IDE / editor
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.iml
+*.iws
+*.ipr
+
+# Docs, mockups, screenshots — not needed to build the jar
+docs/
+mockups/
+screenshots/
+tools/
+deploy/
+*.png
+!frontend/public/**/*.png
+
+# Local env / secrets
+.env
+.env.example
+
+# Misc project files not needed in the build
+CHANGELOG.md
+MVP-GOLIVE.md
+README.md
+LICENSE
+HELP.md
