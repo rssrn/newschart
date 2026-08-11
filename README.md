@@ -145,7 +145,9 @@ Scheduler → Pipeline Orchestrator → News Source
 |---|---|---|
 | Gemini | `gemini-2.5-flash` | Google Search grounding enabled |
 | Perplexity | `perplexity/sonar-pro-search` | Via OpenRouter, native web search |
-| OpenAI | `openai/gpt-4o-search-preview` | Via OpenRouter, native web search |
+| OpenAI | `~openai/gpt-mini-latest:online` | Via OpenRouter, `:online` web search plugin |
+| Anthropic | `~anthropic/claude-haiku-latest:online` | Via OpenRouter, `:online` web search plugin |
+| xAI | `x-ai/grok-4.3:online` | Via OpenRouter, `:online` web search plugin |
 | NYT RSS | `gemini-2.5-flash-lite` (2.5, geo-tag only) | Human-curated feed; Gemini summarises and geo-tags, search grounding off |
 
 ### Frontend (`frontend/src/`)
