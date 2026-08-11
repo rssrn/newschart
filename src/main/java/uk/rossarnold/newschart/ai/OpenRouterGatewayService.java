@@ -55,7 +55,7 @@ public class OpenRouterGatewayService {
     // secondary call to get OpenRouter cost data needs a delay since it doesn't populate immediately
     private static final int GENERATION_CALL_DELAY = 35;
 
-    static final String OPENROUTER_GETCALLOUTS_EXHAUSTED = "gemini.getcallouts.exhausted";
+    static final String OPENROUTER_GETCALLOUTS_EXHAUSTED = "openrouter.getcallouts.exhausted";
     static final String OPENROUTER_SUMMARISESTORIES_EXHAUSTED = "openrouter.summarisestories.exhausted";
 
     public OpenRouterGatewayService(OpenAiChatModel chatModel,
