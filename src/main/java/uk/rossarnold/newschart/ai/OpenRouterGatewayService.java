@@ -16,6 +16,7 @@ import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -42,6 +43,12 @@ public class OpenRouterGatewayService {
     private final WebClient webClient;
     private final MetadataRepository metadataRepository;
 
+    // OpenRouter reserves credit for prompt + max_tokens before running a request, so an
+    // unset ceiling defaults to the model's own maximum (8k-128k depending on model) and
+    // makes calls unaffordable long before the balance is actually spent. Observed output
+    // is 604-1616 tokens per call, so 4000 leaves ample headroom against truncation.
+    private final int maxTokens;
+
     record GenerationResponse(GenerationData data) {
     }
 
@@ -62,7 +69,9 @@ public class OpenRouterGatewayService {
                                     MeterRegistry meterRegistry,
                                     ThreadPoolTaskScheduler taskScheduler,
                                     @Qualifier("openRouterWebClient") WebClient webClient,
-                                    MetadataRepository metadataRepository) {
+                                    MetadataRepository metadataRepository,
+                                    @Value("${openrouter.max-tokens:4000}") int maxTokens) {
+        this.maxTokens = maxTokens;
         this.chatClient = ChatClient.create(chatModel);
         this.meterRegistry = meterRegistry;
         this.taskScheduler = taskScheduler;
@@ -97,7 +106,8 @@ public class OpenRouterGatewayService {
                 chatClient.prompt()
                         .user(prompt)
                         .options(OpenAiChatOptions.builder()
-                                .model(MAIN_SUMMARY_MODEL))
+                                .model(MAIN_SUMMARY_MODEL)
+                                .maxTokens(maxTokens))
                         .call()
                         .entity(StoryOutline.class)
         );
@@ -131,7 +141,8 @@ public class OpenRouterGatewayService {
         ChatResponse chatResponse = chatClient.prompt()
                 .user(AiPrompts.FIND_NEWS_PROMPT + "\n" + converter.getFormat())
                 .options(OpenAiChatOptions.builder()
-                        .model(model))
+                        .model(model)
+                        .maxTokens(maxTokens))
                 .call()
                 .chatResponse();
 
