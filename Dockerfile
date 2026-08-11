@@ -12,10 +12,10 @@ ARG APP_VERSION=0.0.1-SNAPSHOT
 WORKDIR /app
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
-RUN ./mvnw package -DskipTests -q -Dmaven.repo.local=/root/.m2/repository || true
+RUN ./mvnw dependency:go-offline -q
 COPY src/ src/
 COPY --from=frontend-build /app/frontend/build/ src/main/resources/static/
-RUN ./mvnw package -DskipTests -q -Drevision="$APP_VERSION" && cp target/newschart-*.jar target/app.jar
+RUN ./mvnw package -DskipTests -q -Drevision="$APP_VERSION" && cp target/newschart-"$APP_VERSION".jar target/app.jar
 
 # Stage 3: Runtime
 # NOTE: SPA routing (serving index.html for non-API paths) requires a backend
