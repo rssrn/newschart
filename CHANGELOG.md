@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.1] - 2026-08-12
+
+Restores the OpenAI news source and stops OpenRouter sources dying early on reserved credit.
+
+### Fixed
+- **OpenAI source silently producing no callouts** — `openai/gpt-4o-search-preview` had been removed from OpenRouter's catalogue and was returning 404 "No endpoints found" on every daily run since at least 4 August. Switched to the floating-alias form `~openai/gpt-mini-latest:online` already used by the Anthropic source, so it tracks OpenAI's current mini tier rather than pinning a model that can be retired again.
+- **OpenRouter sources failing in ceiling order as credit drained** — OpenRouter reserves credit for prompt + `max_tokens` before running a request, and nothing set `max_tokens`, so each call reserved the model's own maximum (8000 for Perplexity, 64000 for Claude Haiku, 65536 for Grok). That is why Anthropic started failing two days before Perplexity instead of all sources degrading together. Now capped at 4000 (tunable via `openrouter.max-tokens`) — roughly 2.5× headroom over the 604–1616 tokens per call observed in production, since a truncated reply would fail JSON parsing and silently drop the source.
+- **OpenRouter exhausted-counter colliding with Gemini's** — `OPENROUTER_GETCALLOUTS_EXHAUSTED` was set to `gemini.getcallouts.exhausted`, so every OpenRouter `getCallouts` failure incremented Gemini's counter. In production this left `gemini_getcallouts_exhausted_total` at 16 with no `openrouter_getcallouts_exhausted_total` series existing at all.
+- **Docker build failure when `APP_VERSION` doesn't match pom.xml's `<revision>`** — the dependency-warmup step ran a full `mvn package` before `src/` was copied, leaving a stub jar named after the default revision; the final `cp target/newschart-*.jar` glob then matched two jars and failed. The warm-up now uses `dependency:go-offline`, which produces no build artifacts, and the jar is referenced by exact version.
+- **`nanoid` high-severity advisory** — overridden to `^3.3.17` for GHSA-2v37-7h3g-55p8 / CVE-2026-67213 (infinite-loop DoS in `customAlphabet`/`customRandom` at size 0), transitive via `autoprefixer` → `postcss`.
+
+### Changed
+- **Dependency updates** — 7 npm dev dependencies including Vite 8.1.5 → 8.2.0 (#98), two Maven gRPC patches (#97), and two GitHub Actions bumps (#99).
+- **`.dockerignore` added** — excludes worktrees, `.git` and IDE cruft from the Docker build context.
+
+### Documentation
+- **README source table** — filled in the missing Anthropic and xAI rows, so all four OpenRouter-backed sources are now listed.
+- **Sitemap** — trimmed verbose comments.
+
 ## [0.26.0] - 2026-08-04
 
 Per-route SEO metadata, plus a security-scanning and dependency-hygiene pass.
