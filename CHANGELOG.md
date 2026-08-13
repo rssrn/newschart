@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.2] - 2026-08-13
+
+Closes a public actuator exposure and a CPU-hang in the callout layout algorithm.
+
+### Fixed
+- **Actuator endpoints publicly reachable** — nginx's catch-all proxy location forwarded any path to the backend, including `/actuator/prometheus` and `/actuator/health`. Neither Prometheus (which scrapes container-to-container) nor the container healthcheck (which hits localhost) ever needed this to traverse nginx, so `/actuator*` now returns a bare 404 rather than being proxied — a 404 rather than 403 so the path doesn't advertise that anything is there.
+- **Layout algorithm could peg a CPU core for 40+ minutes on tight clusters (#101)** — the stage-3 "soft fallback" pass in the exhaustive layout search had no iteration or time bound. Because that pass disables the overlap hard-reject and resets the best-score tracking, branch-and-bound pruning stays weak and the search degenerates toward a raw cartesian product (48^12 ≈ 1e20 for a 12-node cluster) — observed pegging a core for 40+ minutes on production-shaped input before being killed manually. Stage 3 now runs under a 400ms wall-clock deadline and a 500k-combination cap (both overridable), returning the best placement found so far on timeout instead of the old degenerate stacked fallback; clusters over 5 nodes also get a halved per-node candidate cap as a secondary mitigation. A new regression fixture (12 near-coincident points) and test assert termination in ~445ms on the real production default, versus the previous 40+ minutes.
+
 ## [0.26.1] - 2026-08-12
 
 Restores the OpenAI news source and stops OpenRouter sources dying early on reserved credit.
