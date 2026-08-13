@@ -19,7 +19,7 @@
 // @author Claude Opus 4.6 Anthropic
 // @author Claude Sonnet 4.5 Anthropic (TypeScript migration)
 
-import { StoryCallout, PositionedCallout, LayoutNode, LayoutCandidate, MapProjection, LayoutDiagnostics, CandidateDiag, NodeDiagnostics, ScoreBreakdown } from '../types/news';
+import { StoryCallout, PositionedCallout, LayoutNode, LayoutCandidate, MapProjection, LayoutDiagnostics, LayoutBudget, CandidateDiag, NodeDiagnostics, ScoreBreakdown } from '../types/news';
 
 export const BOX_WIDTH = 135;
 export const ANCHOR_Y = 50;
@@ -27,6 +27,13 @@ export const ANCHOR_Y = 50;
 // ANCHOR_Y is 50px below the visual top, leaving 20px of box above the connector anchor.
 export const BOX_VISUAL_TOP = 70;
 const EDGE_PADDING = 40;
+
+// Stage-3 (soft-fallback) enumeration bound defaults — see the "Stage 3" comment below for why
+// this stage needs a bound at all. Generous enough to never engage for the small clusters (N≤4)
+// that make up ordinary usage; only a stuck cluster that exhausts stages 1 and 2 pays this cost.
+// @author Claude Sonnet 5 Anthropic
+const DEFAULT_STAGE3_TIME_BUDGET_MS = 400;
+const DEFAULT_STAGE3_MAX_COMBINATIONS = 500_000;
 
 interface Point {
   x: number;
@@ -48,9 +55,10 @@ export function calculateOffsets(
   visibleSvgHeight: number = 600,
   bottomPadding: number = 0,
   obstaclePoints: { x: number; y: number }[] = [],
-  viewportWidth: number = 800
+  viewportWidth: number = 800,
+  layoutBudget?: LayoutBudget
 ): PositionedCallout[] {
-  return calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints, viewportWidth).positioned;
+  return calculateOffsetsWithDiagnostics(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints, viewportWidth, layoutBudget).positioned;
 }
 
 /**
@@ -66,7 +74,8 @@ export function calculateOffsetsWithDiagnostics(
   visibleSvgHeight: number = 600,
   bottomPadding: number = 0,
   obstaclePoints: { x: number; y: number }[] = [],
-  viewportWidth: number = 800
+  viewportWidth: number = 800,
+  layoutBudget?: LayoutBudget
 ): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
   const empty = (): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } => ({
     positioned: [],
@@ -75,7 +84,7 @@ export function calculateOffsetsWithDiagnostics(
   if (!Array.isArray(callouts) || !projection) return empty();
   if (callouts.length === 0) return empty();
 
-  const _inner = _calculateOffsets(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints, viewportWidth);
+  const _inner = _calculateOffsets(callouts, projection, visibleSvgHeight, bottomPadding, obstaclePoints, viewportWidth, layoutBudget);
   return _inner;
 }
 
@@ -86,7 +95,8 @@ function _calculateOffsets(
   visibleSvgHeight: number,
   bottomPadding: number,
   obstaclePoints: Point[] = [],
-  viewportWidth: number = 800
+  viewportWidth: number = 800,
+  layoutBudget?: LayoutBudget
 ): { positioned: PositionedCallout[]; diagnostics: LayoutDiagnostics } {
 
   // --- Coordinate setup ---
@@ -430,14 +440,47 @@ function _calculateOffsets(
   let bestPlacements: LayoutCandidate[] | null = null;
   let combinationsEvaluated = 0;
 
+  // Stage-3 bound state. In the strict/relaxed passes (softPass === false) box overlap is a hard
+  // reject (see the Infinity check below), so branch-and-bound pruning keeps the search small. In
+  // the soft-fallback pass (stage 3, below) that hard reject is disabled by design — overlap
+  // becomes a finite penalty so we can return a least-overlap spread instead of giving up — which
+  // also means the b&b prune stays weak (every candidate is viable, bounds start close together).
+  // Left unchecked that stage degenerates to close to a raw cartesian product (issue #101: a
+  // 12-node cluster with CANDIDATE_CAP=48 is 48^12 ≈ 1e20 combinations, observed pegging a CPU core
+  // for 40+ minutes). These fields bound stage 3 only — stage 1/2 never touch them, since the
+  // check below is gated on softPass. @author Claude Sonnet 5 Anthropic
+  const stage3TimeBudgetMs = layoutBudget?.timeBudgetMs ?? DEFAULT_STAGE3_TIME_BUDGET_MS;
+  const stage3MaxCombinations = layoutBudget?.maxCombinationsEvaluated ?? DEFAULT_STAGE3_MAX_COMBINATIONS;
+  let boundExceeded = false;
+  let stage3NodesVisited = 0;
+  let stage3StartTime = 0;
+
   // Branch-and-bound enumeration. partialLB is the score accumulated so far — the sum of every
   // placed pair's interaction penalty plus each placed box's connector length. Every remaining
   // scoring term (diagonal bias, origin proximity, obstacle-connector proximity, and the pairs
   // and lengths still to be added) is non-negative, so partialLB is an admissible lower bound on
   // any completion. Once it reaches bestScore the whole subtree can be pruned. This makes the
-  // strict pass and the un-pruned soft fallback alike explore only a small fraction of the
-  // cartesian product. @author Claude Opus 4.8 Anthropic
+  // strict and relaxed passes (stages 1/2, overlap hard-rejected) explore only a small fraction of
+  // the cartesian product. It does NOT hold for the soft fallback (stage 3, softPass === true):
+  // there overlap is never hard-rejected and bestScore restarts at Infinity, so this prune stays
+  // weak — issue #101 — which is why stage 3 has its own bound above, not this one.
+  // @author Claude Opus 4.8 Anthropic
   function enumerate(nodeIndex: number, currentPlacements: LayoutCandidate[], partialLB: number): void {
+    if (softPass) {
+      // Only stage 3 ever sets softPass — stages 1/2 never pay this cost. Throttle the clock read
+      // to every 1024 visits (performance.now() on every call would itself be meaningful overhead
+      // across a search this size). Require a bestPlacements already in hand before honouring the
+      // bound: since softPass never hard-rejects, the very first descent reaches a leaf cheaply
+      // (O(n)), so this can never regress to the old degenerate stacked (dx:0,dy:-80) fallback just
+      // because the deadline is tiny. @author Claude Sonnet 5 Anthropic
+      stage3NodesVisited++;
+      if (!boundExceeded && bestPlacements !== null && (stage3NodesVisited & 1023) === 0 &&
+          (performance.now() - stage3StartTime >= stage3TimeBudgetMs || combinationsEvaluated >= stage3MaxCombinations)) {
+        boundExceeded = true;
+      }
+      if (boundExceeded) return;
+    }
+
     if (nodeIndex === nodes.length) {
       combinationsEvaluated++;
       const score = scoreCombination(currentPlacements);
@@ -451,6 +494,8 @@ function _calculateOffsets(
     const ni = nodes[nodeIndex];
     const candidates = candidatesPerNode[nodeIndex];
     for (const candidate of candidates) {
+      if (softPass && boundExceeded) break;
+
       // Interaction with the already-placed boxes. scorePairInteraction returns Infinity on box
       // overlap in the strict pass (hard reject) and a finite area-scaled penalty in the soft
       // pass — so this single loop both rejects overlaps and drives the lower bound.
@@ -500,7 +545,22 @@ function _calculateOffsets(
     if (!bestPlacements) {
       softPass = true;
       bestScore = Infinity;
+
+      // For larger clusters the CANDIDATE_CAP=48 cartesian product is what makes stage 3 unbounded
+      // (see issue #101) — halve the per-node cap to shrink the base. Gated to >5 nodes: every
+      // fixture in the test suite and the map's fullSizeTier cap top out at 4 nodes, so this never
+      // engages for the common case, where stage 3 (rare in itself) is still cheap and exhaustive.
+      // Re-sort-and-slice unconditionally rather than assuming candidatesPerNode is already sorted —
+      // it's only sorted when a node's count originally exceeded CANDIDATE_CAP in stage 2, so a bare
+      // slice here could silently keep just a few of the 16 angular directions. @author Claude Sonnet 5 Anthropic
+      if (nodes.length > 5) {
+        const CANDIDATE_CAP_SOFT = 24;
+        candidatesPerNode = candidatesPerNode.map(cs =>
+          cs.length <= CANDIDATE_CAP_SOFT ? cs : [...cs].sort((a, b) => a.dist - b.dist).slice(0, CANDIDATE_CAP_SOFT));
+      }
+
       console.warn(`[exhaustive] No non-overlapping layout for ${nodes.length} boxes in this viewport — using least-overlap soft fallback.`);
+      stage3StartTime = performance.now();
       enumerate(0, [], 0);
     }
   }
@@ -511,7 +571,7 @@ function _calculateOffsets(
     const fallback = callouts.map((original) => ({ ...original, dx: 0, dy: -80 }));
     return {
       positioned: fallback,
-      diagnostics: { nodes: [], bestScore: Infinity, combinationsEvaluated },
+      diagnostics: { nodes: [], bestScore: Infinity, combinationsEvaluated, truncated: boundExceeded, softFallback: softPass },
     };
   }
 
@@ -588,6 +648,6 @@ function _calculateOffsets(
 
   return {
     positioned,
-    diagnostics: { nodes: nodeDiagnostics, bestScore, combinationsEvaluated },
+    diagnostics: { nodes: nodeDiagnostics, bestScore, combinationsEvaluated, truncated: boundExceeded, softFallback: softPass },
   };
 }

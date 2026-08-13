@@ -1,0 +1,68 @@
+{
+  "id": "regression-stage3-timeout-guard-12-node",
+  "group": "handcrafted",
+  "tags": ["regression", "stage3", "tight-cluster"],
+  "notes": "Regression fixture for issue #101 — 12 near-coincident tri-state-area points, tight enough that stages 1 and 2 (non-overlap required) both fail and stage 3 (soft fallback) is forced. Not loaded by layout.test.ts or scripts/run-layout-tests.mjs (both only glob the flat fixtures/ directory, not this regression/ subdirectory) — used exclusively by stage3Termination.test.ts to verify stage 3 terminates within its time/combination budget rather than to assert a violation-free layout, since stage 3's contract is least-overlap, not overlap-free.",
+  "callouts": [
+    {
+      "headline": "NYC Stock Market Surge",
+      "detail": "Wall Street sees biggest gains in a decade as tech sector leads market rally.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.7128, "longitude": -74.006 }
+    },
+    {
+      "headline": "Brooklyn Housing Boom",
+      "detail": "Brooklyn real estate prices hit record highs amid renewed development interest.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.6782, "longitude": -73.9442 }
+    },
+    {
+      "headline": "Queens Transit Overhaul",
+      "detail": "City announces major subway expansion plan for Queens commuters.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.7282, "longitude": -73.7949 }
+    },
+    {
+      "headline": "Jersey City Waterfront Deal",
+      "detail": "New waterfront development approved after years of community negotiation.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.7178, "longitude": -74.0431 }
+    },
+    {
+      "headline": "Newark Airport Expansion",
+      "detail": "Newark Liberty announces new terminal to ease record passenger volumes.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.7357, "longitude": -74.1724 }
+    },
+    {
+      "headline": "Hoboken Flood Defenses",
+      "detail": "Hoboken completes new flood barrier system ahead of storm season.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.744, "longitude": -74.0324 }
+    },
+    {
+      "headline": "Yonkers Manufacturing Revival",
+      "detail": "Yonkers factory reopens, bringing hundreds of jobs back to the region.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.9312, "longitude": -73.8987 }
+    },
+    {
+      "headline": "Staten Island Ferry Upgrade",
+      "detail": "New ferry fleet unveiled to cut commute times across the harbor.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.5795, "longitude": -74.1502 }
+    },
+    {
+      "headline": "Elizabeth Port Expansion",
+      "detail": "Port of Elizabeth expands cargo capacity amid shipping demand surge.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.6639, "longitude": -74.2107 }
+    },
+    {
+      "headline": "Paterson River Cleanup",
+      "detail": "Multi-year cleanup of the Passaic River reaches a major milestone.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.9168, "longitude": -74.1718 }
+    },
+    {
+      "headline": "White Plains Tech Hub",
+      "detail": "White Plains lures new tech campus with tax incentive package.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 41.0339, "longitude": -73.7629 }
+    },
+    {
+      "headline": "New Rochelle Housing Plan",
+      "detail": "New Rochelle city council approves affordable housing initiative.",
+      "country": { "name": "United States", "iso2": "US", "latitude": 40.9115, "longitude": -73.7823 }
+    }
+  ]
+}

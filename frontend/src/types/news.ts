@@ -118,6 +118,22 @@ export interface LayoutDiagnostics {
   nodes: NodeDiagnostics[];
   bestScore: number;
   combinationsEvaluated: number;
+  /** True if the stage-3 soft-fallback bound (deadline or combination cap) cut enumeration short. */
+  truncated?: boolean;
+  /** True if stage 3 (soft fallback, overlap allowed as a finite penalty) was entered at all. */
+  softFallback?: boolean;
+}
+
+/**
+ * Optional bound on the stage-3 soft-fallback enumeration in calculateOffsets, so a cluster the
+ * strict/relaxed passes can't resolve returns the best layout found so far instead of running the
+ * cartesian product to completion. Both fields fall back to generous module defaults when omitted.
+ *
+ * @author Claude Sonnet 5 Anthropic
+ */
+export interface LayoutBudget {
+  timeBudgetMs?: number;
+  maxCombinationsEvaluated?: number;
 }
 
 /**
