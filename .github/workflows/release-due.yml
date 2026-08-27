@@ -39,20 +39,17 @@ jobs:
       - name: Get last release date
         id: last-release
         if: steps.existing.outputs.count == '0'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DATE=$(gh release list --limit 1 --json publishedAt,tagName --jq '.[0].publishedAt // empty')
-          TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // empty')
-          if [ -z "$DATE" ]; then
-            # Fall back to the most recent v* git tag
-            TAG=$(git tag --sort=-creatordate | grep '^v' | head -1)
-            if [ -n "$TAG" ]; then
-              DATE=$(git log -1 --format=%cI "$TAG")
-            else
-              TAG="(none)"
-              DATE="1970-01-01T00:00:00Z"
-            fi
+          # The release process is tag-driven (deploy-to-live.yml triggers off `v*` tag
+          # pushes) and GitHub Release objects aren't part of it — only one has ever been
+          # created across 47+ tags, so `gh release list` is not a reliable source of the
+          # last release. The most recent `v*` git tag is the actual source of truth.
+          TAG=$(git tag --sort=-creatordate | grep '^v' | head -1)
+          if [ -n "$TAG" ]; then
+            DATE=$(git log -1 --format=%cI "$TAG")
+          else
+            TAG="(none)"
+            DATE="1970-01-01T00:00:00Z"
           fi
           echo "Last release: tag=${TAG}, date=${DATE}"
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
