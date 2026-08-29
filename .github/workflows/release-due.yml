@@ -53,6 +53,7 @@ jobs:
           fi
           echo "Last release: tag=${TAG}, date=${DATE}"
           echo "date=$DATE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Evaluate release criteria
         id: criteria
@@ -60,9 +61,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LAST_RELEASE_DATE: ${{ steps.last-release.outputs.date }}
+          LAST_RELEASE_TAG: ${{ steps.last-release.outputs.tag }}
         run: |
           REASONS_FILE=$(mktemp)
           echo "Last release date: ${LAST_RELEASE_DATE}"
+
+          # Commits "since last release" are found by ancestry (tag..HEAD), not by date.
+          # git log --after=<date> treats the boundary as inclusive, which wrongly counts
+          # the release commit itself (it shares the tag's exact timestamp) as "since" it.
+          if [ "$LAST_RELEASE_TAG" != "(none)" ]; then
+            COMMIT_RANGE="${LAST_RELEASE_TAG}..origin/main"
+          else
+            COMMIT_RANGE="origin/main"
+          fi
 
           # 1. Dependabot security PRs merged since last release
           echo "--- Checking: Dependabot security PRs (gh pr list --search 'author:app/dependabot label:security merged:>${LAST_RELEASE_DATE}')"
@@ -86,7 +97,7 @@ jobs:
           WEEKS_SINCE=$(( (NOW_EPOCH - LAST_EPOCH) / 604800 ))
           echo "--- Checking: weeks elapsed since last release -> ${WEEKS_SINCE} week(s)"
           if [ "$WEEKS_SINCE" -ge 2 ]; then
-            COMMIT_COUNT=$(git log --oneline origin/main --after="$LAST_RELEASE_DATE" | wc -l)
+            COMMIT_COUNT=$(git log --oneline "$COMMIT_RANGE" | wc -l)
             echo "  -> Commits on main since last release: ${COMMIT_COUNT}"
             if [ "$COMMIT_COUNT" -gt 0 ]; then
               printf '\n### Time elapsed\n%d week(s) have passed since the last release with %d commit(s) on main.\n' \
@@ -114,7 +125,7 @@ jobs:
 
           # 4. Any fix: commits on main since last release
           echo "--- Checking: fix: commits on main since last release"
-          FIX_COMMITS=$(git log --format="%h %s" origin/main --after="$LAST_RELEASE_DATE" \
+          FIX_COMMITS=$(git log --format="%h %s" "$COMMIT_RANGE" \
             | grep -E "^[0-9a-f]+ fix:" || true)
           if [ -n "$FIX_COMMITS" ]; then
             FIX_COUNT=$(echo "$FIX_COMMITS" | wc -l)
