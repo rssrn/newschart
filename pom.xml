@@ -37,8 +37,11 @@
         <!-- Override: keep Tomcat one patch ahead of Boot's managed 11.0.22 and raise past 11.0.23. 11.0.23 fixed
              CVE-2026-55276, CVE-2026-53434 and CVE-2026-55956 (Tomcat rates these Low/Low/Moderate; NVD scores
              55276/53434 at 9.1 CRITICAL). 11.0.24 fixes CVE-2026-59083 and CVE-2026-59084 (Tomcat: Low; NVD: 9.1
-             CRITICAL), both in components this app does not use (RewriteValve, EncryptInterceptor clustering). -->
-        <tomcat.version>11.0.24</tomcat.version>
+             CRITICAL), both in components this app does not use (RewriteValve, EncryptInterceptor clustering).
+             11.0.25 fixes CVE-2026-65905, CVE-2026-65637, CVE-2026-65182 and CVE-2026-68525 (Tomcat rates these
+             Low/Moderate/Important/Low; NVD scores 65905/65637/65182 at 9.8/9.1/9.1 - the OWASP dependency-check
+             CVSS>=9.0 build-failure threshold). -->
+        <tomcat.version>11.0.25</tomcat.version>
         <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
     </properties>
     <dependencyManagement>
