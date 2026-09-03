@@ -6,6 +6,7 @@ import com.openai.errors.InternalServerException;
 import com.openai.errors.OpenAIIoException;
 import com.openai.errors.RateLimitException;
 import com.openai.errors.UnauthorizedException;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +43,7 @@ public class OpenRouterGatewayService {
     private final ThreadPoolTaskScheduler taskScheduler;
     private final WebClient webClient;
     private final MetadataRepository metadataRepository;
+    private final LlmResponseMapper llmResponseMapper;
 
     // OpenRouter reserves credit for prompt + max_tokens before running a request, so an
     // unset ceiling defaults to the model's own maximum (8k-128k depending on model) and
@@ -65,13 +67,26 @@ public class OpenRouterGatewayService {
     static final String OPENROUTER_GETCALLOUTS_EXHAUSTED = "openrouter.getcallouts.exhausted";
     static final String OPENROUTER_SUMMARISESTORIES_EXHAUSTED = "openrouter.summarisestories.exhausted";
 
+    // A schema violation is thrown by the JSON binding, after the HTTP call has already returned,
+    // so @Retryable never sees it and OPENROUTER_GETCALLOUTS_EXHAUSTED never moves. Counted
+    // separately so a silently-dropped response is visible rather than only showing up as a
+    // missing source on the map.
+    static final String OPENROUTER_GETCALLOUTS_PARSE_FAILURES = "openrouter.getcallouts.parse.failures";
+
+    // Tag values for the above. Both series are pre-registered per model so the tag keys stay
+    // consistent - the Prometheus registry rejects the same meter name carrying different keys.
+    static final String REASON_UNPARSEABLE = "unparseable";
+    static final String REASON_UNRESOLVABLE_COUNTRY = "unresolvable_country";
+
     public OpenRouterGatewayService(OpenAiChatModel chatModel,
                                     MeterRegistry meterRegistry,
                                     ThreadPoolTaskScheduler taskScheduler,
                                     @Qualifier("openRouterWebClient") WebClient webClient,
                                     MetadataRepository metadataRepository,
+                                    LlmResponseMapper llmResponseMapper,
                                     @Value("${openrouter.max-tokens:4000}") int maxTokens) {
         this.maxTokens = maxTokens;
+        this.llmResponseMapper = llmResponseMapper;
         this.chatClient = ChatClient.create(chatModel);
         this.meterRegistry = meterRegistry;
         this.taskScheduler = taskScheduler;
@@ -133,10 +148,18 @@ public class OpenRouterGatewayService {
     public Optional<List<Callout>> getCallouts(String model) {
         log.info("Calling OpenRouter {}", model);
 
+        // Touch the counters so the series exist at zero from the first call, giving the alert a
+        // baseline instead of no-data until the first failure.
+        parseFailureCounter(model, REASON_UNPARSEABLE);
+        parseFailureCounter(model, REASON_UNRESOLVABLE_COUNTRY);
+
         // we need to manually parse the result rather than relying on spring entity mapping
         // because sometimes the llm adds additional text outside the json
         // and spring doesn't strip it automatically
-        var converter = new BeanOutputConverter<>(LlmCalloutList.class);
+        //
+        // The mapper is the tolerant one: it also accepts a bare country name where the schema
+        // asks for the full object. The schema handed to the model is unchanged.
+        var converter = new BeanOutputConverter<>(LlmCalloutList.class, llmResponseMapper.mapper());
 
         ChatResponse chatResponse = chatClient.prompt()
                 .user(AiPrompts.FIND_NEWS_PROMPT + "\n" + converter.getFormat())
@@ -173,14 +196,37 @@ public class OpenRouterGatewayService {
             result = converter.convert(extractJson(raw));
         } catch (Exception e) {
             log.error("Could not parse response from model {}: {}", model, e.getMessage());
+            parseFailureCounter(model, REASON_UNPARSEABLE).increment();
             return Optional.empty();
         }
 
         log.info("Called model {} and received {} callouts", model, result.items().size());
 
+        // A country given as a bare name that isn't in the CSV resolves to null (the file uses
+        // e.g. "Palestinian Territory", not "Palestine"). Drop just that callout - losing one of
+        // three beats discarding the whole response, which is the failure this guards against.
+        List<LlmCallout> usable = result.items().stream()
+                .filter(llm -> {
+                    if (llm.country() == null) {
+                        log.warn("Dropping callout from model {} with unresolvable country: {}", model, llm.headline());
+                        return false;
+                    }
+                    return true;
+                })
+                .toList();
+
+        // Losing every callout is the same outcome as a parse failure - the source is absent from
+        // the map - so fail loudly rather than handing back an empty list, which the pipeline would
+        // log as a success and nothing would flag.
+        if (usable.isEmpty() && !result.items().isEmpty()) {
+            log.error("Every callout from model {} had an unresolvable country, discarding response", model);
+            parseFailureCounter(model, REASON_UNRESOLVABLE_COUNTRY).increment();
+            return Optional.empty();
+        }
+
         // The model returns the minimal object LlmCallout so it can't try to invent enums.
         // Now map it back to a canonical Callout object.
-        return Optional.of(result.items().stream()
+        return Optional.of(usable.stream()
                 .map(llm -> new Callout.Builder(Instant.now())
                         .country(llm.country())
                         .headline(llm.headline())
@@ -189,6 +235,10 @@ public class OpenRouterGatewayService {
                         .type(CalloutType.NEWS)
                         .build())
                 .toList());
+    }
+
+    private Counter parseFailureCounter(String model, String reason) {
+        return meterRegistry.counter(OPENROUTER_GETCALLOUTS_PARSE_FAILURES, "model", model, "reason", reason);
     }
 
     /**

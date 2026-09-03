@@ -5,11 +5,16 @@ import com.openai.errors.InternalServerException;
 import com.openai.errors.OpenAIIoException;
 import com.openai.errors.RateLimitException;
 import com.openai.errors.UnauthorizedException;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -25,12 +30,14 @@ import uk.rossarnold.newschart.ai.metadata.MetadataRepository;
 import uk.rossarnold.newschart.callout.Callout;
 import uk.rossarnold.newschart.callout.CalloutSource;
 import uk.rossarnold.newschart.geo.Country;
+import uk.rossarnold.newschart.geo.CountryFactory;
 import uk.rossarnold.newschart.news.highlights.CountryNews;
 import uk.rossarnold.newschart.news.highlights.NewsItem;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -44,7 +51,8 @@ import static org.mockito.Mockito.when;
  *
  * @author Claude Sonnet 4.6 Anthropic
  */
-@SpringBootTest(classes = {OpenRouterGatewayServiceTest.Config.class, OpenRouterGatewayService.class})
+@SpringBootTest(classes = {OpenRouterGatewayServiceTest.Config.class, OpenRouterGatewayService.class,
+        LlmResponseMapper.class, CountryFactory.class})
 @TestPropertySource(properties = "openrouter.retry.delay-ms=0")
 class OpenRouterGatewayServiceTest {
 
@@ -77,17 +85,50 @@ class OpenRouterGatewayServiceTest {
         }
     }
 
+    private static final String NEPAL_OBJECT = """
+            {"items":[{"country":{"iso2":"NP","isoNumeric":"524","latitude":28.3949,"longitude":84.124,
+            "name":"Nepal"},"headline":"H","detail":"D","extendedDetail":"E"}]}
+            """;
+
     @Autowired
     private OpenRouterGatewayService openRouterGatewayService;
 
     @Autowired
     private OpenAiChatModel openAiChatModel;
 
+    @Autowired
+    private MeterRegistry meterRegistry;
+
     @BeforeEach
     void resetMock() {
         Mockito.reset(openAiChatModel);
         when(openAiChatModel.getOptions())
                 .thenReturn(OpenAiChatOptions.builder().model("test-model").build());
+        meterRegistry.clear();
+    }
+
+    /** Make the mocked model reply with {@code body} as its assistant message text. */
+    private void modelReplies(String body) {
+        ChatResponse response = new ChatResponse(
+                List.of(new Generation(new AssistantMessage(body))),
+                ChatResponseMetadata.builder().id("gen-test").build());
+        when(openAiChatModel.call(any(Prompt.class))).thenReturn(response);
+    }
+
+    private double parseFailures(String model, String reason) {
+        Counter counter = meterRegistry.find(OpenRouterGatewayService.OPENROUTER_GETCALLOUTS_PARSE_FAILURES)
+                .tag("model", model)
+                .tag("reason", reason)
+                .counter();
+        return counter == null ? -1 : counter.count();
+    }
+
+    private double unparseable(String model) {
+        return parseFailures(model, OpenRouterGatewayService.REASON_UNPARSEABLE);
+    }
+
+    private double unresolvableCountry(String model) {
+        return parseFailures(model, OpenRouterGatewayService.REASON_UNRESOLVABLE_COUNTRY);
     }
 
     // === Retry behaviour ===
@@ -210,6 +251,109 @@ class OpenRouterGatewayServiceTest {
         Optional<StoryOutline> result = openRouterGatewayService.summariseStoriesRecovery(new RuntimeException("exhausted"));
 
         assertTrue(result.isEmpty());
+    }
+
+    // === parse-failure metric ===
+
+    @Test
+    void registersParseFailureCounterAtZeroOnASuccessfulCall() {
+        modelReplies(NEPAL_OBJECT);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size());
+        // both series must exist at 0 so the alert has a baseline rather than no-data
+        assertEquals(0.0, unparseable("test-model"));
+        assertEquals(0.0, unresolvableCountry("test-model"));
+    }
+
+    @Test
+    void countsAParseFailureAndTagsItWithTheModel() {
+        modelReplies("{\"items\":[{\"country\":{\"iso2\": }}]}"); // malformed JSON
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isEmpty());
+        assertEquals(1.0, unparseable("test-model"));
+        // this path never reaches @Recover, so the exhausted counter must stay untouched
+        assertEquals(0.0, meterRegistry.counter(OpenRouterGatewayService.OPENROUTER_GETCALLOUTS_EXHAUSTED).count());
+    }
+
+    @Test
+    void doesNotRetryOnAParseFailure() {
+        modelReplies("not json at all");
+
+        openRouterGatewayService.getCallouts("test-model");
+
+        // the response already arrived, so a retry would just pay for the same call again
+        verify(openAiChatModel, times(1)).call(any(Prompt.class));
+    }
+
+    // === tolerant country binding ===
+
+    @Test
+    void recoversAResponseThatGivesTheCountryAsABareName() {
+        // the shape perplexity/sonar-pro-search returned on 2026-09-01
+        modelReplies("""
+                {"items":[{"country":"Nepal","headline":"H","detail":"D","extendedDetail":"E"}]}
+                """);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size());
+        assertEquals("Nepal", result.get().getFirst().getCountry().getName());
+        assertEquals(0.0, unparseable("test-model"));
+    }
+
+    @Test
+    void dropsOnlyTheCalloutWhoseCountryNameCannotBeResolved() {
+        modelReplies("""
+                {"items":[
+                  {"country":"Palestine","headline":"unresolvable","detail":"D","extendedDetail":"E"},
+                  {"country":"Nepal","headline":"keeper","detail":"D","extendedDetail":"E"}
+                ]}
+                """);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size(), "the resolvable callout should survive");
+        assertEquals("keeper", result.get().getFirst().getHeadline());
+        // a partial response is not a parse failure - nothing to alert on
+        assertEquals(0.0, unresolvableCountry("test-model"));
+    }
+
+    @Test
+    void failsRatherThanReturningAnEmptyListWhenNoCountryResolves() {
+        modelReplies("""
+                {"items":[
+                  {"country":"Palestine","headline":"A","detail":"D","extendedDetail":"E"},
+                  {"country":"Atlantis","headline":"B","detail":"D","extendedDetail":"E"}
+                ]}
+                """);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        // an empty list would be logged by the pipeline as "Got 0 callouts" and pass as a success,
+        // which is exactly the silent gap this whole change exists to close
+        assertTrue(result.isEmpty());
+        assertEquals(1.0, unresolvableCountry("test-model"));
+        assertEquals(0.0, unparseable("test-model"));
+    }
+
+    @Test
+    void treatsAGenuinelyEmptyItemListAsSuccessNotAParseFailure() {
+        modelReplies("""
+                {"items":[]}
+                """);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(0, result.get().size());
+        assertEquals(0.0, unresolvableCountry("test-model"));
     }
 
     private CountryNews testCountryNews() {
