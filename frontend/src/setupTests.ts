@@ -12,6 +12,12 @@ import type { AxeMatchers } from 'vitest-axe/matchers';
 // the matcher and augment vitest's current Assertion interface ourselves.
 expect.extend(axeMatchers as never);
 
+// NOTE: vitest is pinned to ^4 (see .github/dependabot.yml) because vitest 5 changed
+// `Assertion` to take two type params (`Assertion<R, T>` instead of `Assertion<T>`).
+// @testing-library/jest-dom's bundled vitest types — and likely vitest-axe's own, given
+// the comment above — still target the old single-param signature, so the Assertion
+// declaration below (and jest-dom's own) fails to merge under vitest 5. Revisit the
+// vitest 5 bump once jest-dom ships types compatible with the new signature.
 declare module 'vitest' {
   /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-object-type */
   interface Assertion<T = any> extends AxeMatchers {}
