@@ -20,6 +20,10 @@ updates:
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]  # until typescript-eslint supports TS >=7.1
+      - dependency-name: "vitest"
+        update-types: ["version-update:semver-major"]  # vitest 5 changed its Assertion<R, T> type params;
+        # @testing-library/jest-dom's bundled vitest types (and possibly vitest-axe's) still target the
+        # old single-param signature, breaking TS builds. Revisit once jest-dom ships updated types.
 
   - package-ecosystem: github-actions
     directory: /
