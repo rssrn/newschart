@@ -42,6 +42,11 @@
              Low/Moderate/Important/Low; NVD scores 65905/65637/65182 at 9.8/9.1/9.1 - the OWASP dependency-check
              CVSS>=9.0 build-failure threshold). -->
         <tomcat.version>11.0.25</tomcat.version>
+        <!-- Override: keep Jackson ahead of Boot's managed 3.1.5 / 2.21.5. CVE-2026-110879 (jackson-databind, NVD 9.2)
+             tripped the OWASP dependency-check CVSS>=9.0 build-failure threshold; 3.1.8 / 2.21.8 also include the
+             fixes for CVE-2026-68497, -91776, -91777 and others. -->
+        <jackson-bom.version>3.1.8</jackson-bom.version>
+        <jackson-2-bom.version>2.21.8</jackson-2-bom.version>
         <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
     </properties>
     <dependencyManagement>
@@ -178,6 +183,12 @@
                          has been overloaded and cold updates crawl (see #89). The API is still used
                          for the recent delta. {0} is the year placeholder. -->
                     <nvdDatafeedUrl>https://nvd.nist.gov/feeds/json/cve/2.0/nvdcve-2.0-{0}.json.gz</nvdDatafeedUrl>
+                    <!-- The yearly feeds (up to ~20 MB each) download in parallel. On a slow link each stream's
+                         share of bandwidth stalls past the default read timeout, and one failed year aborts the
+                         whole update, so a cold local scan never completes. 10 minutes is generous enough;
+                         CI is unaffected (fast runners, cached data). -->
+                    <readTimeout>600000</readTimeout>
+                    <connectionTimeout>60000</connectionTimeout>
                     <suppressionFile>${project.basedir}/owasp-suppressions.xml</suppressionFile>
                 </configuration>
                 <executions>
