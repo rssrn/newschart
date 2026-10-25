@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.3] - 2026-10-25
+
+OpenRouter resilience and a security dependency sweep.
+
+### Fixed
+- **OpenRouter responses discarded when a model returned a bare country name** — perplexity/sonar-pro-search sometimes returned `"country": "Nepal"` instead of the requested object; the call succeeded and was billed, then Jackson refused to bind it and the source vanished from that day's map (four occurrences in two weeks across Perplexity and OpenAI). A bare name is now resolved through `CountryFactory`; an unresolvable name drops just that callout, and a response where none resolve is rejected so the pipeline reports failure rather than a silent "Got 0 callouts". Parse failures are now counted in Prometheus, where previously they bypassed `@Retryable` and were invisible.
+- **Release-due check miscounting** — now uses git tags rather than GitHub Releases as the last-release source, and no longer counts the release commit itself.
+
+### Security
+- **Jackson 3.1.8 / 2.21.8** — CVE-2026-110879 (NVD 9.2), which had turned the weekly OWASP dependency check red, plus several high-severity jackson-databind advisories.
+- **Netty 4.2.17 → 4.2.19** — CVE-2026-75595 (SNI-context bypass), then ~20 CVEs fixed in 4.2.18: HTTP/1 request smuggling, HTTP/2 and HTTP/3/QPACK denial of service, QUIC hostname verification.
+- **Tomcat 11.0.25** — CVE-2026-65905, -65637, -65182, -68525.
+- **Kotlin 2.4.21** (transitive via Spring AI) — CVE-2026-53914 (NVD 9.8); the legacy `kotlin-stdlib-common` 1.9.10 jar is now excluded.
+- **Guava 33.7.2-android** (transitive via gRPC) — CVE-2026-102554.
+- **Frontend audit failures** — vite 8.3.5, source-map-js 1.2.2, undici 8.12.3, brace-expansion ^5.0.12 and browserslist ^4.28.8. Individual Dependabot PRs had been deadlocked, each fixing one advisory while the others kept the audit gate red.
+
+### Changed
+- **Dependency updates** — Spring Boot 4.1.0 → 4.1.1, Spring AI 2.0.0 → 2.0.1, gRPC 1.84.0, Maven 3.10.0, plus npm group updates (#112, #114, #117, #125) and Maven group updates (#109, #118).
+- **OWASP dependency-check** — upgraded to 13.0.0. Suppressions were audited: two added (HdrHistogram has no fix; the logback CVEs need a `SiftingAppender`, which isn't used), and three stale or now-redundant rules removed. Download timeouts were raised so a cold local scan completes on slow links.
+
 ## [0.26.2] - 2026-08-13
 
 Closes a public actuator exposure and a CPU-hang in the callout layout algorithm.
