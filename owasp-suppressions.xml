@@ -1,32 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <!--
-        False positive: CVE-2020-29582 affects Kotlin before 1.4.21 (incorrect default permissions in temp files).
-        Every Kotlin artifact we resolve is well past that: 2.3.21 for kotlin-stdlib/-jdk7/-jdk8/-reflect,
-        and 1.9.10 for the kotlin-stdlib-common straggler.
-        This rule previously targeted com.fasterxml.jackson.module/jackson-module-kotlin and recorded
-        "zero matches" on every scan - the CVE actually matches the org.jetbrains.kotlin coordinates.
-    -->
-    <suppress>
-        <notes>Fixed in Kotlin 1.4.21; every Kotlin artifact we resolve is far past it. Version-agnostic by design.</notes>
-        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
-        <cve>CVE-2020-29582</cve>
-    </suppress>
-    <!--
-        Not reachable, fix now available: CVE-2026-53914 (unsafe deserialization in Kotlin build-cache
-        metadata, NVD 9.8) is fixed in 2.4.20, which reached GA after this rule was written (2.4.21 is current
-        as of 2026-10-25). Kotlin arrives transitively via spring-ai-starter-model-openai -> kotlin-reflect
-        -> kotlin-stdlib (2.3.21); this app is pure Java and never touches Kotlin's Gradle build-cache
-        deserialization path, so it isn't reachable at runtime. Remove this suppression once Kotlin is
-        overridden to 2.4.20+ (or Spring AI / Boot pull it in). Still required until then: without it the
-        CVSS>=9.0 gate fails.
-    -->
-    <suppress>
-        <notes>Not reachable at runtime in this pure-Java app. Fixed in Kotlin 2.4.20 (now GA); remove once Kotlin is overridden or upgraded to 2.4.20+.</notes>
-        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
-        <cve>CVE-2026-53914</cve>
-    </suppress>
-    <!--
         No fix released: CVE-2026-14683 / CVE-2026-14686 (CVSS 2.0 LOW) affect HdrHistogram up to 2.2.2, which is
         the latest release as of 2026-10-25. The flaws are in decodeFromCompressedByteBuffer and
         DoubleHistogram.recordValue. HdrHistogram arrives transitively via micrometer-core, which records

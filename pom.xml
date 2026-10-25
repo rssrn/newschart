@@ -29,11 +29,17 @@
     <properties>
         <revision>0.26.2</revision>
         <java.version>21</java.version>
-        <!-- Override: keep Netty one patch ahead of Boot's managed 4.2.15.Final. Originally pinned for DNS bailiwick CVEs
-             (CVE-2026-45674, CVE-2026-47691); raised to 4.2.16.Final for CVE-2026-56820 (OCSP CertificateID validation,
-             NVD 9.1 CRITICAL); raised to 4.2.17.Final for CVE-2026-75595 (SslClientHelloHandler SNI-context bypass,
-             NVD 9.1 CRITICAL) — affects only per-SNI mutual-TLS server setups, which this app is not. -->
-        <netty.version>4.2.17.Final</netty.version>
+        <!-- Override: keep Netty ahead of Boot's managed version (4.2.17.Final as of Boot 4.1.1). Originally pinned for
+             DNS bailiwick CVEs (CVE-2026-45674, CVE-2026-47691); raised to 4.2.16.Final for CVE-2026-56820 (OCSP
+             CertificateID validation, NVD 9.1 CRITICAL); raised to 4.2.17.Final for CVE-2026-75595 (SslClientHelloHandler
+             SNI-context bypass, NVD 9.1 CRITICAL) — affects only per-SNI mutual-TLS server setups, which this app is not.
+             Raised to 4.2.19.Final for ~20 CVEs fixed in 4.2.18 (HTTP/1 request smuggling, HTTP/2 and HTTP/3/QPACK DoS,
+             QUIC hostname verification; up to NVD 8.7). -->
+        <netty.version>4.2.19.Final</netty.version>
+        <!-- Override: Boot 4.1.1 manages Kotlin 2.3.21, affected by CVE-2026-53914 (build-cache metadata
+             deserialization, NVD 9.8; fixed in 2.4.20). Kotlin arrives only transitively via Spring AI's OpenAI
+             starter (kotlin-reflect) and okhttp/okio. -->
+        <kotlin.version>2.4.21</kotlin.version>
         <!-- Override: keep Tomcat one patch ahead of Boot's managed 11.0.22 and raise past 11.0.23. 11.0.23 fixed
              CVE-2026-55276, CVE-2026-53434 and CVE-2026-55956 (Tomcat rates these Low/Low/Moderate; NVD scores
              55276/53434 at 9.1 CRITICAL). 11.0.24 fixes CVE-2026-59083 and CVE-2026-59084 (Tomcat: Low; NVD: 9.1
@@ -57,6 +63,13 @@
               <version>2.0.1</version>
               <type>pom</type>
               <scope>import</scope>
+          </dependency>
+          <!-- Guava arrives via io.grpc:grpc-api at 33.6.0-android; CVE-2026-102554 (CompactHashMap/CompactHashSet
+               deserialization DoS, NVD 5.9) affects versions through 33.7.1. Keep the -android flavour grpc expects. -->
+          <dependency>
+              <groupId>com.google.guava</groupId>
+              <artifactId>guava</artifactId>
+              <version>33.7.2-android</version>
           </dependency>
       </dependencies>
     </dependencyManagement>
@@ -121,6 +134,15 @@
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-openai</artifactId>
+            <exclusions>
+                <!-- okhttp -> okio drags in the legacy kotlin-stdlib-common 1.9.10 jar, which kotlin.version can't
+                     move (since Kotlin 2.x it's a pom-only stub; kotlin-stdlib carries its classes). Excluding it
+                     stops CVE-2026-53914 matching the straggler. -->
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib-common</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
