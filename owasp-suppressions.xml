@@ -1,22 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <!--
-        False positives: MongoDB Server CVEs incorrectly matched against Spring Boot Data MongoDB
-        These CVEs affect MongoDB Server, not the Spring Data MongoDB client library
-    -->
-    <suppress>
-        <notes>
-            CVEs for MongoDB Server (database) incorrectly matched against Spring Boot Data MongoDB (Java client).
-            These artifacts are Spring Boot modules and carry Spring Boot's version, which the NVD matcher
-            mistakes for a MongoDB Server version. Deliberately version-agnostic: an exact-version regex here
-            (previously @4.0.1) silently stopped matching the moment Spring Boot was upgraded, letting the
-            false positives resurface.
-        </notes>
-        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring-boot.*mongodb.*@.*$</packageUrl>
-        <vulnerabilityName regex="true">^CVE-.*$</vulnerabilityName>
-        <cpe>cpe:/a:mongodb:mongodb</cpe>
-    </suppress>
-    <!--
         False positive: CVE-2020-29582 affects Kotlin before 1.4.21 (incorrect default permissions in temp files).
         Every Kotlin artifact we resolve is well past that: 2.3.21 for kotlin-stdlib/-jdk7/-jdk8/-reflect,
         and 1.9.10 for the kotlin-stdlib-common straggler.
@@ -29,16 +13,43 @@
         <cve>CVE-2020-29582</cve>
     </suppress>
     <!--
-        No fix released yet: CVE-2026-53914 (unsafe deserialization in Kotlin build-cache metadata) is
-        fixed in 2.4.20, but as of 2026-08-02 Maven Central's latest is still only 2.4.20-Beta2 - no stable
-        release to upgrade to. Kotlin arrives transitively via spring-ai-starter-model-openai -> kotlin-reflect
+        Not reachable, fix now available: CVE-2026-53914 (unsafe deserialization in Kotlin build-cache
+        metadata, NVD 9.8) is fixed in 2.4.20, which reached GA after this rule was written (2.4.21 is current
+        as of 2026-10-25). Kotlin arrives transitively via spring-ai-starter-model-openai -> kotlin-reflect
         -> kotlin-stdlib (2.3.21); this app is pure Java and never touches Kotlin's Gradle build-cache
-        deserialization path, so it isn't reachable at runtime. Revisit once 2.4.20 (or later) reaches GA
-        and remove this suppression.
+        deserialization path, so it isn't reachable at runtime. Remove this suppression once Kotlin is
+        overridden to 2.4.20+ (or Spring AI / Boot pull it in). Still required until then: without it the
+        CVSS>=9.0 gate fails.
     -->
     <suppress>
-        <notes>No stable fix available yet (2.4.20 is still at Beta2); not reachable at runtime in this pure-Java app. Revisit when 2.4.20 GA ships.</notes>
+        <notes>Not reachable at runtime in this pure-Java app. Fixed in Kotlin 2.4.20 (now GA); remove once Kotlin is overridden or upgraded to 2.4.20+.</notes>
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/.*@.*$</packageUrl>
         <cve>CVE-2026-53914</cve>
+    </suppress>
+    <!--
+        No fix released: CVE-2026-14683 / CVE-2026-14686 (CVSS 2.0 LOW) affect HdrHistogram up to 2.2.2, which is
+        the latest release as of 2026-10-25. The flaws are in decodeFromCompressedByteBuffer and
+        DoubleHistogram.recordValue. HdrHistogram arrives transitively via micrometer-core, which records
+        histograms from its own timer values; this app never decodes externally supplied histograms.
+        Revisit if a release after 2.2.2 ships.
+    -->
+    <suppress>
+        <notes>No fix released (2.2.2 is latest); LOW severity; vulnerable decoding path not reachable from outside (Micrometer-internal). Revisit when HdrHistogram releases past 2.2.2.</notes>
+        <packageUrl regex="true">^pkg:maven/org\.hdrhistogram/HdrHistogram@.*$</packageUrl>
+        <cve>CVE-2026-14683</cve>
+        <cve>CVE-2026-14686</cve>
+    </suppress>
+    <!--
+        Not reachable: CVE-2026-104721 / CVE-2026-19880 (CVSS 6.3) are path traversals where an MDC-based
+        discriminator value flows into a nested FileAppender path, i.e. they require a SiftingAppender
+        configuration. This app has no logback.xml and uses Spring Boot's default console logging, with no
+        SiftingAppender or MDC discriminator anywhere. The fix is only in logback 1.6.5 (affected: through
+        1.6.4), a new minor line Spring Boot does not yet manage. Remove once Boot moves to a fixed logback.
+    -->
+    <suppress>
+        <notes>Requires a SiftingAppender with an MDC discriminator; this app has no logback config and uses Boot's default console logging. Fixed only in logback 1.6.5; remove once Boot manages a fixed version.</notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.logback/logback-.*@.*$</packageUrl>
+        <cve>CVE-2026-104721</cve>
+        <cve>CVE-2026-19880</cve>
     </suppress>
 </suppressions>
