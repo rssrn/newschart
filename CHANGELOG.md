@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.0] - 2026-11-15
+
+Gemini now runs through OpenRouter, bringing the Gemini source back to the map.
+
+### Changed
+- **Gemini is called through OpenRouter by default** — the direct Google API had been failing since 2026-10-27 with HTTP 402 ("prepayment credits are depleted"), so the Gemini source was missing from the map and NYT callouts fell back to plain headline lists. A new `gemini.route` setting (`openrouter` | `direct`) selects the route for both the Gemini callouts (`google/gemini-2.5-flash:online`) and the NYT summariser (`google/gemini-2.5-flash-lite`). A direct key needs its own billed Google project, which isn't worth it for a demo site; the direct route is kept but off. Gemini callouts are still saved as `GOOGLE_GEMINI`, so history and consensus carry on, and now share OpenRouter's parse-failure alert, full-text logging and cost tracking. The `gemini.*.exhausted` Grafana panels will stay at zero on this route.
+- **/method page** — Gemini is now described as using OpenRouter's web search rather than Google Search grounding.
+
+### Fixed
+- **Model replies that return the callout list without its `{"items": ...}` wrapper** — the JSON extraction trimmed a bare list to `{...},{...}`, which failed to parse. Gemini returned this shape in local testing; it is now wrapped before binding.
+
 ## [0.26.4] - 2026-11-15
 
 Full-text logging for unparseable model responses, and a MongoDB driver security fix.
