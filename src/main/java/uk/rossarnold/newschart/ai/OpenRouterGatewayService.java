@@ -196,6 +196,9 @@ public class OpenRouterGatewayService {
             result = converter.convert(extractJson(raw));
         } catch (Exception e) {
             log.error("Could not parse response from model {}: {}", model, e.getMessage());
+            // Jackson redacts the source from its message, and extractJson only logs a prefix, so
+            // without the full text there's no way to tell after the fact what the model sent.
+            log.error("Unparseable response from model {} (generation {}), full text:\n{}", model, id, raw);
             parseFailureCounter(model, REASON_UNPARSEABLE).increment();
             return Optional.empty();
         }
