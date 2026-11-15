@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.4] - 2026-11-15
+
+Full-text logging for unparseable model responses, and a MongoDB driver security fix.
+
+### Changed
+- **Unparseable OpenRouter responses are now logged in full** — alongside the model and generation ID. Parse failures have been dropping a source from the map roughly twice a week (Claude Haiku replies ending mid-JSON, occasional malformed JSON from GPT mini and Perplexity), but Jackson redacts the source from its error and only the first 100 characters were logged, so there was no way to tell what the model actually sent.
+
+### Security
+- **MongoDB driver 5.11.1** (overriding Boot's managed 5.8.1) — CVE-2026-18710 (cleartext credential logged at client init), CVE-2026-88032 (reactive CSFLE use-after-free) and CVE-2026-88033 (GridFS query injection). Flagged by OWASP dependency-check only; Dependabot has no mapping for them.
+
 ## [0.26.3] - 2026-10-25
 
 OpenRouter resilience and a security dependency sweep.
