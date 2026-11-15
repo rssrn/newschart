@@ -35,6 +35,8 @@ import uk.rossarnold.newschart.news.highlights.CountryNews;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class OpenRouterGatewayService {
@@ -78,6 +80,8 @@ public class OpenRouterGatewayService {
     static final String REASON_UNPARSEABLE = "unparseable";
     static final String REASON_UNRESOLVABLE_COUNTRY = "unresolvable_country";
 
+    private static final Pattern BARE_LIST_START = Pattern.compile("\\[\\s*\\{");
+
     public OpenRouterGatewayService(OpenAiChatModel chatModel,
                                     MeterRegistry meterRegistry,
                                     ThreadPoolTaskScheduler taskScheduler,
@@ -112,16 +116,16 @@ public class OpenRouterGatewayService {
             },
             backoff = @Backoff(delayExpression = "${openrouter.retry.delay-ms:30000}", multiplier = 2)
     )
-    public Optional<StoryOutline> summariseStories(CountryNews countryNews) {
+    public Optional<StoryOutline> summariseStories(CountryNews countryNews, String model) {
         String prompt = AiPrompts.buildSummariseStoriesPrompt(countryNews);
-        log.info("Calling OpenRouter {} to summarise stories", MAIN_SUMMARY_MODEL);
+        log.info("Calling OpenRouter {} to summarise stories", model);
         log.debug("... with prompt: {}", prompt);
 
         return Optional.ofNullable(
                 chatClient.prompt()
                         .user(prompt)
                         .options(OpenAiChatOptions.builder()
-                                .model(MAIN_SUMMARY_MODEL)
+                                .model(model)
                                 .maxTokens(maxTokens))
                         .call()
                         .entity(StoryOutline.class)
@@ -287,6 +291,19 @@ public class OpenRouterGatewayService {
         String prefix = raw.substring(0, Math.min(raw.length(), 100));
         log.info("Extracting json from: {}", prefix);
         int braceStart = raw.indexOf('{');
+
+        // Some models (google/gemini-2.5-flash) return the list bare, without the {"items": ...}
+        // wrapper the schema asks for. Trimming that to the outer braces below would leave
+        // "{...},{...}", so wrap it instead. Requiring "[" directly before the first "{" keeps a
+        // citation such as "[1]" in a preamble from being mistaken for the start of the list.
+        Matcher bareList = BARE_LIST_START.matcher(raw);
+        if (bareList.find() && bareList.end() - 1 == braceStart) {
+            int listEnd = raw.indexOf(']', raw.lastIndexOf('}'));
+            if (listEnd > 0) {
+                return "{\"items\":" + raw.substring(bareList.start(), listEnd + 1) + "}";
+            }
+        }
+
         if (braceStart > 0) raw = raw.substring(braceStart);
         int braceEnd = raw.lastIndexOf('}');
         if (braceEnd >= 0 && braceEnd < raw.length() - 1) raw = raw.substring(0, braceEnd + 1);

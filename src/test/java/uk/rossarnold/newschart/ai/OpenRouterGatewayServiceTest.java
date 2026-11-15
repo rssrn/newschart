@@ -34,7 +34,10 @@ import uk.rossarnold.newschart.geo.CountryFactory;
 import uk.rossarnold.newschart.news.highlights.CountryNews;
 import uk.rossarnold.newschart.news.highlights.NewsItem;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -198,7 +201,7 @@ class OpenRouterGatewayServiceTest {
     void summariseStoriesRetriesThreeTimesOnInternalServerExceptionThenRecovers() {
         when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(InternalServerException.class));
 
-        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews(), "test-model");
 
         assertTrue(result.isEmpty());
         verify(openAiChatModel, times(3)).call(any(Prompt.class));
@@ -208,7 +211,7 @@ class OpenRouterGatewayServiceTest {
     void summariseStoriesRetriesThreeTimesOnOpenAIIoExceptionThenRecovers() {
         when(openAiChatModel.call(any(Prompt.class))).thenThrow(new OpenAIIoException("connection timeout"));
 
-        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews(), "test-model");
 
         assertTrue(result.isEmpty());
         verify(openAiChatModel, times(3)).call(any(Prompt.class));
@@ -218,7 +221,7 @@ class OpenRouterGatewayServiceTest {
     void summariseStoriesRetriesThreeTimesOnRateLimitExceptionThenRecovers() {
         when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(RateLimitException.class));
 
-        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews(), "test-model");
 
         assertTrue(result.isEmpty());
         verify(openAiChatModel, times(3)).call(any(Prompt.class));
@@ -228,7 +231,7 @@ class OpenRouterGatewayServiceTest {
     void summariseStoriesDoesNotRetryOnBadRequestExceptionAndRecovers() {
         when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(BadRequestException.class));
 
-        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews(), "test-model");
 
         assertTrue(result.isEmpty());
         verify(openAiChatModel, times(1)).call(any(Prompt.class));
@@ -238,7 +241,7 @@ class OpenRouterGatewayServiceTest {
     void summariseStoriesDoesNotRetryOnUnauthorizedExceptionAndRecovers() {
         when(openAiChatModel.call(any(Prompt.class))).thenThrow(Mockito.mock(UnauthorizedException.class));
 
-        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews());
+        Optional<StoryOutline> result = openRouterGatewayService.summariseStories(testCountryNews(), "test-model");
 
         assertTrue(result.isEmpty());
         verify(openAiChatModel, times(1)).call(any(Prompt.class));
@@ -291,6 +294,58 @@ class OpenRouterGatewayServiceTest {
     }
 
     // === tolerant country binding ===
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void acceptsAListReturnedWithoutTheItemsWrapper() {
+        // the shape google/gemini-2.5-flash:online returned on 2026-11-15
+        modelReplies("""
+                [
+                  {"country":"Nepal","headline":"A","detail":"D","extendedDetail":"E"},
+                  {"country":"Nepal","headline":"B","detail":"D","extendedDetail":"E"}
+                ]
+                """);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(2, result.get().size());
+        assertEquals(0.0, unparseable("test-model"));
+    }
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void parsesTheBareListGeminiActuallyReturned() throws IOException {
+        // captured verbatim from google/gemini-2.5-flash:online on 2026-11-15, the reply that
+        // failed to parse before the bare-list handling was added
+        String captured;
+        try (var in = getClass().getResourceAsStream("/openrouter/gemini-bare-list-2026-11-15.json")) {
+            captured = new String(Objects.requireNonNull(in).readAllBytes(), StandardCharsets.UTF_8);
+        }
+        modelReplies(captured);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(List.of("China", "Bahrain", "Yemen"),
+                result.get().stream().map(c -> c.getCountry().getName()).toList());
+        assertEquals(0.0, unparseable("test-model"));
+    }
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void doesNotMistakeABracketedCitationInAPreambleForABareList() {
+        modelReplies("""
+                Based on today's reporting [1]:
+                {"items":[{"country":"Nepal","headline":"H","detail":"D","extendedDetail":"E"}]}
+                """);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size());
+    }
+
 
     @Test
     void recoversAResponseThatGivesTheCountryAsABareName() {

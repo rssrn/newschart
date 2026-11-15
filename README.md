@@ -36,7 +36,7 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 
 **Features:**
 - Daily news from four sources: Gemini, Perplexity, ChatGPT, and NYT RSS
-- AI-powered summarisation and geo-tagging via Google Gemini and OpenRouter models
+- AI-powered summarisation and geo-tagging, with every model reached through OpenRouter
 - Interactive Mercator / Natural Earth world map with up to 3 story callouts
 - Time travel — browse historical news by date (desktop slider or mobile chip strip)
 - Callout layout algorithm that minimises overlaps and connector crossings (based on PFLP literature)
@@ -71,8 +71,8 @@ The result is part news reader, part AI observatory: a way to watch - across dif
 - Java 21+
 - Node.js 20+ and npm
 - MongoDB (via Docker Compose, or a local install)
-- Google Gemini API key (for AI summarisation)
-- OpenRouter API key (optional, for Perplexity/OpenAI sources)
+- OpenRouter API key (for all AI sources and summarisation, Gemini included)
+- Google Gemini API key (only if `gemini.route=direct`; see below)
 
 ### 1. Install git hooks
 
@@ -91,10 +91,17 @@ docker compose up -d mongodb
 ### 3. Start the backend
 
 ```bash
-export GOOGLE_API_KEY=your_gemini_key
-export OPENROUTER_API_KEY=your_openrouter_key   # optional, for Perplexity/OpenAI
+export OPENROUTER_API_KEY=your_openrouter_key
+export GOOGLE_API_KEY=unused   # must be set; only used when gemini.route=direct
 ./mvnw spring-boot:run
 ```
+
+Gemini is called through OpenRouter by default (`gemini.route=openrouter`). Setting
+`gemini.route=direct` calls Google's API instead, with Google Search grounding, but that needs
+`GOOGLE_API_KEY` from its own billed Google Cloud project. The direct route was kept so some
+content could still be shown if OpenRouter failed; for a personal demo site that isn't worth a
+second provider account, so it's off. NYT callouts still appear without OpenRouter, as plain
+headline lists, because summarisation falls back to concatenating them.
 
 The backend starts on port 8080 and begins ingesting news on a schedule.
 
@@ -143,12 +150,12 @@ Scheduler → Pipeline Orchestrator → News Source
 
 | Source | Model | Notes |
 |---|---|---|
-| Gemini | `gemini-2.5-flash` | Google Search grounding enabled |
+| Gemini | `google/gemini-2.5-flash:online` | Via OpenRouter, `:online` web search plugin (`gemini.route=direct`: `gemini-2.5-flash` with Google Search grounding) |
 | Perplexity | `perplexity/sonar-pro-search` | Via OpenRouter, native web search |
 | OpenAI | `~openai/gpt-mini-latest:online` | Via OpenRouter, `:online` web search plugin |
 | Anthropic | `~anthropic/claude-haiku-latest:online` | Via OpenRouter, `:online` web search plugin |
 | xAI | `x-ai/grok-4.3:online` | Via OpenRouter, `:online` web search plugin |
-| NYT RSS | `gemini-2.5-flash-lite` (2.5, geo-tag only) | Human-curated feed; Gemini summarises and geo-tags, search grounding off |
+| NYT RSS | `google/gemini-2.5-flash-lite` (geo-tag only) | Human-curated feed; Gemini summarises and geo-tags via OpenRouter, search off |
 
 ### Frontend (`frontend/src/`)
 
@@ -294,7 +301,7 @@ See `.github/workflows/deploy-to-live.yml` for details.
 
 Built with:
 - [Spring Boot 4](https://spring.io/projects/spring-boot) — backend framework
-- [Google Gemini API](https://ai.google.dev/) — AI summarisation and geo-tagging
+- [Google Gemini API](https://ai.google.dev/) — AI summarisation and geo-tagging (reached via OpenRouter by default)
 - [OpenRouter](https://openrouter.ai/) — multi-model AI gateway (Perplexity, OpenAI, etc.)
 - [React 19](https://react.dev/) — frontend framework
 - [d3-geo](https://github.com/d3/d3-geo) — geographic projections

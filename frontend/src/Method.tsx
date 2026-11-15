@@ -284,8 +284,9 @@ const Method = (): React.ReactElement => (
         </div>
         <ul>
           <li>
-            <strong>Gemini 2.5 Flash</strong> — uses Google's Search grounding
-            to connect to real-time web content via Google's own index.
+            <strong>Gemini 2.5 Flash</strong> — called through OpenRouter with
+            OpenRouter's web search plugin. Earlier versions called Google
+            directly with Google Search grounding.
           </li>
           <li>
             <strong>Perplexity Sonar Pro Search</strong> — an agentic search
@@ -325,10 +326,10 @@ const Method = (): React.ReactElement => (
         <p>
           The primary selection criterion was native search grounding — a model
           that can't search the live web can't reliably report today's news.
-          Five LLM sources with meaningfully different retrieval approaches (Google
-          Search, Perplexity's own index, OpenAI's index, Anthropic's native search
-          tool, and Grok's X/Twitter index) means the divergences between them tend
-          to be informative rather than random.
+          Five LLM sources with largely different retrieval approaches (Perplexity's
+          own index, OpenAI's index, Anthropic's native search tool, Grok's X/Twitter
+          index, and OpenRouter's web search for Gemini) means the divergences between
+          them tend to be informative rather than random.
         </p>
 
         <h3>The prompt</h3>

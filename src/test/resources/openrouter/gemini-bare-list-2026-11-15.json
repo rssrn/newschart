@@ -1,0 +1,38 @@
+[
+  {
+    "country": {
+      "iso2": "CN",
+      "isoNumeric": "156",
+      "latitude": 35.86166,
+      "longitude": 104.195397,
+      "name": "China"
+    },
+    "detail": "Putin, Xi, and Trump to hold trilateral meeting next week.",
+    "extendedDetail": "A trilateral meeting between Russian President Vladimir Putin, Chinese President Xi Jinping, and US President Donald Trump is scheduled for November 19 in Shenzhen, China, on the sidelines of the APEC summit. While the leaders aim to discuss global flashpoints like wars in Ukraine and Iran, nuclear weapons, and AI, prospects for a grand bargain are slim. [aa.com.tr](https://aa.com.tr/en/world/morning-briefing-nov-15-2026/4125489), [devdiscourse.com](https://www.devdiscourse.com/article/international/4007130-reuters-world-news-summary)",
+    "headline": "Leaders to Meet Amid Global Tensions"
+  },
+  {
+    "country": {
+      "iso2": "BH",
+      "isoNumeric": "048",
+      "latitude": 25.930414,
+      "longitude": 50.637772,
+      "name": "Bahrain"
+    },
+    "detail": "Bahrain intercepts Iranian aerial attacks, Tehran claims US base hit.",
+    "extendedDetail": "Bahrain intercepted several Iranian aerial attacks on Sunday, following warnings for residents to seek shelter. Tehran's Revolutionary Guard claims responsibility for striking a US military base in the Gulf nation. This incident occurred amidst uncertainty surrounding a deal to end the US-Israeli war on Iran. [thehindu.com](https://www.thehindu.com/news/top-news-of-the-day-november-15-2026/article71704729.ece), [devdiscourse.com](https://www.devdiscourse.com/article/international/4007130-reuters-world-news-summary), [apnews.com](https://apnews.com/article/mideast-news-israel-gaza-iran-november-15-2026-3b4adde832dadd333451fd2f7a51908c)",
+    "headline": "Iran Attacks US Base in Bahrain"
+  },
+  {
+    "country": {
+      "iso2": "YE",
+      "isoNumeric": "887",
+      "latitude": 15.552727,
+      "longitude": 48.516388,
+      "name": "Yemen"
+    },
+    "detail": "Yemeni government forces withdraw from Bab el-Mandeb Strait area.",
+    "extendedDetail": "Yemeni government forces have withdrawn from an area overlooking the strategic Bab el-Mandeb Strait, ceding control to the Iran-aligned Houthis. This move grants the Houthis greater leverage over the crucial maritime chokepoint, posing a significant threat to global shipping. The Houthis have also intensified attacks on the Saudi capital. [devdiscourse.com](https://www.devdiscourse.com/article/international/4007130-reuters-world-news-summary)",
+    "headline": "Houthis Control Bab el-Mandeb Strait"
+  }
+]

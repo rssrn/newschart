@@ -39,7 +39,7 @@ The backend uses a pipeline-based architecture for processing news:
 2. **News ingestion** (`news/`) - RSS storage and processing: `source/` (NYT RSS), `highlights/` (processed highlights), `pipeline/` (modular pipeline with base + NYT, Gemini, and OpenRouter orchestrators)
 3. **Callouts** (`callout/`) - Story callout domain: entity, repo, service
 4. **Schedulers** (`scheduler/`) - Background task scheduling
-5. **AI Integration** (`ai/`) - Google Gemini API via `GeminiGatewayService`
+5. **AI Integration** (`ai/`) - `OpenRouterGatewayService` for every model. Gemini goes through OpenRouter too unless `gemini.route=direct` (`GeminiRouteConfig`), which calls Google via `GeminiGatewayService` and needs a billed Google project; the direct route is kept but off, as a second provider isn't worth it for a demo site
 6. **Geo** (`geo/`) - Country entity and factory
 
 ### Frontend Structure
@@ -81,10 +81,11 @@ node scripts/run-layout-tests.mjs --tag needs-fix --screenshots --failures-only
 - **Backend**: Spring Boot 4.0.x, Java 21, MongoDB, WebFlux
 - **Frontend**: React 19, d3-geo, topojson-client
 - **Testing**: Testcontainers (MongoDB), Vitest, React Testing Library, Playwright
-- **AI**: Google Gemini API (gemini-2.5-flash-lite model)
+- **AI**: OpenRouter (Gemini 2.5 Flash/Flash-Lite, Perplexity, GPT, Claude, Grok)
 
 ## Environment Variables
-- Gemini API key configured in application properties
+- `OPENROUTER_API_KEY` — all AI calls
+- `GOOGLE_API_KEY` — must be set for startup, but only used when `gemini.route=direct`
 
 ## Analytics
 - Umami tracking is wired via `track(eventName, properties)` in `frontend/src/utils/analytics.ts`

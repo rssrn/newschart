@@ -19,19 +19,21 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AiSummaryServiceTest {
 
-    @InjectMocks
     private AiSummaryService aiSummaryService;
 
     @Mock
-    @SuppressWarnings("unused") // injected into aiSummaryService via @InjectMocks
     private GeminiGatewayService geminiGatewayService;
     @Mock
-    @SuppressWarnings("unused") // injected into aiSummaryService via @InjectMocks
     private OpenRouterGatewayService openRouterGatewayService;
+
+    private GeminiRouteConfig routeConfig;
 
 
     @InjectMocks
@@ -41,6 +43,8 @@ class AiSummaryServiceTest {
     void setUp() throws IOException {
         countryFactory = new CountryFactory(new DefaultResourceLoader());
         countryFactory.init();
+        routeConfig = new GeminiRouteConfig();
+        aiSummaryService = new AiSummaryService(geminiGatewayService, openRouterGatewayService, routeConfig);
     }
 
     @Test
@@ -65,4 +69,50 @@ class AiSummaryServiceTest {
 
     }
 
+    // === Gemini route ===
+
+    /** @author Claude Opus 5.5 Anthropic */
+    private CountryNews ukNews() {
+        Country uk = countryFactory.getCountry("United Kingdom");
+        return new CountryNews(uk, List.of(new NewsItem(CalloutSource.NEW_YORK_TIMES, "TITLE", "", "", List.of(uk))));
+    }
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void openRouterRouteSummarisesWithGeminiModelViaOpenRouter() {
+        routeConfig.setRoute(GeminiRouteConfig.Route.OPENROUTER);
+        CountryNews news = ukNews();
+        StoryOutline outline = new StoryOutline("United Kingdom", "T", "B", "E");
+        when(openRouterGatewayService.summariseStories(news, routeConfig.getOpenrouterSummaryModel()))
+                .thenReturn(Optional.of(outline));
+
+        assertEquals(Optional.of(outline), aiSummaryService.summariseStories(news));
+        verifyNoInteractions(geminiGatewayService);
+    }
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void directRouteSummarisesWithGeminiDirectly() {
+        routeConfig.setRoute(GeminiRouteConfig.Route.DIRECT);
+        CountryNews news = ukNews();
+        StoryOutline outline = new StoryOutline("United Kingdom", "T", "B", "E");
+        when(geminiGatewayService.summariseStories(news)).thenReturn(Optional.of(outline));
+
+        assertEquals(Optional.of(outline), aiSummaryService.summariseStories(news));
+        verifyNoInteractions(openRouterGatewayService);
+    }
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void openRouterRouteFallsBackToMainSummaryModelThenConcat() {
+        routeConfig.setRoute(GeminiRouteConfig.Route.OPENROUTER);
+        CountryNews news = ukNews();
+        when(openRouterGatewayService.summariseStories(any(), anyString())).thenReturn(Optional.empty());
+
+        Optional<StoryOutline> result = aiSummaryService.summariseStories(news);
+
+        verify(openRouterGatewayService).summariseStories(news, routeConfig.getOpenrouterSummaryModel());
+        verify(openRouterGatewayService).summariseStories(news, OpenRouterGatewayService.MAIN_SUMMARY_MODEL);
+        assertEquals("News from United Kingdom", result.orElseThrow().title());
+    }
 }

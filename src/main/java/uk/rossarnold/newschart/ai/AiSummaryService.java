@@ -18,6 +18,7 @@ public class AiSummaryService {
 
     private final GeminiGatewayService geminiGatewayService;
     private final OpenRouterGatewayService openRouterGatewayService;
+    private final GeminiRouteConfig geminiRouteConfig;
 
     enum SummaryProvider {GEMINI, OPENROUTER, CONCAT}
 
@@ -29,9 +30,11 @@ public class AiSummaryService {
 
     private static final int NUM_CONCAT_ITEMS = 5;
 
-    public AiSummaryService(GeminiGatewayService geminiGatewayService, OpenRouterGatewayService openRouterGatewayService) {
+    public AiSummaryService(GeminiGatewayService geminiGatewayService, OpenRouterGatewayService openRouterGatewayService,
+                            GeminiRouteConfig geminiRouteConfig) {
         this.geminiGatewayService = geminiGatewayService;
         this.openRouterGatewayService = openRouterGatewayService;
+        this.geminiRouteConfig = geminiRouteConfig;
     }
 
     public Optional<StoryOutline> summariseStories(CountryNews countryNews) {
@@ -46,7 +49,9 @@ public class AiSummaryService {
             switch (sp) {
                 case GEMINI -> {
                     try {
-                        response = geminiGatewayService.summariseStories(countryNews);
+                        response = geminiRouteConfig.viaOpenRouter()
+                                ? openRouterGatewayService.summariseStories(countryNews, geminiRouteConfig.getOpenrouterSummaryModel())
+                                : geminiGatewayService.summariseStories(countryNews);
                     } catch (Exception e) {
                         log.error("Unexpected exception from gemini summarise", e);
                         // fall through to next in fallback order
@@ -54,7 +59,7 @@ public class AiSummaryService {
                 }
                 case OPENROUTER -> {
                     try {
-                        response = openRouterGatewayService.summariseStories(countryNews);
+                        response = openRouterGatewayService.summariseStories(countryNews, OpenRouterGatewayService.MAIN_SUMMARY_MODEL);
                     } catch (Exception e) {
                         log.error("Unexpected exception from openrouter summarise", e);
                         // fall through to next in fallback order
