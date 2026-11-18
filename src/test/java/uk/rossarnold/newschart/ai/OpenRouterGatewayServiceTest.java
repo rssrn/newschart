@@ -278,19 +278,54 @@ class OpenRouterGatewayServiceTest {
         Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
 
         assertTrue(result.isEmpty());
+        // counted once for the lost source, not once per attempt
         assertEquals(1.0, unparseable("test-model"));
-        // this path never reaches @Recover, so the exhausted counter must stay untouched
+        // an unusable reply is not an HTTP failure, so the exhausted counter must stay untouched
         assertEquals(0.0, meterRegistry.counter(OpenRouterGatewayService.OPENROUTER_GETCALLOUTS_EXHAUSTED).count());
     }
 
+    /** @author Claude Opus 5.5 Anthropic */
     @Test
-    void doesNotRetryOnAParseFailure() {
+    void retriesAParseFailureUpToThreeTimes() {
         modelReplies("not json at all");
 
         openRouterGatewayService.getCallouts("test-model");
 
-        // the response already arrived, so a retry would just pay for the same call again
-        verify(openAiChatModel, times(1)).call(any(Prompt.class));
+        verify(openAiChatModel, times(3)).call(any(Prompt.class));
+    }
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void aRetryThatParsesSucceedsWithoutCountingAFailure() {
+        // the 2026-11-16 Haiku reply: cut off mid-object at max_tokens
+        ChatResponse truncated = new ChatResponse(
+                List.of(new Generation(new AssistantMessage("{\"items\":[{\"country\":\"Nepal\",\"detail\":\""))),
+                ChatResponseMetadata.builder().id("gen-1").build());
+        ChatResponse good = new ChatResponse(
+                List.of(new Generation(new AssistantMessage(NEPAL_OBJECT))),
+                ChatResponseMetadata.builder().id("gen-2").build());
+        when(openAiChatModel.call(any(Prompt.class))).thenReturn(truncated, good);
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isPresent());
+        assertEquals(1, result.get().size());
+        verify(openAiChatModel, times(2)).call(any(Prompt.class));
+        // the source made it onto the map, so there is nothing to alert on
+        assertEquals(0.0, unparseable("test-model"));
+    }
+
+    /** @author Claude Opus 5.5 Anthropic */
+    @Test
+    void treatsAnEmptyReplyAsUnparseableAndRetries() {
+        // the 2026-11-18 Grok reply: no content at all
+        modelReplies("");
+
+        Optional<List<Callout>> result = openRouterGatewayService.getCallouts("test-model");
+
+        assertTrue(result.isEmpty());
+        verify(openAiChatModel, times(3)).call(any(Prompt.class));
+        assertEquals(1.0, unparseable("test-model"));
     }
 
     // === tolerant country binding ===

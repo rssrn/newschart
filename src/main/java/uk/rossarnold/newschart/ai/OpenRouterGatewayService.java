@@ -49,8 +49,9 @@ public class OpenRouterGatewayService {
 
     // OpenRouter reserves credit for prompt + max_tokens before running a request, so an
     // unset ceiling defaults to the model's own maximum (8k-128k depending on model) and
-    // makes calls unaffordable long before the balance is actually spent. Observed output
-    // is 604-1616 tokens per call, so 4000 leaves ample headroom against truncation.
+    // makes calls unaffordable long before the balance is actually spent. The ceiling also
+    // covers hidden reasoning tokens, not just the visible JSON: on 2026-11-16 Haiku spent
+    // 3440 of 4000 on reasoning and the reply was cut off mid-object, so 8000 is the default.
     private final int maxTokens;
 
     record GenerationResponse(GenerationData data) {
@@ -69,16 +70,32 @@ public class OpenRouterGatewayService {
     static final String OPENROUTER_GETCALLOUTS_EXHAUSTED = "openrouter.getcallouts.exhausted";
     static final String OPENROUTER_SUMMARISESTORIES_EXHAUSTED = "openrouter.summarisestories.exhausted";
 
-    // A schema violation is thrown by the JSON binding, after the HTTP call has already returned,
-    // so @Retryable never sees it and OPENROUTER_GETCALLOUTS_EXHAUSTED never moves. Counted
-    // separately so a silently-dropped response is visible rather than only showing up as a
-    // missing source on the map.
+    // A reply that arrives but can't be used is retried like an HTTP failure, but counted
+    // separately from OPENROUTER_GETCALLOUTS_EXHAUSTED so a silently-dropped response is visible
+    // as such rather than only showing up as a missing source on the map.
     static final String OPENROUTER_GETCALLOUTS_PARSE_FAILURES = "openrouter.getcallouts.parse.failures";
 
     // Tag values for the above. Both series are pre-registered per model so the tag keys stay
     // consistent - the Prometheus registry rejects the same meter name carrying different keys.
     static final String REASON_UNPARSEABLE = "unparseable";
     static final String REASON_UNRESOLVABLE_COUNTRY = "unresolvable_country";
+
+    /**
+     * The model replied but the reply can't be used - empty, truncated, malformed, or with no
+     * country that resolves. Thrown so @Retryable asks again: a fresh generation usually differs.
+     *
+     * @author Claude Opus 5.5 Anthropic
+     */
+    static class UnusableResponseException extends RuntimeException {
+        final String model;
+        final String reason;
+
+        UnusableResponseException(String model, String reason, String message) {
+            super(message);
+            this.model = model;
+            this.reason = reason;
+        }
+    }
 
     private static final Pattern BARE_LIST_START = Pattern.compile("\\[\\s*\\{");
 
@@ -88,7 +105,7 @@ public class OpenRouterGatewayService {
                                     @Qualifier("openRouterWebClient") WebClient webClient,
                                     MetadataRepository metadataRepository,
                                     LlmResponseMapper llmResponseMapper,
-                                    @Value("${openrouter.max-tokens:4000}") int maxTokens) {
+                                    @Value("${openrouter.max-tokens:8000}") int maxTokens) {
         this.maxTokens = maxTokens;
         this.llmResponseMapper = llmResponseMapper;
         this.chatClient = ChatClient.create(chatModel);
@@ -141,7 +158,8 @@ public class OpenRouterGatewayService {
             retryFor = {
                     OpenAIIoException.class,       // Network/timeout issues
                     InternalServerException.class, // 500, 502, 503, 504 Server errors
-                    RateLimitException.class       // 429 Too Many Requests
+                    RateLimitException.class,      // 429 Too Many Requests
+                    UnusableResponseException.class // reply arrived but can't be used
             },
             noRetryFor = {
                     BadRequestException.class,     // 400 Bad Request
@@ -190,21 +208,26 @@ public class OpenRouterGatewayService {
         String raw = Optional.ofNullable(chatResponse.getResult())
                 .map(r -> r.getOutput().getText())
                 .orElse(null);
-        if (raw == null) {
-            log.error("Got empty result from call to model {}", model);
-            return Optional.empty();
+        // "length" here means the reply hit max_tokens and was cut off, which is otherwise only
+        // discoverable by looking the generation up on OpenRouter afterwards
+        String finishReason = Optional.ofNullable(chatResponse.getResult())
+                .map(r -> r.getMetadata().getFinishReason())
+                .orElse(null);
+        if (raw == null || raw.isBlank()) {
+            log.warn("Empty response from model {} (generation {}, finish_reason {})", model, id, finishReason);
+            throw new UnusableResponseException(model, REASON_UNPARSEABLE, "empty response");
         }
 
         LlmCalloutList result;
         try {
             result = converter.convert(extractJson(raw));
         } catch (Exception e) {
-            log.error("Could not parse response from model {}: {}", model, e.getMessage());
+            log.warn("Could not parse response from model {}: {}", model, e.getMessage());
             // Jackson redacts the source from its message, and extractJson only logs a prefix, so
             // without the full text there's no way to tell after the fact what the model sent.
-            log.error("Unparseable response from model {} (generation {}), full text:\n{}", model, id, raw);
-            parseFailureCounter(model, REASON_UNPARSEABLE).increment();
-            return Optional.empty();
+            log.warn("Unparseable response from model {} (generation {}, finish_reason {}), full text:\n{}",
+                    model, id, finishReason, raw);
+            throw new UnusableResponseException(model, REASON_UNPARSEABLE, e.getMessage());
         }
 
         log.info("Called model {} and received {} callouts", model, result.items().size());
@@ -226,9 +249,8 @@ public class OpenRouterGatewayService {
         // the map - so fail loudly rather than handing back an empty list, which the pipeline would
         // log as a success and nothing would flag.
         if (usable.isEmpty() && !result.items().isEmpty()) {
-            log.error("Every callout from model {} had an unresolvable country, discarding response", model);
-            parseFailureCounter(model, REASON_UNRESOLVABLE_COUNTRY).increment();
-            return Optional.empty();
+            log.warn("Every callout from model {} had an unresolvable country, discarding response", model);
+            throw new UnusableResponseException(model, REASON_UNRESOLVABLE_COUNTRY, "no resolvable country");
         }
 
         // The model returns the minimal object LlmCallout so it can't try to invent enums.
@@ -312,6 +334,14 @@ public class OpenRouterGatewayService {
 
     @Recover
     public Optional<List<Callout>> getCalloutsRecovery(Exception e) {
+        // Counted only here, once every attempt has failed, so the parse-failure alert means the
+        // source is missing from the map rather than firing for a hiccup a retry already fixed.
+        if (e instanceof UnusableResponseException unusable) {
+            log.error("Model {} gave no usable response after retries ({}): {}",
+                    unusable.model, unusable.reason, unusable.getMessage());
+            parseFailureCounter(unusable.model, unusable.reason).increment();
+            return Optional.empty();
+        }
         log.error("OpenRouter getCallouts failed after retries exhausted", e);
         meterRegistry.counter(OPENROUTER_GETCALLOUTS_EXHAUSTED).increment();
         return Optional.empty();
