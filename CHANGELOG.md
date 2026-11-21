@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.1] - 2026-11-21
+
+Retries for unusable model replies, a higher token ceiling, and dependency updates.
+
+### Fixed
+- **Claude Haiku replies cut off mid-JSON** — the 4000-token `openrouter.max-tokens` ceiling also covers hidden reasoning, and on 2026-11-16 Haiku spent 3440 of it reasoning before the reply was truncated (`finish_reason: length`). This was the cause of Haiku's recurring "end-of-input" parse failures. The ceiling is now 8000; OpenRouter reserves more credit per call but bills only tokens used.
+- **Unusable replies are now retried** — an empty reply (Grok, 2026-11-18), malformed or truncated JSON, or one where no country resolves now gets the same retries as an HTTP error (up to 3 attempts). The parse-failure counter, and so its Grafana alert, now moves only when every attempt has failed and the source is actually missing from the map.
+
+### Changed
+- **Parse-failure logs include `finish_reason`**, so a truncated reply shows as `length` without looking the generation up on OpenRouter.
+- **Spring Boot 4.1.2, Spring AI 2.0.2, gRPC 1.85.1** (#128).
+
+### Security
+- **minimatch 11.0.9** (via eslint 10.15 / typescript-eslint 8.73, dev-only) — CVE-2026-118764, ReDoS via globparts amplification (Dependabot #37).
+
 ## [0.27.0] - 2026-11-15
 
 Gemini now runs through OpenRouter, bringing the Gemini source back to the map.
