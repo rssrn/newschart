@@ -56,8 +56,10 @@
         <!-- Override: Boot 4.1.1 (and 4.1.2) manages MongoDB driver 5.8.1. 5.11.1 fixes CVE-2026-18710 (a credential for
              outbound connectivity logged in cleartext at client init; fixed in 5.9.2), CVE-2026-88032 (reactive CSFLE
              use-after-free) and CVE-2026-88033 (GridFS identifier query injection). The last two are unreachable here
-             (sync driver, no CSFLE, no GridFS). None are visible to Dependabot. Remove once Boot manages >= 5.11.1. -->
-        <mongodb.version>5.11.1</mongodb.version>
+             (sync driver, no CSFLE, no GridFS). None are visible to Dependabot. Raised to 5.15.0 for CVE-2026-129932
+             (CVSS 9.1, SRV seedlist host-validation bypass, JAVA-6347; fixed in 5.15.0). Boot 4.2.0 still manages
+             5.13.0, so remove only once Boot manages >= 5.15.0. -->
+        <mongodb.version>5.15.0</mongodb.version>
         <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
     </properties>
     <dependencyManagement>
